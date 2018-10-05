@@ -15,6 +15,7 @@ import net.minecraftforge.fml.common.network.NetworkRegistry;
 import squedgy.lavasources.creativetabs.CreativeTabLavaSources;
 import squedgy.lavasources.init.ModBlocks;
 import squedgy.lavasources.init.ModGuis;
+import squedgy.lavasources.tileentity.TileEntityCoreModifier;
 
 
 @Mod(modid=LavaSources.MOD_ID, name=LavaSources.NAME, version=LavaSources.VERSION)
@@ -50,7 +51,9 @@ public class LavaSources{
 		proxy.postInit();
 		logger.info("energy generator : " + ModBlocks.ENERGY_GENERATOR);
 		logger.info("lava source : " + ModBlocks.LAVA_SOURCE);
-		
+		if(FluidRegistry.getFluid("heavywater") != null){
+			TileEntityCoreModifier.addPossibleFluid(FluidRegistry.getFluidStack("heavywater", 0));
+		}
 	}
 	
 	public static String getResourceName(String resourceName){

@@ -65,12 +65,13 @@ public class GuiCoreModifier extends ModGui {
 		}
 		int energyLevel = getEnergyLevel(32);
 		this.drawTexturedModalRect(marginHorizontal + 162, marginVertical + 39 - energyLevel, 176, 70-energyLevel, 6, energyLevel);
+
         int fluidIndex = INVENTORY.getField(EnumFields.FLUID_INDEX.ordinal()), fluidTextureX = 200, fluidTextureY = 38;
         if(fluidIndex > -1){
             TextureAtlasSprite sprite = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(TileEntityCoreModifier.POSSIBLE_FLUIDS.get(fluidIndex).getFluid().getStill().toString());
             if(!printed) {
                 LavaSources.writeMessage(getClass(), TileEntityCoreModifier.POSSIBLE_FLUIDS.get(fluidIndex).getFluid().getStill().toString());
-                LavaSources.writeMessage(getClass(), TileEntityCoreModifier.POSSIBLE_FLUIDS.get(fluidIndex).getFluid().getStill().toString());
+                LavaSources.writeMessage(getClass(), sprite.toString());
                 printed = true;
             }
 

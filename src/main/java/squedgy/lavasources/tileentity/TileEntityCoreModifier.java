@@ -33,9 +33,8 @@ import squedgy.lavasources.init.ModFluids;
 import squedgy.lavasources.init.ModItems;
 import squedgy.lavasources.inventory.ContainerCoreModifier;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.IntStream;
 
 /**
  *
@@ -52,10 +51,10 @@ public class TileEntityCoreModifier extends TileEntityLockable implements IUpgra
 
 		public Item getItem(){return RETURN_ITEM;}
 	}
-	public static final List<FluidStack> POSSIBLE_FLUIDS = Arrays.asList(
+	public static final List<FluidStack> POSSIBLE_FLUIDS = new ArrayList(Arrays.asList(
 			new FluidStack(FluidRegistry.LAVA, 0),
 			new FluidStack(ModFluids.LIQUID_REDSTONE, 0)
-	);
+	));
     private static final String FLUID_AMOUNT_TAG = "fluid_amount", FLUID_INDEX_TAG = "fluid_index", TIER_TAG = "tier", ENERGY_STORED_TAG = "energy_stored", TICKS_TAG = "ticks", MAKING_TAG = "making";
 	private static final int[] SLOTS = {SlotEnum.INPUT_SLOT.ordinal(), SlotEnum.OUTPUT_SLOT.ordinal()};
 	public  static final int FILL_TIME = EnumConversions.SECONDS_TO_TICKS.convertToInt(20);
@@ -73,7 +72,10 @@ public class TileEntityCoreModifier extends TileEntityLockable implements IUpgra
 //<editor-fold defaultstate="collapsed" desc=". . . . Constructors">
 	public TileEntityCoreModifier(EnumUpgradeTier tier){
 		this.tier = tier;
-		this.updateTierRelatedComponents(0, new FluidStack(FluidRegistry.LAVA, 0), new FluidStack[] {new FluidStack(ModFluids.LIQUID_REDSTONE, 0)});
+		this.updateTierRelatedComponents(0,
+				FluidRegistry.getFluidStack(FluidRegistry.LAVA.getName(), 0),
+				POSSIBLE_FLUIDS.stream().filter((fluid) -> !fluid.isFluidEqual(FluidRegistry.getFluidStack(FluidRegistry.LAVA.getName(), 0))).toArray(FluidStack[]::new)
+		);
         LavaSources.writeMessage(getClass(), "Fill time = " + FILL_TIME + " ticks");
 	}
 	
@@ -189,21 +191,14 @@ public class TileEntityCoreModifier extends TileEntityLockable implements IUpgra
 	@Override
 	public void readFromNBT(NBTTagCompound compound) {
 		super.readFromNBT(compound);
-		int fluidIndex = 0, fluidAmount = 0;
-		if(fluids.getFluid() != null){
-		    fluidIndex = fluids.getFluid().isFluidEqual(new FluidStack(POSSIBLE_FLUIDS.get(0), 0)) ? 0 : 1;
-		    fluidAmount = fluids.getFluidAmount();
-		}
+		int fluidIndex = (compound.hasKey(FLUID_INDEX_TAG) ? compound.getInteger(FLUID_INDEX_TAG) : 0),
+		    fluidAmount = compound.hasKey(FLUID_AMOUNT_TAG) ? compound.getInteger(FLUID_AMOUNT_TAG) : fluids.getFluidAmount();
         int energyStored = energy.getEnergyStored();
         if(compound.hasKey(TIER_TAG)) tier = EnumUpgradeTier.values()[compound.getInteger("tier")];
-		if(compound.hasKey(FLUID_INDEX_TAG) && compound.hasKey(FLUID_AMOUNT_TAG)) {
-		    fluidIndex = compound.getInteger(FLUID_INDEX_TAG);
-		    fluidAmount = compound.getInteger(FLUID_AMOUNT_TAG);
-		}
 		if(compound.hasKey(ENERGY_STORED_TAG)) energyStored = (compound.getInteger(ENERGY_STORED_TAG));
 		updateTierRelatedComponents(energyStored,
             new FluidStack(POSSIBLE_FLUIDS.get(fluidIndex), fluidAmount),
-            new FluidStack[] {new FluidStack(POSSIBLE_FLUIDS.get(fluidIndex^1), 0)}
+            POSSIBLE_FLUIDS.stream().filter((fluid) -> !fluid.isFluidEqual(POSSIBLE_FLUIDS.get(fluidIndex))).toArray(FluidStack[]::new)
         );
 		if(compound.hasKey(TICKS_TAG)) ticksFilling = compound.getInteger(TICKS_TAG);
 		ItemStackHelper.loadAllItems(compound, this.inventory);
@@ -330,7 +325,9 @@ public class TileEntityCoreModifier extends TileEntityLockable implements IUpgra
 			case 0: return this.ticksFilling;
 			case 1: return this.fluids.getInfoWrapper().getAmountStored();
 			case 2: return this.energy.getEnergyStored();
-			case 3: return POSSIBLE_FLUIDS.get(0).isFluidEqual(fluids.getFluid()) ? 0 : 1;
+			case 3:
+				OptionalInt index = IntStream.range(0, POSSIBLE_FLUIDS.size()).filter((i) -> POSSIBLE_FLUIDS.get(i).isFluidEqual(fluids.getFluid())).findFirst();
+				return index.isPresent() ? index.getAsInt() : -1;
 			case 4: return this.fluids.getCapacity();
 			case 5: return this.energy.getMaxEnergyStored();
 			case 6: return making != null ? this.making.ordinal() : -1;
@@ -454,7 +451,9 @@ public class TileEntityCoreModifier extends TileEntityLockable implements IUpgra
         compound.setInteger(ENERGY_STORED_TAG, energy.getPowerStored());
         compound.setInteger(FLUID_AMOUNT_TAG, fluids.getFluidAmount());
         compound.setInteger(TICKS_TAG, this.ticksFilling);
-        compound.setInteger(FLUID_INDEX_TAG, POSSIBLE_FLUIDS.get(0).isFluidEqual(fluids.getFluid())? 0 : 1);
+		OptionalInt index = IntStream.range(0, POSSIBLE_FLUIDS.size()).filter((i) -> POSSIBLE_FLUIDS.get(i).isFluidEqual(fluids.getFluid())).findFirst();
+		if(index.isPresent())
+        	compound.setInteger(FLUID_INDEX_TAG, index.getAsInt());
         compound.setInteger(MAKING_TAG, making != null ? making.ordinal() : -1);
         ItemStackHelper.saveAllItems(compound, this.inventory);
         return compound;
@@ -464,12 +463,10 @@ public class TileEntityCoreModifier extends TileEntityLockable implements IUpgra
 //<editor-fold defaultstate=collapsed desc=". . . . Helpers">
 
 	private void updateTierRelatedComponents(){
-	    if(fluids.getFluid() != null)
 		this.updateTierRelatedComponents(energy.getEnergyStored(),
 				fluids.getFluid(),
-				new FluidStack[] {new FluidStack(fluids.getFluid().isFluidEqual(new FluidStack(FluidRegistry.LAVA, 0)) ? ModFluids.LIQUID_REDSTONE : FluidRegistry.LAVA, 0)}
+				POSSIBLE_FLUIDS.stream().filter((fluid) -> !fluid.isFluidEqual(fluids.getFluid())).toArray(FluidStack[]::new)
 		);
-	    else updateTierRelatedComponents(energy.getEnergyStored(), new FluidStack(FluidRegistry.LAVA, fluids.getFluidAmount()), new FluidStack[] {new FluidStack(ModFluids.LIQUID_REDSTONE,0)});
 	}
 
 	private void updateTierRelatedComponents(int energyStored, FluidStack contained, FluidStack[] extraFluids){
@@ -477,6 +474,10 @@ public class TileEntityCoreModifier extends TileEntityLockable implements IUpgra
 		fluids = tier.getFluidTier().getFluidTank(contained, extraFluids);
 		energyPerTick = tier.getEnergyTier().REQUIRED;
 		fluidPerTick = tier.getFluidTier().REQUIRED;
+	}
+
+	public static void addPossibleFluid(FluidStack newFluid){
+		if(POSSIBLE_FLUIDS.stream().noneMatch((fluid) -> fluid.isFluidEqual(newFluid))) POSSIBLE_FLUIDS.add(newFluid);
 	}
 
 //</editor-fold>

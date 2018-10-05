@@ -24,6 +24,7 @@ import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import squedgy.lavasources.block.*;
 import squedgy.lavasources.LavaSources;
+import squedgy.lavasources.block.fluid.BlockLiquidRedstone;
 import squedgy.lavasources.generic.ModBlock;
 import squedgy.lavasources.tileentity.TileEntityCoreModifier;
 import squedgy.lavasources.tileentity.TileEntityEnergyCable;
@@ -42,6 +43,7 @@ public class ModBlocks {
 	public static final int CORE_MODIFIER= 3;
 	public static final int LIQUIFIER= 4;
 	public static final int LAVA_STATION = 5;
+	public static final BlockLiquidRedstone LIQUID_REDSTONE = new BlockLiquidRedstone();
 
 	public static final List<ModBlock> BLOCKS = Arrays.asList(new BlockEnergyGenerator(),
 			(BlockLavaSource)new BlockLavaSource().setHardness(4f).setResistance(40f),
@@ -81,6 +83,7 @@ public class ModBlocks {
 				event.getRegistry().register(b);
 				if(b.hasOreDictionaryName()) OreDictionary.registerOre(b.getOreDictionaryName(), b);
 			}
+			event.getRegistry().register(LIQUID_REDSTONE);
 		}
 
 		@SubscribeEvent

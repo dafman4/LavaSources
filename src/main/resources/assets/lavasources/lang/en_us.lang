@@ -18,6 +18,7 @@ tile.energy_cable.name=Energy Cable
 tile.core_modifier.name=Core Modifier
 tile.liquefier.name=Liquefier
 tile.lava_station.name=Lava Station
+tile.liquid_redstone.name=Liquid Redstone
 
 item.upgrade_card.name=Upgrade Card
 item.lava_core.name=Lava Core
