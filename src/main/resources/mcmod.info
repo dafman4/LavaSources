@@ -1,0 +1,16 @@
+[
+{
+  "modid": "lavasources",
+  "name": "Lava Sources",
+  "description": "Lava sources... sources of lava...",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["SquEdgy"],
+  "credits": "SquEdgy for all non-textures",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]

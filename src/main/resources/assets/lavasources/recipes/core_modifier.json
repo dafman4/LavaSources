@@ -1,0 +1,25 @@
+{
+	"type":"minecraft:crafting_shaped",
+	"pattern":[
+		"#X#",
+		"FDF",
+		"#X#"
+	],
+	"key":{
+		"X": {
+			"item":"minecraft:redstone_block"
+		},
+		"#":{
+			"item":"minecraft:iron_block"
+		},
+		"D":{
+			"item":"lavasources:empty_core"
+		},
+		"F":{
+			"item":"minecraft:lava_bucket"
+		}
+	},
+	"result":{
+		"item":"lavasources:core_modifier"
+	}
+}

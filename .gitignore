@@ -1,0 +1,41 @@
+# eclipse
+bin
+*.launch
+.settings
+.metadata
+.classpath
+.project
+
+# idea
+out
+*.ipr
+*.iws
+*.iml
+.idea
+.editorconfig
+
+# gradle
+build
+.gradle
+
+# other
+eclipse
+run
+
+# something or other
+_windows
+codestyles
+colors.scheme.xml
+debuggers.renderers.xml
+debugger.xml
+find.xml
+github_settings.xml
+gradle.settings.xml
+project.default.xml
+ui.Inf.xml
+debugger.renderers.xml
+inspection
+ui.lnf.xml
+editor.xml
+parameter.hints.xml
+vcs.xml

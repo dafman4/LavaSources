@@ -1,0 +1,21 @@
+{
+	"type":"minecraft:crafting_shaped",
+	"pattern":[
+		"XXX",
+		"#D#"
+	],
+	"key":{
+		"X": {
+			"item":"minecraft:iron_ingot"
+		},
+		"#":{
+			"item":"minecraft:redstone"
+		},
+		"D":{
+			"item":"minecraft:diamond"
+		}
+	},
+	"result":{
+		"item":"lavasources:upgrade_card"
+	}
+}

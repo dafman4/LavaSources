@@ -1,0 +1,20 @@
+{
+	"type":"minecraft:crafting_shaped",
+	"pattern":[
+		"#X#",
+		"X X",
+		"#X#"
+	],
+	"key":{
+		"X": {
+			"item":"lavasources:core_piece"
+		},
+		"#":{
+			"item":"minecraft:obsidian"
+		}
+	},
+	"result":{
+		"item":"lavasources:empty_core"
+	}
+}
+

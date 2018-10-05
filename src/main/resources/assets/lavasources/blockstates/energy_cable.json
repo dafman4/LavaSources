@@ -1,0 +1,17 @@
+{
+	"forge_marker": 1,
+	"defaults": {
+		"textures":{
+			"all":"lavasources:blocks/cable_off"
+		},
+		"model":"cube_all",
+		"uvlock":"true"
+	},
+	"variants":{
+		"charged":{
+			"true":{"textures":{ "all":"lavasources:blocks/cable_on" }},
+			"false":{}
+		},
+		"inventory":[{}]
+	}
+}

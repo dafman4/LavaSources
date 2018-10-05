@@ -1,0 +1,33 @@
+
+language.name=English
+language.region=US
+language.code=en_US
+
+block.lava_source.name=Lava Source
+block.energy_generator.name=Energy Generator
+block.lit_energy_generator.name=Energy Generator
+block.energy_cable.name=Energy Cable
+block.core_modifier.name=Core Modifier
+block.liquefier.name=Liquefier
+block.lava_station.name=Lava Station
+
+tile.lava_source.name=Lava Source
+tile.energy_generator.name=Energy Generator
+tile.lit_energy_generator.name=Energy Generator
+tile.energy_cable.name=Energy Cable
+tile.core_modifier.name=Core Modifier
+tile.liquefier.name=Liquefier
+tile.lava_station.name=Lava Station
+
+item.upgrade_card.name=Upgrade Card
+item.lava_core.name=Lava Core
+item.core_piece.name=Core Piece
+item.energy_core.name=Energy Core
+item.empty_core.name=Empty Core
+itemGroup.Lava Sources=Lava Sources
+
+container.core_modifier=Core Modifier
+container.liquefier=Liquefier
+container.lava_station=Lava Station
+
+fluid.liquid_redstone=Liquid Redstone

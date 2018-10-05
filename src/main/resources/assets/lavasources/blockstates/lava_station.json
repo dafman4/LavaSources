@@ -1,0 +1,17 @@
+{
+	"forge_marker" : 1,
+	"defaults":{
+		"textures":{},
+		"model":"lavasources:lava_station",
+		"uvlock":"false"
+	},
+	"variants": {
+		"facing":{
+			"north": { "y": 0 },
+			"south": { "y": 180 },
+			"west":  { "y": 270 },
+			"east":  { "y": 90 }
+		},
+		"inventory":[{}]
+	}
+}

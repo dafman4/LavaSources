@@ -1,0 +1,22 @@
+{
+	"type":"minecraft:crafting_shaped",
+	"pattern":[
+		"#X#",
+		"XDX",
+		"#X#"
+	],
+	"key":{
+		"X": {
+			"item":"minecraft:lava_bucket"
+		},
+		"#":{
+			"item":"minecraft:iron_block"
+		},
+		"D":{
+			"item":"lavasources:lava_core"
+		}
+	},
+	"result":{
+		"item":"lavasources:lava_source"
+	}
+}

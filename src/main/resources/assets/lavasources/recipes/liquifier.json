@@ -1,0 +1,23 @@
+{
+	"type":"minecraft:crafting_shaped",
+	"pattern":[
+		"#X#",
+		"XDX",
+		"#X#"
+	],
+	"key":{
+		"X": {
+			"item":"minecraft:lava_bucket"
+		},
+		"#":{
+			"item":"minecraft:diamond"
+		},
+		"D":{
+			"item":"lavasources:empty_core"
+		}
+	},
+	"result":{
+		"item":"lavasources:liquefier"
+	}
+}
+

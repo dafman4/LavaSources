@@ -1,0 +1,22 @@
+{
+	"type":"minecraft:crafting_shaped",
+	"pattern":[
+		"#X#",
+		"XDX",
+		"#X#"
+	],
+	"key":{
+		"X": {
+			"item":"minecraft:redstone_block"
+		},
+		"#":{
+			"item":"minecraft:iron_block"
+		},
+		"D":{
+			"item":"lavasources:energy_core"
+		}
+	},
+	"result":{
+		"item":"lavasources:energy_generator"
+	}
+}
