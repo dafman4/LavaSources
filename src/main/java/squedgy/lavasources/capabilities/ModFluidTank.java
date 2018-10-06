@@ -1,7 +1,9 @@
 package squedgy.lavasources.capabilities;
 
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.common.util.INBTSerializable;
+import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidTank;
@@ -168,6 +170,35 @@ public class ModFluidTank implements IFluidHandler, IFluidTank, IFluidTankProper
 	    FluidStack drain = fluid.copy();
 	    drain.amount = maxDrain;
 	    return drain(drain, doDrain);
+	}
+
+	public FluidStack internalDrain(int maxDrain, boolean doDrain){
+		int ret = Math.max(0, maxDrain);
+		if(ret > 0){
+			if(doDrain){
+				ret = info.removeAmountStored(ret);
+				fluid.amount -= ret;
+			}
+		}
+		FluidStack stack = fluid.copy();
+		stack.amount = ret;
+		return stack;
+	}
+
+	public int internalFill(FluidStack resource, boolean doFill){
+		int ret = Math.max(resource.amount, 0);
+		if(ret > 0){
+			if(resource.getFluid() != fluid.getFluid() && fluid.amount == 0) if (canUseLiquid(resource)) this.setFluidType(resource);
+			else ret = 0;
+			if(resource.getFluid() == fluid.getFluid()){
+				ret = Math.min(ret, getCapacity() - fluid.amount);
+				if(doFill){
+					ret = info.addAmountStored(ret);
+					fluid.amount += ret;
+				}
+			}
+		}
+		return ret;
 	}
 
 //</editor-fold>

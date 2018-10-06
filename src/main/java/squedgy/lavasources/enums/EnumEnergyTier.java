@@ -6,10 +6,10 @@ import squedgy.lavasources.helper.EnumConversions;
 
 // Author David
 public enum EnumEnergyTier {
-	BASIC(10000, 200, 200, 400),
-	INTERMEDIATE(40000, 500, 200, 600),
-	ADVANCED(100000, 1000, 200, 1000),
-	MASTER(250000, 2500, 200, 1200);
+	BASIC(4000, 20, 10, 20),
+	INTERMEDIATE(7500, 40, 10, 60),
+	ADVANCED(15000, 100, 10, 100),
+	MASTER(25000, 200, 10, 200);
 	public final int CAPACITY, MAX_TRANSFER, REQUIRED, GENERATED;
 
 	EnumEnergyTier(int capacity, int maxTransfer, int required, int generated){

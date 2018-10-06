@@ -122,10 +122,10 @@ public class TileEntityLiquefier extends TileEntityLockable implements IUpgradea
 			if((this.inventory.get(SlotEnum.INPUT_SLOT.ordinal()).isItemEqual(Items.REDSTONE.getDefaultInstance()) || this.inventory.get(SlotEnum.INPUT_SLOT.ordinal()).isItemEqual(Item.getItemFromBlock(Blocks.REDSTONE_BLOCK).getDefaultInstance()))
                 && this.energy.getEnergyStored() >= energyPerTick){
 			    boolean isBlock = !this.inventory.get(SlotEnum.INPUT_SLOT.ordinal()).isItemEqual(Items.REDSTONE.getDefaultInstance());
-				if(FLUID_PER_REDSTONE * (isBlock ? 10 : 1) >= fluids.fill(new FluidStack(ModFluids.LIQUID_REDSTONE, FLUID_PER_REDSTONE * (isBlock ? 10 : 1)), false)){
-					if(energy.extractEnergy(energyPerTick * (isBlock ? 12 : 1), true) >= energyPerTick * (isBlock ? 12 : 1)){
-						fluids.fill(new FluidStack(ModFluids.LIQUID_REDSTONE, FLUID_PER_REDSTONE * (isBlock ? 10 : 1)), true);
-						energy.extractEnergy(energyPerTick * (isBlock ? 12 : 1), false);
+				if(FLUID_PER_REDSTONE * (isBlock ? 10 : 1) == fluids.internalFill(new FluidStack(ModFluids.LIQUID_REDSTONE, FLUID_PER_REDSTONE * (isBlock ? 10 : 1)), false)){
+					if(energy.internalExtract(energyPerTick * (isBlock ? 12 : 1), true) == energyPerTick * (isBlock ? 12 : 1)){
+						fluids.internalFill(new FluidStack(ModFluids.LIQUID_REDSTONE, FLUID_PER_REDSTONE * (isBlock ? 10 : 1)), true);
+						energy.internalExtract(energyPerTick * (isBlock ? 12 : 1), false);
 						this.inventory.get(SlotEnum.INPUT_SLOT.ordinal()).shrink(1);
 						this.liquifying = true;
 					}

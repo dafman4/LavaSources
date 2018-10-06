@@ -11,15 +11,17 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import squedgy.lavasources.LavaSources;
 
+import java.util.stream.IntStream;
+
 /**
  *
  * @author David
  */
 public abstract class ModContainer extends Container{
 	
-	protected final IInventory TILE_ENTITY;
-	protected final int PLAYER_INVENTORY_SIZE = 27;
-	protected final int PLAYER_HOTBAR_SIZE = 9;
+	public final IInventory TILE_ENTITY;
+	public static final int PLAYER_INVENTORY_SIZE = 27;
+	public static final int PLAYER_HOTBAR_SIZE = 9;
 	protected final int[] FIELDS;
 	
 	public ModContainer(InventoryPlayer playerInventory, IInventory tileInventory,int playerInvX, int playerInvY, Slot... slots){
@@ -77,6 +79,8 @@ public abstract class ModContainer extends Container{
 	
 	@Override
 	public abstract ItemStack transferStackInSlot(EntityPlayer playerIn, int index);
+
+	public Slot[] getGuiSlots(){ return inventorySlots.toArray(new Slot[0]); }
 	
 
 }

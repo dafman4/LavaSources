@@ -1,14 +1,21 @@
 package squedgy.lavasources.gui;
 
-import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fluids.FluidRegistry;
 import squedgy.lavasources.LavaSources;
 import squedgy.lavasources.generic.ModGui;
+import squedgy.lavasources.gui.elements.ElementFillable;
+import squedgy.lavasources.gui.elements.ElementOverlay;
+import squedgy.lavasources.gui.elements.ElementSlot;
+import squedgy.lavasources.helper.GuiLocation;
+import squedgy.lavasources.init.ModFluids;
 import squedgy.lavasources.inventory.ContainerLiquefier;
+
+import static squedgy.lavasources.gui.GuiLiquefier.EnumFields.*;
+import static squedgy.lavasources.gui.elements.ElementFillable.EnumFillableType.*;
+import static squedgy.lavasources.helper.GuiLocation.*;
 
 /**
  *
@@ -34,6 +41,9 @@ public class GuiLiquefier extends ModGui {
 		super(new ContainerLiquefier(player, inventory));
 		this.PLAYER_INVENTORY = player;
 		this.INVENTORY = inventory;
+		addElement(new ElementFillable(this, 7, 4, 6, 34, inventory, ENERGY_AMOUNT.ordinal(), MAX_ENERGY_STORED.ordinal(), VERTICAL_FILL, ENERGY_FILL));
+		addElement(new ElementFillable(this, 107, 5, 60, 34, inventory, FLUIDS_AMOUNT.ordinal(), FLUID_CAPACITY.ordinal(), VERTICAL_FILL, () -> FluidRegistry.getFluidStack(ModFluids.LIQUID_REDSTONE.getName(), 0), FILLABLE_WIDE));
+		addElement(new ElementOverlay (this, 108, 6, 60, 34, inventory, FILLABLE_WIDE_OVERLAY));
 	}
 
 	@Override
@@ -45,15 +55,24 @@ public class GuiLiquefier extends ModGui {
 	
 	@Override
 	protected void drawBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
-		this.mc.getTextureManager().bindTexture(GUI_LOCATION);
-		int marginHorizontal = (width - xSize) / 2, marginVertical = (height-ySize) / 2;
-		this.drawTexturedModalRect(marginHorizontal, marginVertical, 0,0, xSize, ySize);
-		int energyLevel = getEnergyLevel(32);
-		this.drawTexturedModalRect(marginHorizontal + 8, marginVertical + 39 - energyLevel, ENERGY_X, ENERGY_Y - energyLevel, ENERGY_WIDTH, energyLevel);
-		int fluidLevel = getFluidLevel(32);
-		this.drawTexturedModalRect(marginHorizontal + 108, marginVertical + 39 - fluidLevel, FLUID_X, FLUID_Y - fluidLevel, FLUID_WIDTH, fluidLevel);
+//		this.mc.getTextureManager().bindTexture(GUI_LOCATION);
+//		this.drawTexturedModalRect(getHorizontalMargin(), getVerticalMargin(), 0,0, xSize, ySize);
+//		int energyLevel = getEnergyLevel(32);
+//		this.drawTexturedModalRect(getHorizontalMargin() + 8, getVerticalMargin() + 39 - energyLevel, ENERGY_X, ENERGY_Y - energyLevel, ENERGY_WIDTH, energyLevel);
+//		int fluidLevel = getFluidLevel(32);
+//		this.drawTexturedModalRect(getHorizontalMargin() + 108, getVerticalMargin() + 39 - fluidLevel, FLUID_X, FLUID_Y - fluidLevel, FLUID_WIDTH, fluidLevel);
 	}
-	
+
+	@Override
+	protected int getHorizontalMargin() {
+		return (width - xSize) / 2;
+	}
+
+	@Override
+	protected int getVerticalMargin() {
+		return (height-ySize) / 2;
+	}
+
 	private int getLevel(int pixelHeight, int amount ,int max){
 		return amount * pixelHeight / max;
 	}
@@ -67,7 +86,7 @@ public class GuiLiquefier extends ModGui {
 	
 	private int getEnergyLevel(int pixelHeight){
 		return getLevel(pixelHeight,
-			INVENTORY.getField(EnumFields.ENERGY_AMOUNT.ordinal()),
+			INVENTORY.getField(ENERGY_AMOUNT.ordinal()),
 			INVENTORY.getField(EnumFields.MAX_ENERGY_STORED.ordinal())
 		);
 	}

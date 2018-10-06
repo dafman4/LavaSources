@@ -26,21 +26,40 @@ public final class ModEnergyStorage implements IEnergyStorage, INBTSerializable<
 		this.setExtract(extract);
 	}
 	
-	public ModEnergyStorage(boolean receieve, boolean extract, int maxPowerStored, int maxReceived, int maxExtracted){
-		this(receieve, extract, maxPowerStored, maxReceived, maxExtracted, 0);
+	public ModEnergyStorage(boolean receive, boolean extract, int maxPowerStored, int maxReceived, int maxExtracted){
+		this(receive, extract, maxPowerStored, maxReceived, maxExtracted, 0);
 	}
 	
-	public ModEnergyStorage(boolean receieve, boolean extract, int maxPowerStored, int maxTransferred){
-		this(receieve, extract, maxPowerStored, maxTransferred, maxTransferred, 0);
+	public ModEnergyStorage(boolean receive, boolean extract, int maxPowerStored, int maxTransferred){
+		this(receive, extract, maxPowerStored, maxTransferred, maxTransferred);
 	}
 	
-	public ModEnergyStorage(boolean receieve, boolean extract, int maxPowerStored){
+	public ModEnergyStorage(boolean receive, boolean extract, int maxPowerStored){
 		//5 seconds to fully fill by default or at least 1 energy/tick
-		this(receieve, extract, maxPowerStored, maxPowerStored/100 > 0 ? maxPowerStored/100 : 1);
+		this(receive, extract, maxPowerStored, maxPowerStored/100 > 0 ? maxPowerStored/100 : 1);
 	}
 //</editor-fold>
 	
 //<editor-fold defaultstate="collapsed" desc=". . . . EnergyStorage">
+
+	public int internalExtract(int maxExtract, boolean simulate){
+		int ret = 0;
+		if(powerStored > 0){
+			ret = Math.min(maxExtract, this.powerStored);
+			if(!simulate)this.powerStored -= ret;
+		}
+		return ret;
+	}
+
+	public int internalReceive(int maxReceive, boolean simulate){
+		int ret =0;
+		if(!this.isFull()){
+			ret = Math.min(maxReceive, maxPowerStored - powerStored);
+			if(!simulate) this.powerStored += ret;
+		}
+		return ret;
+	}
+
 	@Override
 	public int receiveEnergy(int maxReceive, boolean simulate) {
 		int ret = 0;

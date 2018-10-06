@@ -51,9 +51,9 @@ public class LavaSources{
 		proxy.postInit();
 		logger.info("energy generator : " + ModBlocks.ENERGY_GENERATOR);
 		logger.info("lava source : " + ModBlocks.LAVA_SOURCE);
-		if(FluidRegistry.getFluid("heavywater") != null){
-			TileEntityCoreModifier.addPossibleFluid(FluidRegistry.getFluidStack("heavywater", 0));
-		}
+//		if(FluidRegistry.getFluid("heavywater") != null){
+//			TileEntityCoreModifier.addPossibleFluid(FluidRegistry.getFluidStack("heavywater", 0));
+//		}
 	}
 	
 	public static String getResourceName(String resourceName){

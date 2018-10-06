@@ -55,7 +55,7 @@ public class TileEntityCoreModifier extends TileEntityLockable implements IUpgra
 			new FluidStack(FluidRegistry.LAVA, 0),
 			new FluidStack(ModFluids.LIQUID_REDSTONE, 0)
 	));
-    private static final String FLUID_AMOUNT_TAG = "fluid_amount", FLUID_INDEX_TAG = "fluid_index", TIER_TAG = "tier", ENERGY_STORED_TAG = "energy_stored", TICKS_TAG = "ticks", MAKING_TAG = "making";
+    private static final String FLUIDS_TAG = "fluids", TIER_TAG = "tier", ENERGY_TAG = "energy", TICKS_TAG = "ticks", MAKING_TAG = "making";
 	private static final int[] SLOTS = {SlotEnum.INPUT_SLOT.ordinal(), SlotEnum.OUTPUT_SLOT.ordinal()};
 	public  static final int FILL_TIME = EnumConversions.SECONDS_TO_TICKS.convertToInt(20);
 	private NonNullList<ItemStack> inventory = NonNullList.withSize(2, ItemStack.EMPTY);
@@ -134,12 +134,12 @@ public class TileEntityCoreModifier extends TileEntityLockable implements IUpgra
             this.ticksFilling = 0;
             this.makingFluidAmount = 0;
         }
-		boolean markDirty = false;
+		boolean markdirty = false;
 		if(!world.isRemote){
 			if(this.making == null){
 				if(this.ticksFilling > 0){
 					this.ticksFilling = 0;
-					markDirty = true;
+					markdirty = true;
 				}
 				ItemStack stack = this.inventory.get(SlotEnum.INPUT_SLOT.ordinal());
 				if(stack.getItem() == ModItems.EMPTY_CORE){
@@ -149,7 +149,7 @@ public class TileEntityCoreModifier extends TileEntityLockable implements IUpgra
 						}else if(this.fluids.getFluid().getFluid() == ModFluids.LIQUID_REDSTONE){
 							making = EnumMaking.ENERGY_CORE;
 						}
-						markDirty = true;
+						markdirty = true;
 					}
 				}
 			}else if(this.inventory.get(SlotEnum.INPUT_SLOT.ordinal()).getItem() != ModItems.EMPTY_CORE){
@@ -163,11 +163,11 @@ public class TileEntityCoreModifier extends TileEntityLockable implements IUpgra
 					this.ticksFilling = 0;
 					this.makingFluidAmount = 0;
 					this.making = null;
-					markDirty = true;
+					markdirty = true;
 				}
 			}
 		}
-		if(markDirty) markDirty();
+		if(markdirty) markDirty();
 	}
 	
 //</editor-fold>
@@ -191,15 +191,11 @@ public class TileEntityCoreModifier extends TileEntityLockable implements IUpgra
 	@Override
 	public void readFromNBT(NBTTagCompound compound) {
 		super.readFromNBT(compound);
-		int fluidIndex = (compound.hasKey(FLUID_INDEX_TAG) ? compound.getInteger(FLUID_INDEX_TAG) : 0),
-		    fluidAmount = compound.hasKey(FLUID_AMOUNT_TAG) ? compound.getInteger(FLUID_AMOUNT_TAG) : fluids.getFluidAmount();
-        int energyStored = energy.getEnergyStored();
+
         if(compound.hasKey(TIER_TAG)) tier = EnumUpgradeTier.values()[compound.getInteger("tier")];
-		if(compound.hasKey(ENERGY_STORED_TAG)) energyStored = (compound.getInteger(ENERGY_STORED_TAG));
-		updateTierRelatedComponents(energyStored,
-            new FluidStack(POSSIBLE_FLUIDS.get(fluidIndex), fluidAmount),
-            POSSIBLE_FLUIDS.stream().filter((fluid) -> !fluid.isFluidEqual(POSSIBLE_FLUIDS.get(fluidIndex))).toArray(FluidStack[]::new)
-        );
+        updateTierRelatedComponents();
+		if(compound.hasKey(ENERGY_TAG))energy.deserializeNBT(compound.getCompoundTag(ENERGY_TAG));
+		if(compound.hasKey(FLUIDS_TAG))fluids.deserializeNBT(compound.getCompoundTag(FLUIDS_TAG));
 		if(compound.hasKey(TICKS_TAG)) ticksFilling = compound.getInteger(TICKS_TAG);
 		ItemStackHelper.loadAllItems(compound, this.inventory);
 		int making = this.making!= null? this.making.ordinal(): -1;
@@ -238,7 +234,6 @@ public class TileEntityCoreModifier extends TileEntityLockable implements IUpgra
 			this.tier = this.tier.getUpgrade();
 			this.updateTierRelatedComponents();
 			ret = true;
-			markDirty();
 		}
 		return ret;
 	}
@@ -323,7 +318,7 @@ public class TileEntityCoreModifier extends TileEntityLockable implements IUpgra
 	public int getField(int id) {
 		switch(id){
 			case 0: return this.ticksFilling;
-			case 1: return this.fluids.getInfoWrapper().getAmountStored();
+			case 1: return this.fluids.getFluidAmount();
 			case 2: return this.energy.getEnergyStored();
 			case 3:
 				OptionalInt index = IntStream.range(0, POSSIBLE_FLUIDS.size()).filter((i) -> POSSIBLE_FLUIDS.get(i).isFluidEqual(fluids.getFluid())).findFirst();
@@ -331,6 +326,7 @@ public class TileEntityCoreModifier extends TileEntityLockable implements IUpgra
 			case 4: return this.fluids.getCapacity();
 			case 5: return this.energy.getMaxEnergyStored();
 			case 6: return making != null ? this.making.ordinal() : -1;
+			case 7: return FILL_TIME;
 			default: return 0;
 		}
 	}
@@ -448,12 +444,9 @@ public class TileEntityCoreModifier extends TileEntityLockable implements IUpgra
     @Override
     public NBTTagCompound writeItem(NBTTagCompound compound){
         compound.setInteger(TIER_TAG, tier.LEVEL);
-        compound.setInteger(ENERGY_STORED_TAG, energy.getPowerStored());
-        compound.setInteger(FLUID_AMOUNT_TAG, fluids.getFluidAmount());
+        compound.setTag(ENERGY_TAG, energy.serializeNBT());
+        compound.setTag(FLUIDS_TAG, fluids.serializeNBT());
         compound.setInteger(TICKS_TAG, this.ticksFilling);
-		OptionalInt index = IntStream.range(0, POSSIBLE_FLUIDS.size()).filter((i) -> POSSIBLE_FLUIDS.get(i).isFluidEqual(fluids.getFluid())).findFirst();
-		if(index.isPresent())
-        	compound.setInteger(FLUID_INDEX_TAG, index.getAsInt());
         compound.setInteger(MAKING_TAG, making != null ? making.ordinal() : -1);
         ItemStackHelper.saveAllItems(compound, this.inventory);
         return compound;
@@ -474,6 +467,7 @@ public class TileEntityCoreModifier extends TileEntityLockable implements IUpgra
 		fluids = tier.getFluidTier().getFluidTank(contained, extraFluids);
 		energyPerTick = tier.getEnergyTier().REQUIRED;
 		fluidPerTick = tier.getFluidTier().REQUIRED;
+		markDirty();
 	}
 
 	public static void addPossibleFluid(FluidStack newFluid){

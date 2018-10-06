@@ -1,23 +1,20 @@
 package squedgy.lavasources.gui;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.IInventory;
-import net.minecraft.util.ResourceLocation;
-import squedgy.lavasources.LavaSources;
-import squedgy.lavasources.generic.ModGui;
-import squedgy.lavasources.inventory.ContainerCoreModifier;
-import squedgy.lavasources.tileentity.TileEntityCoreModifier;
-import net.minecraftforge.fluids.Fluid;
-import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraft.client.gui.inventory.GuiFurnace;
-import net.minecraft.block.BlockFurnace;
+import squedgy.lavasources.generic.ModGui;
+import squedgy.lavasources.gui.elements.ElementFillable;
+import squedgy.lavasources.inventory.ContainerCoreModifier;
+import squedgy.lavasources.tileentity.TileEntityCoreModifier;
+
+import static squedgy.lavasources.gui.GuiCoreModifier.EnumFields.*;
+import static squedgy.lavasources.gui.elements.ElementFillable.EnumFillableType.HORIZONTAL_FILL;
+import static squedgy.lavasources.gui.elements.ElementFillable.EnumFillableType.VERTICAL_FILL;
+import static squedgy.lavasources.helper.GuiLocation.ENERGY_FILL;
+import static squedgy.lavasources.tileentity.TileEntityCoreModifier.POSSIBLE_FLUIDS;
 
 /**
  *
@@ -25,11 +22,9 @@ import net.minecraft.block.BlockFurnace;
  */
 @SideOnly(Side.CLIENT)
 public class GuiCoreModifier extends ModGui {
-	
-	private static final ResourceLocation GUI_LOCATION = new ResourceLocation(LavaSources.MOD_ID, "textures/gui/container/core_modifier.png");
+
     private final InventoryPlayer PLAYER_INVENTORY;
 	private final IInventory INVENTORY;
-	private boolean printed;
 	public enum EnumFields{
 		TICKS_FILLING,
 		FLUIDS_AMOUNT,
@@ -37,14 +32,24 @@ public class GuiCoreModifier extends ModGui {
 		FLUID_INDEX,
 		FLUID_CAPACITY,
 		MAX_ENERGY_STORED,
-		MAKING
+		MAKING,
+		FILL_TIME
 	}
 
 	public GuiCoreModifier(InventoryPlayer player, IInventory inventory){
 		super(new ContainerCoreModifier(player, inventory));
 		INVENTORY = inventory;
 		PLAYER_INVENTORY = player;
-		LavaSources.writeMessage(getClass(), "ySize = " + ySize + ", xSize = " + xSize);
+		addElement(new ElementFillable(this, 7, 4,6,34, inventory, FLUIDS_AMOUNT.ordinal(), FLUID_CAPACITY.ordinal(), VERTICAL_FILL,
+				() -> {
+					FluidStack ret =null;
+					ret = POSSIBLE_FLUIDS.get(this.INVENTORY.getField(FLUID_INDEX.ordinal()));
+					return ret;
+				}
+			)
+		);
+		addElement(new ElementFillable(this, 75, 21, 24, 6, inventory, TICKS_FILLING.ordinal(), FILL_TIME.ordinal(), HORIZONTAL_FILL));
+		addElement(new ElementFillable(this, 161, 4, 6, 34, inventory, ENERGY_AMOUNT.ordinal(), MAX_ENERGY_STORED.ordinal(), VERTICAL_FILL, ENERGY_FILL));
 	}
 
 	@Override
@@ -56,35 +61,22 @@ public class GuiCoreModifier extends ModGui {
 
 	@Override
 	protected void drawBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
-		this.mc.getTextureManager().bindTexture(GUI_LOCATION);
-		int marginHorizontal = (width - xSize) / 2, marginVertical = (height - ySize) / 2;
-		this.drawTexturedModalRect(marginHorizontal, marginVertical, 0, 0, xSize, ySize);
-		if(INVENTORY.getField(EnumFields.MAKING.ordinal()) >= 0){
-			int progressLevel = getProgressLevel(24);
-			this.drawTexturedModalRect(marginHorizontal + 76, marginVertical + 22, 176, 0, progressLevel, 6);
-		}
-		int energyLevel = getEnergyLevel(32);
-		this.drawTexturedModalRect(marginHorizontal + 162, marginVertical + 39 - energyLevel, 176, 70-energyLevel, 6, energyLevel);
-
-        int fluidIndex = INVENTORY.getField(EnumFields.FLUID_INDEX.ordinal()), fluidTextureX = 200, fluidTextureY = 38;
-        if(fluidIndex > -1){
-            TextureAtlasSprite sprite = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(TileEntityCoreModifier.POSSIBLE_FLUIDS.get(fluidIndex).getFluid().getStill().toString());
-            if(!printed) {
-                LavaSources.writeMessage(getClass(), TileEntityCoreModifier.POSSIBLE_FLUIDS.get(fluidIndex).getFluid().getStill().toString());
-                LavaSources.writeMessage(getClass(), sprite.toString());
-                printed = true;
-            }
-
-            this.mc.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-            int fluidLevel = getFluidLevel(32);
-            while(fluidLevel > sprite.getIconHeight()){
-                this.drawTexturedModalRect(marginHorizontal + 8, marginVertical + 39 - fluidLevel, sprite, 6, sprite.getIconHeight());
-                fluidLevel -= sprite.getIconHeight();
-            }
-            this.drawTexturedModalRect(marginHorizontal + 8, marginVertical + 39 - fluidLevel, sprite, 6, fluidLevel);
-        }
+//		this.mc.getTextureManager().bindTexture(CORE_MODIFIER.location);
+//		this.drawTexturedModalRect(getHorizontalMargin(), getVerticalMargin(), 0, 0, CORE_MODIFIER.width, CORE_MODIFIER.height);
+//		int energyLevel = getEnergyLevel(32);
+//		this.drawTexturedModalRect(getHorizontalMargin() + 162, getVerticalMargin() + 39 - energyLevel, 176, 70-energyLevel, 6, energyLevel);
 	}
-	
+
+	@Override
+	protected int getHorizontalMargin() {
+		return (width - xSize) / 2;
+	}
+
+	@Override
+	protected int getVerticalMargin() {
+		return (height - ySize) / 2;
+	}
+
 	private int getProgressLevel(int pixelWidth){
 		return getLevel(pixelWidth,
 			INVENTORY.getField(EnumFields.TICKS_FILLING.ordinal()),
