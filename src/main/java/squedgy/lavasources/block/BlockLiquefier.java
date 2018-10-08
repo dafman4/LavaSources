@@ -45,10 +45,6 @@ public class BlockLiquefier extends ModPersistentBlock {
 //</editor-fold>
 	
 //<editor-fold defaultstate="collapsed" desc="Block Overrides">
-	@Override
-	public boolean hasTileEntity(){
-		return true;
-	}
 
 	@Override
 	public TileEntity createNewTileEntity(World worldIn, int meta) {
@@ -79,8 +75,8 @@ public class BlockLiquefier extends ModPersistentBlock {
 	@Override
 	public IBlockState getActualState(IBlockState state, IBlockAccess worldIn, BlockPos pos) {
 		TileEntityLiquefier te = (TileEntityLiquefier) worldIn.getTileEntity(pos);
-		if(te!= null && te.getFacing() != null)
-			return state.withProperty(LIQUEFYING, te.getLiquifying()).withProperty(FACING, te.getFacing());
+		if(te!= null && te.getFacing() != null )
+			return state.withProperty(LIQUEFYING, te.isLiquefying()).withProperty(FACING, te.getFacing());
 		else
 			return state;
 	}
@@ -104,8 +100,6 @@ public class BlockLiquefier extends ModPersistentBlock {
 	}
 
 //</editor-fold>
-
-	public boolean isPersistent(){return true;}
 
 	@Override
 	public Class<? extends TileEntity> getTileEntityClass() {

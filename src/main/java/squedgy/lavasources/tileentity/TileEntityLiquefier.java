@@ -1,56 +1,51 @@
 package squedgy.lavasources.tileentity;
 
-import java.util.Arrays;
-import java.util.List;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.ISidedInventory;
-import net.minecraft.inventory.ItemStackHelper;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityLockable;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.NonNullList;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.fluids.Fluid;
-import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
-import squedgy.lavasources.LavaSources;
-import squedgy.lavasources.block.BlockLiquefier;
-import squedgy.lavasources.capabilities.FluidHandler;
 import squedgy.lavasources.capabilities.ModEnergyStorage;
 import squedgy.lavasources.capabilities.ModFluidTank;
-import squedgy.lavasources.enums.EnumEnergyTier;
-import squedgy.lavasources.enums.EnumFluidTier;
 import squedgy.lavasources.enums.EnumUpgradeTier;
-import squedgy.lavasources.generic.IUpgradeable;
 import squedgy.lavasources.generic.IPersistentInventory;
+import squedgy.lavasources.generic.IUpgradeable;
+import squedgy.lavasources.generic.ModLockableTileEntity;
 import squedgy.lavasources.init.ModFluids;
 import squedgy.lavasources.init.ModItems;
 import squedgy.lavasources.inventory.ContainerLiquefier;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+
+import static squedgy.lavasources.tileentity.TileEntityLiquefier.SlotEnum.INPUT_SLOT;
 
 /**
  *
  * @author David
  */
-public class TileEntityLiquefier extends TileEntityLockable implements IUpgradeable, ITickable, ISidedInventory, IPersistentInventory {
+public class TileEntityLiquefier extends ModLockableTileEntity implements IUpgradeable, ITickable, ISidedInventory, IPersistentInventory {
 
-//<editor-fold defaultstate="collapsed" desc=". . . . Fields">
+//<editor-fold defaultstate="collapsed" desc=". . . . Fields/Constructors">
+	public static final String TIER_TAG = "tier", ENERGY_TAG = "energy", FLUID_TAG = "fluid", LIQUEFYING_TAG = "liquefying", INVENTORY_TAG = "inventory";
 	public enum SlotEnum{ INPUT_SLOT }
 	public static final List<Fluid> POSSIBLE_FLUIDS = Arrays.asList(ModFluids.LIQUID_REDSTONE);
-	private static final int[] SLOTS = {SlotEnum.INPUT_SLOT.ordinal()};
+	private static final int[] SLOTS = {INPUT_SLOT.ordinal()};
 	private NonNullList<ItemStack> inventory = NonNullList.<ItemStack>withSize(1, ItemStack.EMPTY);
 	public static final int FLUID_PER_REDSTONE = 100;
 	private int energyPerTick;
@@ -58,14 +53,12 @@ public class TileEntityLiquefier extends TileEntityLockable implements IUpgradea
 	private ModEnergyStorage energy;
 	private ModFluidTank fluids;
 	private EnumFacing facing;
-	private boolean liquifying, destroyedByCreative;
+	private boolean liquefying, destroyedByCreative;
 
-//</editor-fold>	
-
-//<editor-fold defaultstate="collapsed" desc=". . . . Constructors">
 	public TileEntityLiquefier(EnumUpgradeTier tier){
+		super("liquefier");
 		this.tier = tier;
-		this.updateTierRelatedFields(0 ,0);
+		this.updateTierRelatedComponents(0 ,0);
 	}
 	
 	public TileEntityLiquefier(){
@@ -74,41 +67,24 @@ public class TileEntityLiquefier extends TileEntityLockable implements IUpgradea
 //</editor-fold>
 
 //<editor-fold defaultstate="collapsed" desc=". . . . Getters/Setters">
-	public EnumUpgradeTier getTier() {
-		return tier;
-	}
+	public EnumUpgradeTier getTier() { return tier; }
 
-	public ModFluidTank getFluids() {
-		return fluids;
-	}
+	public ModFluidTank getFluids() { return fluids; }
 	
-	public boolean getLiquifying(){
-		return this.liquifying;
-	}
+	public boolean isLiquefying(){ return this.liquefying; }
 
-	public void setLiquifying(boolean newValue){
-		this.liquifying = newValue;
+	public void setLiquefying(boolean newValue){
+		if(newValue != liquefying) notifyBlockUpdate();
+		this.liquefying = newValue;
 	}
 	
-	public void setFacing(EnumFacing facing){
-		boolean test = false;
-		for(EnumFacing face : EnumFacing.HORIZONTALS)
-			test = test | facing == face;
-		if(test)
-			this.facing = facing;
-	}
+	public void setFacing(EnumFacing facing){ if(facing.getHorizontalIndex() != -1) this.facing = facing; }
 	
-	public EnumFacing getFacing(){
-		return facing;
-	}
+	public EnumFacing getFacing(){ return facing; }
 	
-	public ModEnergyStorage getEnergy() {
-		return energy;
-	}
+	public ModEnergyStorage getEnergy() { return energy; }
 	
-	public List<ItemStack> getInventory(){
-		return this.inventory;
-	}
+	public NonNullList<ItemStack> getInventory(){ return this.inventory; }
 	
 //</editor-fold>
 
@@ -116,86 +92,57 @@ public class TileEntityLiquefier extends TileEntityLockable implements IUpgradea
 	
 	@Override
 	public void update() {
-		boolean testLiquifying = this.liquifying;
-		
+		boolean flag = false;
+		ItemStack inputSlot = inventory.get(INPUT_SLOT.ordinal());
+		boolean isBlock = !inputSlot.isItemEqual(Items.REDSTONE.getDefaultInstance());
 		if(!world.isRemote){
-			if((this.inventory.get(SlotEnum.INPUT_SLOT.ordinal()).isItemEqual(Items.REDSTONE.getDefaultInstance()) || this.inventory.get(SlotEnum.INPUT_SLOT.ordinal()).isItemEqual(Item.getItemFromBlock(Blocks.REDSTONE_BLOCK).getDefaultInstance()))
-                && this.energy.getEnergyStored() >= energyPerTick){
-			    boolean isBlock = !this.inventory.get(SlotEnum.INPUT_SLOT.ordinal()).isItemEqual(Items.REDSTONE.getDefaultInstance());
+			if(inputSlot.isItemEqual(Items.REDSTONE.getDefaultInstance()) || inputSlot.isItemEqual(Item.getItemFromBlock(Blocks.REDSTONE_BLOCK).getDefaultInstance()) && this.energy.getEnergyStored() >= energyPerTick){
 				if(FLUID_PER_REDSTONE * (isBlock ? 10 : 1) == fluids.internalFill(new FluidStack(ModFluids.LIQUID_REDSTONE, FLUID_PER_REDSTONE * (isBlock ? 10 : 1)), false)){
 					if(energy.internalExtract(energyPerTick * (isBlock ? 12 : 1), true) == energyPerTick * (isBlock ? 12 : 1)){
 						fluids.internalFill(new FluidStack(ModFluids.LIQUID_REDSTONE, FLUID_PER_REDSTONE * (isBlock ? 10 : 1)), true);
 						energy.internalExtract(energyPerTick * (isBlock ? 12 : 1), false);
-						this.inventory.get(SlotEnum.INPUT_SLOT.ordinal()).shrink(1);
-						this.liquifying = true;
+						this.inventory.get(INPUT_SLOT.ordinal()).shrink(1);
+						setLiquefying(true);
+						flag = true;
+						if(this.inventory.get(INPUT_SLOT.ordinal()).isEmpty())inventory.set(INPUT_SLOT.ordinal(), ItemStack.EMPTY);
 					}
 				}
-			}else if(world.getBlockState(pos).getValue(BlockLiquefier.LIQUEFYING))
-				this.liquifying = false;
+			}else setLiquefying(false);
+
 			if(fluids.getFluidAmount() > 0){
 				for(EnumFacing f : EnumFacing.values()){
 					if(fluids.getFluidAmount() == 0) break;
 					TileEntity te = world.getTileEntity(pos.offset(f));
 					if(te != null && te.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, f.getOpposite())){
 						IFluidHandler handler = te.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, f.getOpposite());
-						int extracted = fluids.drain(fluids.getMaxDrain(), false).amount,
-							received = handler.fill(new FluidStack(ModFluids.LIQUID_REDSTONE, extracted), false);
-						received = handler.fill(new FluidStack(ModFluids.LIQUID_REDSTONE, Math.min(extracted,received)), true);
-						if(received > 0){
-							fluids.drain(extracted, true);
+						if(handler != null) {
+							int extracted = Objects.requireNonNull(fluids.drain(fluids.getMaxDrain(), false)).amount,
+									received = handler.fill(new FluidStack(ModFluids.LIQUID_REDSTONE, extracted), false);
+							received = handler.fill(new FluidStack(ModFluids.LIQUID_REDSTONE, Math.min(extracted, received)), true);
+							if (received > 0) {
+								fluids.drain(extracted, true);
+								flag = true;
+							}
 						}
 					}
 				}
 			}
 		}
-		
-		if(this.liquifying != testLiquifying){
-			markDirty();
-			world.markBlockRangeForRenderUpdate(pos, pos);
-		}
+		if(flag) markDirty();
 	}
 	
 //</editor-fold>
 	
-//<editor-fold defaultstate="collapsed" desc=". . . . TileEntity Override">
-	
-	@Override
-	public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt ){ readFromNBT(pkt.getNbtCompound()); }
-	
-	@Override
-	public SPacketUpdateTileEntity getUpdatePacket(){ return new SPacketUpdateTileEntity(getPos(), 1, writeToNBT(new NBTTagCompound())); }
-	
-	@Override
-	public NBTTagCompound getUpdateTag(){ return writeToNBT(super.getUpdateTag()); }
-
-	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound compound) { return writeItem(super.writeToNBT(compound)); }
-	@Override
-	public NBTTagCompound writeItem(NBTTagCompound compound) {
-		compound.setInteger("tier", tier.LEVEL);
-		compound.setInteger("energy_stored", energy.getPowerStored());
-		compound.setInteger("fluid_amount", fluids.getFluidAmount());
-		ItemStackHelper.saveAllItems(compound, this.inventory);
-		return compound;
-	}
-
-	@Override
-	public boolean shouldDropSpecial() { return fluids.getFluidAmount() > 0 || energy.getEnergyStored() > 0 || this.inventory.get(SlotEnum.INPUT_SLOT.ordinal()) != ItemStack.EMPTY || this.tier.LEVEL > 0; }
-
-	@Override
-	public void readFromNBT(NBTTagCompound compound) {
-		super.readFromNBT(compound);
-		tier = EnumUpgradeTier.values()[compound.getInteger("tier")];
-		this.updateTierRelatedFields(compound.getInteger("energy_stored"), compound.getInteger("fluid_amount"));
-		ItemStackHelper.loadAllItems(compound, inventory);
-	}
+//<editor-fold defaultstate="collapsed" desc=". . . . TileEntity">
 
 	@Override
 	public <T> T getCapability(Capability<T> capability, EnumFacing facing) {
-		if(capability == CapabilityEnergy.ENERGY)
+		if(capability == CapabilityEnergy.ENERGY) {
 			return (T) energy;
-		if(capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY)
+		}
+		if(capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY){
 			return (T) fluids;
+		}
 		return super.getCapability(capability, facing); 
 	}
 
@@ -207,48 +154,28 @@ public class TileEntityLiquefier extends TileEntityLockable implements IUpgradea
 			return true;
 		return super.hasCapability(capability, facing);
 	}
+
 //</editor-fold>
 
-//<editor-fold defaultstate="collapsed" desc=". . . . IUpgradeable Overrides">
-	@Override
-	public boolean upgrade(EnumUpgradeTier tier) {
-		boolean ret = false;
-		if(EnumUpgradeTier.isUpgradeFor(this, tier)){
-			this.tier = this.tier.getUpgrade();
-			this.updateTierRelatedFields();
-			ret = true;
-			markDirty();
-		}
-		return ret;
-	}
+//<editor-fold defaultstate="collapsed" desc=". . . . IUpgradeable">
 
 	@Override
 	public EnumUpgradeTier getCurrentTier() { return this.tier; }
-//</editor-fold>
-	
-//<editor-fold defaultstate="collapsed" desc=". . . . Lockable Overrides">
 
 	@Override
-	public int getSizeInventory() { return inventory.size(); }
+	public void setTier(EnumUpgradeTier tier) { this.tier = tier;}
 
-	@Override
-	public boolean isEmpty() {
-		boolean ret = false;
-		for(ItemStack stack : this.inventory){
-			ret = ret | stack.isEmpty();
-			if(ret) break;
-		}
-		return ret;
+	public void updateTierRelatedComponents(){ updateTierRelatedComponents(energy.getEnergyStored(), fluids.getFluidAmount()); }
+
+	private void updateTierRelatedComponents(int energyStored, int fluidHeld){
+		fluids = tier.getFluidTier().getFluidTank(new FluidStack(ModFluids.LIQUID_REDSTONE, fluidHeld), false);
+		energy = tier.getEnergyTier().getEnergyStorage(energyStored);
+		this.energyPerTick = tier.getEnergyTier().getRequired();
 	}
 
-	@Override
-	public ItemStack getStackInSlot(int index) { return this.inventory.get(index); }
-
-	@Override
-	public ItemStack decrStackSize(int index, int count) { return ItemStackHelper.getAndSplit(this.inventory, index, count); }
-
-	@Override
-	public ItemStack removeStackFromSlot(int index) { return ItemStackHelper.getAndRemove(this.inventory, index); }
+//</editor-fold>
+	
+//<editor-fold defaultstate="collapsed" desc=". . . . Lockable">
 
 	@Override
 	public void setInventorySlotContents(int index, ItemStack stack) {
@@ -257,31 +184,15 @@ public class TileEntityLiquefier extends TileEntityLockable implements IUpgradea
 	}
 
 	@Override
-	public int getInventoryStackLimit() { return 64; }
-
-	@Override
-	public boolean isUsableByPlayer(EntityPlayer player) {
-        if (this.world.getTileEntity(this.pos) != this) return false;
-        else return player.getDistanceSq((double)this.pos.getX() + 0.5D, (double)this.pos.getY() + 0.5D, (double)this.pos.getZ() + 0.5D) <= 64.0D;
-	}
-
-	@Override
-	public void openInventory(EntityPlayer player) { }
-
-	@Override
-	public void closeInventory(EntityPlayer player) { }
-
-	@Override
-	public boolean isItemValidForSlot(int index, ItemStack stack) { return stack.getItem() == Items.REDSTONE; }
+	public boolean isItemValidForSlot(int index, ItemStack stack) { return stack.isItemEqual(Items.REDSTONE.getDefaultInstance())|| stack.isItemEqual(Item.getItemFromBlock(Blocks.REDSTONE_BLOCK).getDefaultInstance()); }
 
 	@Override
 	public int getField(int id) {
 		switch(id){
-			case 0: return this.fluids.getFluid().amount;
+			case 0: return this.fluids.getFluidAmount();
 			case 1: return this.energy.getEnergyStored();
 			case 2: return this.fluids.getCapacity();
 			case 3: return this.energy.getMaxEnergyStored();
-			case 4: return this.getLiquifying() ? 1 : 0;
 			default:return 0;
 		}
 	}
@@ -299,25 +210,13 @@ public class TileEntityLiquefier extends TileEntityLockable implements IUpgradea
 				this.fluids.setCapacity(value);
 				break;
 			case 3:
-				this.energy.setMaxPowerStored(value);
-				break;
-			case 4:
-				this.setLiquifying(value == 1);
+				this.energy.setCapacity(value);
 				break;
 		}
 	}
 
 	@Override
 	public int getFieldCount(){ return 5; }
-
-	@Override
-	public void clear() { this.inventory.clear(); }
-
-	@Override
-	public String getName() { return "container.liquefier"; }
-
-	@Override
-	public boolean hasCustomName() { return false; }
 
 	@Override
 	public Container createContainer(InventoryPlayer playerInventory, EntityPlayer playerIn) { return new ContainerLiquefier(playerInventory, this); }
@@ -327,13 +226,13 @@ public class TileEntityLiquefier extends TileEntityLockable implements IUpgradea
 	
 //</editor-fold>
 
-//<editor-fold defaultstate="collapsed" desc=". . . . Sided Inventory Overrides">
+//<editor-fold defaultstate="collapsed" desc=". . . . Sided Inventory">
 	@Override
 	public int[] getSlotsForFace(EnumFacing side) { return SLOTS; }
 
 	@Override
 	public boolean canInsertItem(int index, ItemStack itemStackIn, EnumFacing direction) {
-		if(index == SlotEnum.INPUT_SLOT.ordinal()) return itemStackIn.getItem() == ModItems.EMPTY_CORE;
+		if(index == INPUT_SLOT.ordinal()) return itemStackIn.getItem() == ModItems.EMPTY_CORE;
 		return false;
 	}
 
@@ -342,17 +241,36 @@ public class TileEntityLiquefier extends TileEntityLockable implements IUpgradea
 	
 //</editor-fold>
 
+//<editor-fold defaultstate="collapsed" desc=". . . . Persistent Inventory">
 	@Override
 	public boolean isDestroyedByCreative() { return destroyedByCreative; }
 
 	@Override
 	public void setDestroyedByCreative(boolean destroyedByCreative) { this.destroyedByCreative = destroyedByCreative; }
 
-	private void updateTierRelatedFields(){ updateTierRelatedFields(energy.getEnergyStored(), fluids.getFluidAmount()); }
+	@Override
+	public boolean shouldDropSpecial() { return fluids.getFluidAmount() > 0 || energy.getEnergyStored() > 0 || this.inventory.get(INPUT_SLOT.ordinal()) != ItemStack.EMPTY || this.tier.LEVEL > 0; }
 
-	private void updateTierRelatedFields(int energyStored, int fluidHeld){
-		fluids = tier.getFluidTier().getFluidTank(new FluidStack(ModFluids.LIQUID_REDSTONE, fluidHeld), false);
-		energy = tier.getEnergyTier().getEnergyStorage(energyStored);
-		this.energyPerTick = tier.getEnergyTier().getRequired();
+	@Override
+	public NBTTagCompound writeItem(NBTTagCompound compound) {
+		compound.setInteger(TIER_TAG, tier.LEVEL);
+		compound.setTag(ENERGY_TAG, energy.serializeNBT());
+		compound.setTag(FLUID_TAG, fluids.serializeNBT());
+		compound.setBoolean(LIQUEFYING_TAG, isLiquefying());
+
+
+		return compound;
 	}
+
+	@Override
+	public void readItem(NBTTagCompound compound){
+		tier = EnumUpgradeTier.values()[compound.getInteger(TIER_TAG)];
+		this.updateTierRelatedComponents();
+		if(compound.hasKey(ENERGY_TAG)) energy.deserializeNBT(compound.getCompoundTag(ENERGY_TAG));
+		if(compound.hasKey(FLUID_TAG)) fluids.deserializeNBT(compound.getCompoundTag(FLUID_TAG));
+		if(compound.hasKey(LIQUEFYING_TAG)) setLiquefying(compound.getBoolean(LIQUEFYING_TAG));
+	}
+
+//</editor-fold>
+
 }

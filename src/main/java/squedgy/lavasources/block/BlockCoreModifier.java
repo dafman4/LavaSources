@@ -28,7 +28,7 @@ import squedgy.lavasources.tileentity.TileEntityCoreModifier;
 public class BlockCoreModifier extends ModPersistentBlock {
 	
     public static final PropertyDirection FACING = BlockHorizontal.FACING;
-    public static final PropertyBool POWERED = PropertyBool.create("powered");
+    public static final PropertyBool MAKING = PropertyBool.create("powered");
 	
 //<editor-fold desc="Constructors" defaultstate="collapsed">
 	public BlockCoreModifier(){
@@ -39,16 +39,12 @@ public class BlockCoreModifier extends ModPersistentBlock {
 		super(unlocName, ModBlocks.CORE_MODIFIER);
 		this.setDefaultState(this.getDefaultState()
 			.withProperty(FACING, EnumFacing.NORTH)
-			.withProperty(POWERED, false)
+			.withProperty(MAKING, false)
 		);
 	}
 //</editor-fold>
 	
 //<editor-fold desc="Block Overrides" defaultstate="collapsed">
-	@Override
-	public boolean hasTileEntity(){
-		return true;
-	}
 
 	@Override
 	public TileEntity createNewTileEntity(World worldIn, int meta) {
@@ -58,19 +54,19 @@ public class BlockCoreModifier extends ModPersistentBlock {
 	}
 	@Override
 	public IProperty[] getProperties(){
-		return new IProperty[] {FACING ,POWERED};
+		return new IProperty[] {FACING , MAKING};
 	}
 	
 	@Override
 	public int getMetaFromState(IBlockState state) {
-		return (state.getValue(POWERED) ? 1 : 0) << 2 | state.getValue(FACING).getHorizontalIndex();
+		return (state.getValue(MAKING) ? 1 : 0) << 2 | state.getValue(FACING).getHorizontalIndex();
 	}
 	
 	@Override
 	public IBlockState getStateFromMeta(int meta) {
 		EnumFacing facing = EnumFacing.getHorizontal(meta - 1 << 2);
 		boolean powered = meta >> 2 == 1;
-		return this.getDefaultState().withProperty(FACING, EnumFacing.getHorizontal(meta)).withProperty(POWERED, powered);
+		return this.getDefaultState().withProperty(FACING, EnumFacing.getHorizontal(meta)).withProperty(MAKING, powered);
 	}
 
 	@Override
@@ -81,10 +77,8 @@ public class BlockCoreModifier extends ModPersistentBlock {
 	@Override
 	public IBlockState getActualState(IBlockState state, IBlockAccess worldIn, BlockPos pos) {
 		TileEntityCoreModifier te = (TileEntityCoreModifier) worldIn.getTileEntity(pos);
-		if(te!= null && te.getWorld() != null && te.getFacing() != null)
-			return state.withProperty(POWERED, te.isPowered()).withProperty(FACING, te.getFacing());
-		else
-			return state;
+		if(te!= null && te.getFacing() != null) return state.withProperty(MAKING, te.isMaking()).withProperty(FACING, te.getFacing());
+		else return state;
 	}
 
 	@Override

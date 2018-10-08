@@ -33,8 +33,7 @@ public class GuiLiquefier extends ModGui {
 		FLUIDS_AMOUNT,
 		ENERGY_AMOUNT,
 		FLUID_CAPACITY,
-		MAX_ENERGY_STORED,
-		LIQUEFYING
+		MAX_ENERGY_STORED
 	}
 	
 	public GuiLiquefier(InventoryPlayer player, IInventory inventory){
@@ -64,31 +63,9 @@ public class GuiLiquefier extends ModGui {
 	}
 
 	@Override
-	protected int getHorizontalMargin() {
-		return (width - xSize) / 2;
-	}
+	protected int getHorizontalMargin() { return (width - xSize) / 2; }
 
 	@Override
-	protected int getVerticalMargin() {
-		return (height-ySize) / 2;
-	}
-
-	private int getLevel(int pixelHeight, int amount ,int max){
-		return amount * pixelHeight / max;
-	}
-	
-	private int getFluidLevel(int pixelHeight){
-		return getLevel(pixelHeight,
-			INVENTORY.getField(EnumFields.FLUIDS_AMOUNT.ordinal()),
-			INVENTORY.getField(EnumFields.FLUID_CAPACITY.ordinal())
-		);
-	}
-	
-	private int getEnergyLevel(int pixelHeight){
-		return getLevel(pixelHeight,
-			INVENTORY.getField(ENERGY_AMOUNT.ordinal()),
-			INVENTORY.getField(EnumFields.MAX_ENERGY_STORED.ordinal())
-		);
-	}
+	protected int getVerticalMargin() { return (height-ySize) / 2; }
 
 }

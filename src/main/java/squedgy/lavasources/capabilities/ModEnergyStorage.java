@@ -11,14 +11,13 @@ import squedgy.lavasources.LavaSources;
  */
 public final class ModEnergyStorage implements IEnergyStorage, INBTSerializable<NBTTagCompound>{
 	
-//<editor-fold defaultstate="collapsed" desc=". . . . Fields">
+//<editor-fold defaultstate="collapsed" desc=". . . . Fields/Constructors">
+	private static final String MAX_RECEIVED_TAG = "max_received", MAX_EXTRACTED_TAG = "max_extracted", INFO_TAG = "info", RECEIVE_TAG = "receive", EXTRACT_TAG = "extract", POWER_STORED_TAG = "power_stored", CAPACITY_TAG = "capacity";
 	public boolean receive = true, extract = true;
-	private int maxPowerStored, powerStored, maxReceived, maxExtracted;
-//</editor-fold>
-	
-//<editor-fold defaultstate="collapsed" desc=". . . . Constructors">
-	public ModEnergyStorage(boolean receive, boolean extract, int maxPowerStored, int maxReceived, int maxExtracted, int powerStored){
-		this.setMaxPowerStored(maxPowerStored);
+	private int maxReceived, maxExtracted, capacity, powerStored;
+
+	public ModEnergyStorage(boolean receive, boolean extract, int capacity, int maxReceived, int maxExtracted, int powerStored){
+		this.setCapacity(capacity);
 		this.setMaxExtracted(maxExtracted);
 		this.setMaxReceived(maxReceived);
 		this.setPowerStored(powerStored);
@@ -26,17 +25,17 @@ public final class ModEnergyStorage implements IEnergyStorage, INBTSerializable<
 		this.setExtract(extract);
 	}
 	
-	public ModEnergyStorage(boolean receive, boolean extract, int maxPowerStored, int maxReceived, int maxExtracted){
-		this(receive, extract, maxPowerStored, maxReceived, maxExtracted, 0);
+	public ModEnergyStorage(boolean receive, boolean extract, int capacity, int maxReceived, int maxExtracted){
+		this(receive, extract, capacity, maxReceived, maxExtracted, 0);
 	}
 	
-	public ModEnergyStorage(boolean receive, boolean extract, int maxPowerStored, int maxTransferred){
-		this(receive, extract, maxPowerStored, maxTransferred, maxTransferred);
+	public ModEnergyStorage(boolean receive, boolean extract, int capacity, int maxTransferred){
+		this(receive, extract, capacity, maxTransferred, maxTransferred);
 	}
 	
-	public ModEnergyStorage(boolean receive, boolean extract, int maxPowerStored){
+	public ModEnergyStorage(boolean receive, boolean extract, int capacity){
 		//5 seconds to fully fill by default or at least 1 energy/tick
-		this(receive, extract, maxPowerStored, maxPowerStored/100 > 0 ? maxPowerStored/100 : 1);
+		this(receive, extract, capacity, capacity /100 > 0 ? capacity /100 : 1);
 	}
 //</editor-fold>
 	
@@ -45,8 +44,8 @@ public final class ModEnergyStorage implements IEnergyStorage, INBTSerializable<
 	public int internalExtract(int maxExtract, boolean simulate){
 		int ret = 0;
 		if(powerStored > 0){
-			ret = Math.min(maxExtract, this.powerStored);
-			if(!simulate)this.powerStored -= ret;
+			ret = Math.min(maxExtract, powerStored);
+			if(!simulate)powerStored -= ret;
 		}
 		return ret;
 	}
@@ -54,8 +53,8 @@ public final class ModEnergyStorage implements IEnergyStorage, INBTSerializable<
 	public int internalReceive(int maxReceive, boolean simulate){
 		int ret =0;
 		if(!this.isFull()){
-			ret = Math.min(maxReceive, maxPowerStored - powerStored);
-			if(!simulate) this.powerStored += ret;
+			ret = Math.min(maxReceive, capacity - powerStored);
+			if(!simulate) powerStored += ret;
 		}
 		return ret;
 	}
@@ -64,9 +63,8 @@ public final class ModEnergyStorage implements IEnergyStorage, INBTSerializable<
 	public int receiveEnergy(int maxReceive, boolean simulate) {
 		int ret = 0;
 		if(!this.isFull() && canReceive()){
-			ret = Math.min(maxReceive, Math.min(this.maxReceived, this.maxPowerStored - this.powerStored));
-			if(!simulate)
-				this.powerStored += ret;
+			ret = Math.min(maxReceive, Math.min(this.maxReceived, capacity - powerStored));
+			if(!simulate)powerStored += ret;
 		}
 		
 		return ret;
@@ -77,11 +75,8 @@ public final class ModEnergyStorage implements IEnergyStorage, INBTSerializable<
 		int ret = 0;
 		
 		if(powerStored > 0 && canExtract()){
-			ret = Math.min(maxExtract, Math.min(this.maxExtracted, this.powerStored));
-			if(!simulate){
-				powerStored -= ret;
-				
-			}
+			ret = Math.min(maxExtract, Math.min(this.maxExtracted, powerStored));
+			if(!simulate) powerStored -= ret;
 		}
 		
 		return ret;
@@ -94,7 +89,7 @@ public final class ModEnergyStorage implements IEnergyStorage, INBTSerializable<
 
 	@Override
 	public int getMaxEnergyStored() {
-		return maxPowerStored;
+		return capacity;
 	}
 	@Override
 	public boolean canExtract() {
@@ -108,83 +103,66 @@ public final class ModEnergyStorage implements IEnergyStorage, INBTSerializable<
 //</editor-fold>
 	
 //<editor-fold defaultstate="collapsed" desc=". . . . Serializable">
+
 	@Override
 	public NBTTagCompound serializeNBT() {
 		NBTTagCompound tag = new NBTTagCompound();
-		tag.setIntArray("values", new int[] {this.powerStored, this.maxReceived, this.maxExtracted, this.maxPowerStored});
-		tag.setBoolean("receive", receive);
-		tag.setBoolean("extract", extract);
+		tag.setInteger(MAX_EXTRACTED_TAG, maxExtracted);
+		tag.setInteger(MAX_RECEIVED_TAG, maxReceived);
+		tag.setBoolean(RECEIVE_TAG, receive);
+		tag.setBoolean(EXTRACT_TAG, extract);
+		tag.setInteger(POWER_STORED_TAG, powerStored);
+		tag.setInteger(CAPACITY_TAG, capacity);
 		return tag;
 	}
 
 	@Override
-	public void deserializeNBT(NBTTagCompound nbt) {
-		int[] values = nbt.getIntArray("values");
-		this.powerStored = values[0];
-		this.maxReceived = values[1];
-		this.maxExtracted = values[2];
-		this.maxPowerStored = values[3];
-		this.receive = nbt.getBoolean("receive");
-		this.extract = nbt.getBoolean("extract");
+	public void deserializeNBT(NBTTagCompound compound) {
+		if(compound.hasKey(MAX_RECEIVED_TAG))setMaxReceived(compound.getInteger(MAX_RECEIVED_TAG));
+		if(compound.hasKey(MAX_EXTRACTED_TAG))setMaxExtracted(compound.getInteger(MAX_EXTRACTED_TAG));
+		if(compound.hasKey(CAPACITY_TAG))setPowerStored(compound.getInteger(CAPACITY_TAG));
+		if(compound.hasKey(POWER_STORED_TAG))setPowerStored(compound.getInteger(POWER_STORED_TAG));
+		if(compound.hasKey(RECEIVE_TAG))setReceive(compound.getBoolean(RECEIVE_TAG));
+		if(compound.hasKey(EXTRACT_TAG))setExtract(compound.getBoolean(EXTRACT_TAG));
 	}
 //</editor-fold>
 	
 //<editor-fold defaultstate="collapsed" desc=". . . . Getters/Setters">
-	public boolean isReceive() {
-		return receive;
+
+	public boolean isReceive() { return receive; }
+
+	public void setReceive(boolean receive) { this.receive = receive; }
+
+	public boolean isExtract() { return extract; }
+
+	public void setExtract(boolean extract) { this.extract = extract; }
+
+	public int getCapacity() { return capacity; }
+
+	public void setCapacity(int capacity) {
+		if(capacity <= 0) capacity = 1;
+		this.capacity = capacity;
+		if(powerStored > capacity) setPowerStored(capacity);
 	}
 
-	public void setReceive(boolean receive) {
-		this.receive = receive;
-	}
-
-	public boolean isExtract() {
-		return extract;
-	}
-
-	public void setExtract(boolean extract) {
-		this.extract = extract;
-	}
-
-	public int getMaxPowerStored() {
-		return maxPowerStored;
-	}
-
-	public void setMaxPowerStored(int maxPowerStored) {
-		if(maxPowerStored < 1)
-			throw new IllegalArgumentException(LavaSources.MOD_ID + ": there was an issue setting the max power stored on an instance ModEnergyStorage. maxPowerStored is less than 1");
-		this.maxPowerStored = maxPowerStored;
-	}
-
-	public int getPowerStored() {
-		return powerStored;
-	}
+	public int getPowerStored() { return powerStored; }
 
 	public void setPowerStored(int powerStored) {
-		if(powerStored < 0 )
-			throw new IllegalArgumentException(LavaSources.MOD_ID + ": there was an issue setting the power stored on an instance of ModEnergyStorage. power stored is less than 0");
-		if(powerStored > maxPowerStored)
-			powerStored = maxPowerStored;
+		if(powerStored > capacity) powerStored = capacity;
 		this.powerStored = powerStored;
 	}
 
-	public int getMaxReceived() {
-		return maxReceived;
-	}
+	public int getMaxReceived() { return maxReceived; }
 
 	public void setMaxReceived(int maxReceived) {
-		if(maxReceived < 0)
-			throw new IllegalArgumentException(LavaSources.MOD_ID + ": there was an issue setting the max received on an instance of ModEnergyStorage. MaxReceived is less than 0");
+		if(maxReceived < 0) maxReceived = 1;
 		this.maxReceived = maxReceived;
 	}
 
-	public int getMaxExtracted() {
-		return maxExtracted;
-	}
+	public int getMaxExtracted() { return maxExtracted; }
 
 	public void setMaxExtracted(int maxExtracted) {
-		if(maxExtracted < 0)
-			throw new IllegalArgumentException(LavaSources.MOD_ID + ": there was an issue setting the max extracted on an instance of ModEnergyStorage. MaxExtracted is less than 0");
+		if(maxExtracted < 0) maxExtracted = 1;
 		this.maxExtracted = maxExtracted;
 	}
 //</editor-fold>
@@ -192,12 +170,10 @@ public final class ModEnergyStorage implements IEnergyStorage, INBTSerializable<
 //<editor-fold defaultstate="collapsed" desc=". . . . Helpers">
 	@Override
 	public String toString() {
-		return "ModEnergyStorage{" + "receive=" + receive + ", extract=" + extract + ", maxPowerStored=" + maxPowerStored + ", powerStored=" + powerStored + ", maxReceived=" + maxReceived + ", maxExtracted=" + maxExtracted + '}';
+		return "ModEnergyStorage{" + "receive=" + receive + ", extract=" + extract + ", Capacity=" + capacity + ", powerStored=" + powerStored +  ", maxReceived=" + maxReceived + ", maxExtracted=" + maxExtracted + '}';
 	}
 
-	private boolean isFull(){
-		return this.maxPowerStored <= this.powerStored;
-	}
+	private boolean isFull(){ return capacity <= powerStored; }
 //</editor-fold>
 
 }

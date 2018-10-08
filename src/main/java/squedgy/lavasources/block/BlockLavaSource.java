@@ -39,10 +39,6 @@ public class BlockLavaSource extends ModPersistentBlock{
 //</editor-fold>
 	
 //<editor-fold defaultstate="collapsed" desc="Block Methods">
-	@Override
-	public boolean hasTileEntity(){
-		return true;
-	}
 	
 	@Override
 	public TileEntity createNewTileEntity(World worldIn, int meta){

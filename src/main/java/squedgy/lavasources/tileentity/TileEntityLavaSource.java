@@ -1,8 +1,6 @@
 package squedgy.lavasources.tileentity;
 
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
@@ -14,21 +12,18 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidTankProperties;
-import squedgy.lavasources.LavaSources;
-import squedgy.lavasources.capabilities.FluidHandler;
 import squedgy.lavasources.capabilities.ModEnergyStorage;
 import squedgy.lavasources.capabilities.ModFluidTank;
 import squedgy.lavasources.enums.EnumUpgradeTier;
 import squedgy.lavasources.generic.IPersistentInventory;
 import squedgy.lavasources.generic.IUpgradeable;
-
-import javax.annotation.Nonnull;
+import squedgy.lavasources.generic.ModTileEntity;
 
 /**
  *
  * @author David
  */
-public class TileEntityLavaSource extends TileEntity implements ITickable, IUpgradeable, IPersistentInventory {
+public class TileEntityLavaSource extends ModTileEntity implements ITickable, IUpgradeable, IPersistentInventory {
 	
 //<editor-fold defaultstate="collapsed" desc=". . . . Fields">
 	private int lavaGenerated;
@@ -44,7 +39,7 @@ public class TileEntityLavaSource extends TileEntity implements ITickable, IUpgr
 //<editor-fold defaultstate="collapsed" desc=". . . . Constructors">
 	private TileEntityLavaSource(EnumUpgradeTier tier){
 		this.tier =tier;
-		this.updateTierRelatedFields(0,0);
+		this.updateTierRelatedComponents(0,0);
 		markDirty();
 	}
 	
@@ -111,28 +106,18 @@ public class TileEntityLavaSource extends TileEntity implements ITickable, IUpgr
         return compound;
     }
 
+	@Override
+	public void readItem(NBTTagCompound compound) {
+		this.tier = EnumUpgradeTier.values()[compound.getInteger("tier")];
+		int energy = this.energy.getEnergyStored(), fluid = fluids.getFluidAmount();
+		if(compound.hasKey("energy_stored")) energy = compound.getInteger("energy_stored");
+		if(compound.hasKey("fluid_stored")) fluid =  compound.getInteger("fluid_stored");
+		this.updateTierRelatedComponents(energy, fluid);
+	}
+
 //</editor-fold>
 
 //<editor-fold defaultstate="collapsed" desc=". . . . TileEntity Overloads">
-	
-	@Override
-	public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) { readFromNBT(pkt.getNbtCompound()); }
-
-	@Override
-	public SPacketUpdateTileEntity getUpdatePacket() { return new SPacketUpdateTileEntity(getPos(),1,writeToNBT(new NBTTagCompound())); }
-
-	@Override
-	public NBTTagCompound getUpdateTag(){ return writeToNBT(super.getUpdateTag()); }
-
-	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound compound) { return writeItem(super.writeToNBT(compound)); }
-	
-	@Override
-	public void readFromNBT(NBTTagCompound compound) {
-		super.readFromNBT(compound);
-		this.tier = EnumUpgradeTier.values()[compound.getInteger("tier")];
-		if(compound.hasKey("energy_stored") && compound.hasKey("fluid_stored")) this.updateTierRelatedFields(compound.getInteger("energy_stored"), compound.getInteger("fluid_stored"));
-	}
 
 	@Override
 	public <T> T getCapability(Capability<T> capability, EnumFacing facing) {
@@ -194,40 +179,33 @@ public class TileEntityLavaSource extends TileEntity implements ITickable, IUpgr
 //<editor-fold defaultstate="collapsed" desc=". . . . IUpgradeable Overrides">
 	
 	@Override
-	public boolean upgrade(EnumUpgradeTier tier) {
-		boolean ret = false;
-		if(EnumUpgradeTier.isUpgradeFor(this, tier)){
-			this.tier = tier;
-			this.updateTierRelatedFields();
-			ret = true;
-			markDirty();
-		}
-		return ret;
-	}
-	
-	@Override
 	public EnumUpgradeTier getCurrentTier(){
 		return this.tier;
 	}
-	
+
+	@Override
+	public void setTier(EnumUpgradeTier tier){this.tier = tier;}
+
+	public void updateTierRelatedComponents(){
+		this.updateTierRelatedComponents(energy.getEnergyStored(), fluids.getFluidAmount());
+	}
+
+	private void updateTierRelatedComponents(int energyHeld, int liquidHeld){
+		this.setLavaGenerated(tier.getFluidTier().GENERATED);
+		this.setRequiredPower(tier.getEnergyTier().getRequired());
+		fluids = tier.getFluidTier().getFluidTank(new FluidStack(FluidRegistry.LAVA, liquidHeld), false);
+		energy = tier.getEnergyTier().getEnergyStorage(energyHeld);
+	}
+
+
 //</editor-fold>
 	
 //<editor-fold defaultstate="collapsed" desc=". . . . Helpers">
+
 	@Override
 	public String toString(){
 		return "TileEntityLavaSource { " + "energy =" + energy + ", fluids = " + fluids +", needed = " + this.requiredPower + ", generated = " + this.lavaGenerated + "}";
 	}
-
-    private void updateTierRelatedFields(){
-        this.updateTierRelatedFields(energy.getEnergyStored(), fluids.getFluidAmount());
-    }
-
-    private void updateTierRelatedFields(int energyHeld, int liquidHeld){
-        this.setLavaGenerated(tier.getFluidTier().GENERATED);
-        this.setRequiredPower(tier.getEnergyTier().getRequired());
-        fluids = tier.getFluidTier().getFluidTank(new FluidStack(FluidRegistry.LAVA, liquidHeld), false);
-        energy = tier.getEnergyTier().getEnergyStorage(energyHeld);
-    }
 
 //</editor-fold>
 	

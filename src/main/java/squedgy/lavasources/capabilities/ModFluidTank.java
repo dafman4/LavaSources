@@ -1,16 +1,13 @@
 package squedgy.lavasources.capabilities;
 
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.common.util.INBTSerializable;
-import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidTank;
 import net.minecraftforge.fluids.capability.FluidTankProperties;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidTankProperties;
-import squedgy.lavasources.LavaSources;
 import squedgy.lavasources.helper.EnumConversions;
 
 import javax.annotation.Nullable;
@@ -20,12 +17,12 @@ public class ModFluidTank implements IFluidHandler, IFluidTank, IFluidTankProper
 	public static final FluidStack[] ACCEPT_ALL_FLUIDS = null;
 	private FluidStack fluid;
 	private int maxDrain, maxFill;
-	private FluidTankWrapper info;
+	private CapacityAndStorageWrapper info;
 	private FluidStack[] acceptedFluids;
 	private boolean acceptAll = false;
 	private static final String INT_VALUES_ARRAY_TAG = "values", FLUID_TAG = "fluid", INFO_TAG = "info";
 
-	public ModFluidTank(FluidTankWrapper info, FluidStack fluid, int maxFill, int maxDrain, FluidStack[] extraAcceptedFluids){
+	public ModFluidTank(CapacityAndStorageWrapper info, FluidStack fluid, int maxFill, int maxDrain, FluidStack[] extraAcceptedFluids){
 		this.fluid   = fluid;
 		this.maxDrain= maxDrain;
 		this.maxFill = maxFill;
@@ -39,17 +36,17 @@ public class ModFluidTank implements IFluidHandler, IFluidTank, IFluidTankProper
 		}
 	}
 
-	public ModFluidTank(FluidTankWrapper info, FluidStack fluid, int maxTransfer, FluidStack[] extraAcceptedFluids){ this(info, fluid, maxTransfer, maxTransfer, extraAcceptedFluids); }
+	public ModFluidTank(CapacityAndStorageWrapper info, FluidStack fluid, int maxTransfer, FluidStack[] extraAcceptedFluids){ this(info, fluid, maxTransfer, maxTransfer, extraAcceptedFluids); }
 
-	public ModFluidTank(FluidTankWrapper info, FluidStack fluid, FluidStack[] extraAcceptedFluids){ this(info, fluid, info.getCapacity()/EnumConversions.SECONDS_TO_TICKS.convertToInt(5) > 0 ? info.getCapacity()/EnumConversions.SECONDS_TO_TICKS.convertToInt(5) : 1, extraAcceptedFluids); }
+	public ModFluidTank(CapacityAndStorageWrapper info, FluidStack fluid, FluidStack[] extraAcceptedFluids){ this(info, fluid, info.getCapacity()/EnumConversions.SECONDS_TO_TICKS.convertToInt(5) > 0 ? info.getCapacity()/EnumConversions.SECONDS_TO_TICKS.convertToInt(5) : 1, extraAcceptedFluids); }
 
 //</editor-fold>
 
 //<editor-fold defaultstate="collapsed" desc=". . . . Getters/Setters">
 
-	public void setInfo(FluidTankWrapper info){ this.info = info; }
+	public void setInfo(CapacityAndStorageWrapper info){ this.info = info; }
 
-	public FluidTankWrapper getInfoWrapper(){ return info; }
+	public CapacityAndStorageWrapper getInfoWrapper(){ return info; }
 
 	public int getMaxDrain() { return maxDrain; }
 

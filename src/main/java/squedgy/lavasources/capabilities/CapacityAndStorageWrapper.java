@@ -4,18 +4,23 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.util.INBTSerializable;
 import squedgy.lavasources.LavaSources;
 
-public class FluidTankWrapper implements INBTSerializable<NBTTagCompound> {
+public class CapacityAndStorageWrapper implements INBTSerializable<NBTTagCompound> {
 //<editor-fold defaultstate="collapsed" desc=". . . . Fields/Constructors">
 	private int capacity, amountStored;
+	private static final String CAPACITY_TAG = "capacity", STORED_TAG = "stored";
 
-	public FluidTankWrapper(int capacity, int amountStored){
+	public CapacityAndStorageWrapper(CapacityAndStorageWrapper a, CapacityAndStorageWrapper b){
+		this(a.capacity + b.capacity, a.amountStored + b.amountStored);
+		a = this;
+		b = this;
+	}
+
+	public CapacityAndStorageWrapper(int capacity, int amountStored){
 		this.capacity = capacity;
 		this.amountStored = amountStored;
 	}
 
-	public FluidTankWrapper(int capacity){
-		this(capacity, 0);
-	}
+	public CapacityAndStorageWrapper(int capacity){ this(capacity, 0); }
 
 //</editor-fold>
 
@@ -63,19 +68,21 @@ public class FluidTankWrapper implements INBTSerializable<NBTTagCompound> {
 		return ret;
 	}
 
+	public int getSpaceAvailable(){ return capacity - amountStored; }
+
 //</editor-fold>
 
 	@Override
 	public NBTTagCompound serializeNBT() {
 		NBTTagCompound tag = new NBTTagCompound();
-		tag.setInteger("capacity", capacity);
-		tag.setInteger("stored", amountStored);
+		tag.setInteger(CAPACITY_TAG, capacity);
+		tag.setInteger(STORED_TAG, amountStored);
 		return tag;
 	}
 
 	@Override
 	public void deserializeNBT(NBTTagCompound nbt) {
-		this.amountStored = nbt.getInteger("stored");
-		this.capacity = nbt.getInteger("capacity");
+		this.amountStored = nbt.getInteger(STORED_TAG);
+		this.capacity = nbt.getInteger(CAPACITY_TAG);
 	}
 }

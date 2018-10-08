@@ -32,6 +32,8 @@ public enum EnumUpgradeTier {
 		try{
 			IUpgradeable test = (IUpgradeable) toBeUpgraded;
 			ret = isUpgradeFor(test, tier);
+			test.setTier(test.getCurrentTier().getUpgrade());
+			test.updateTierRelatedComponents();
 		}catch(Exception ignored){ }
 		return ret;
 	}

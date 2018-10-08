@@ -6,11 +6,9 @@ import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidTankProperties;
-import squedgy.lavasources.init.ModFluids;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,11 +21,11 @@ public class FluidHandler implements IFluidHandler, INBTSerializable<NBTTagCompo
 //<editor-fold defaulstate="collapsed" desc=". . . . Fields/Constructors">
 	private List<ModFluidTank> fluids = new ArrayList<>();
 	private boolean sharedTank;
-	private final FluidTankWrapper SHARED_TANK;
+	private final CapacityAndStorageWrapper SHARED_TANK;
 
 	public FluidHandler(boolean sharedTank, int capacity, int amountStored){
 		this.sharedTank = sharedTank;
-		this.SHARED_TANK = new FluidTankWrapper(1, 0);
+		this.SHARED_TANK = new CapacityAndStorageWrapper(1, 0);
 	}
 
 //</editor-fold>
@@ -70,7 +68,7 @@ public class FluidHandler implements IFluidHandler, INBTSerializable<NBTTagCompo
 		NBTTagCompound fluidsStored = nbt.getCompoundTag("fluids");
 		//I realize this isn't that efficient and get around to changing it when I get around to changing it
 		for(String s: fluidsStored.getKeySet().stream().sorted().collect(Collectors.toList())){
-			fluids.add(new ModFluidTank(new FluidTankWrapper(1000, 0),new FluidStack(FluidRegistry.WATER, 1000), ModFluidTank.ACCEPT_ALL_FLUIDS));
+			fluids.add(new ModFluidTank(new CapacityAndStorageWrapper(1000, 0),new FluidStack(FluidRegistry.WATER, 1000), ModFluidTank.ACCEPT_ALL_FLUIDS));
 			fluids.get(fluids.size()-1).deserializeNBT(fluidsStored.getCompoundTag(s));
 			if(sharedTank) fluids.get(fluids.size()-1).setInfo(this.SHARED_TANK);
 		}

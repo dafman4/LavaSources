@@ -4,7 +4,7 @@ package squedgy.lavasources.enums;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 import squedgy.lavasources.capabilities.FluidHandler;
-import squedgy.lavasources.capabilities.FluidTankWrapper;
+import squedgy.lavasources.capabilities.CapacityAndStorageWrapper;
 import squedgy.lavasources.capabilities.ModFluidTank;
 import squedgy.lavasources.helper.EnumConversions;
 
@@ -48,7 +48,7 @@ public enum EnumFluidTier {
 	
 	public ModFluidTank getFluidTank(FluidStack currentHeld, FluidStack[] extraAcceptedFluids){ return getFluidTank(CAPACITY, MAX_TRANSFER, MAX_TRANSFER, currentHeld, extraAcceptedFluids); }
 	
-	public ModFluidTank getFluidTank(int capacity, int maxReceive, int maxExtract, FluidStack currentHeld, FluidStack[] extraAcceptedFluids){ return new ModFluidTank(new FluidTankWrapper(capacity, currentHeld.amount), currentHeld, maxReceive, maxExtract, extraAcceptedFluids); }
+	public ModFluidTank getFluidTank(int capacity, int maxReceive, int maxExtract, FluidStack currentHeld, FluidStack[] extraAcceptedFluids){ return new ModFluidTank(new CapacityAndStorageWrapper(capacity, currentHeld.amount), currentHeld, maxReceive, maxExtract, extraAcceptedFluids); }
 	
 	public static EnumFluidTier getTier(EnumUpgradeTier tier){ return EnumFluidTier.values()[tier.LEVEL]; }
 

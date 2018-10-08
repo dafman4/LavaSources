@@ -1,5 +1,6 @@
 package squedgy.lavasources.generic;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
@@ -40,8 +41,10 @@ public abstract class ModBlock extends BlockContainer implements IPotentialOreDi
 
 	@Override
 	public abstract boolean hasTileEntity();
+
 	@Override
 	public abstract TileEntity createNewTileEntity(World worldIn, int meta);
+
 	public abstract IProperty[] getProperties();
 	@Override
 	public BlockStateContainer createBlockState(){
@@ -83,5 +86,16 @@ public abstract class ModBlock extends BlockContainer implements IPotentialOreDi
 
     @Override
     public String getOreDictionaryName() { return null; }
+
+    public static boolean isStateEqualTo(IBlockState state, IBlockState state2){
+    	if(state.getBlock() instanceof  ModBlock && state2.getBlock() instanceof ModBlock){
+    		Block block1 = state.getBlock(), block2 = state2.getBlock();
+    		if(block1.getClass().equals(block2.getClass())){
+    			for(IProperty p : ((ModBlock) block1).getProperties()) if(state.getValue(p) != state2.getValue(p))return false;
+                return true;
+		    }
+	    }
+	    return false;
+    }
 
 }

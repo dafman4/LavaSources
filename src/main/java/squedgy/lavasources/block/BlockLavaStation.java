@@ -69,7 +69,6 @@ public class BlockLavaStation extends ModBlock {
 	    TileEntity te = worldIn.getTileEntity(pos);
 	    if(te instanceof TileEntityLavaStation){
             TileEntityLavaStation tileEntity = (TileEntityLavaStation)worldIn.getTileEntity(pos);
-
             ModFluidTank waterTank = tileEntity.getFluids().getFluidTank(new FluidStack(FluidRegistry.WATER, 0)),
                          lavaTank  = tileEntity.getFluids().getFluidTank(new FluidStack(FluidRegistry.LAVA , 0));
             if(worldIn.isRemote){

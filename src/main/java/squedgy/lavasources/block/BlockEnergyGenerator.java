@@ -39,8 +39,6 @@ public class BlockEnergyGenerator extends ModPersistentBlock {
 //</editor-fold>
 
 //<editor-fold defaultstate="collapsed" desc="Block Methods">
-	@Override
-	public boolean hasTileEntity() { return true; }
 
 	@Override
 	public TileEntity createNewTileEntity(World worldIn, int meta) {
@@ -83,7 +81,7 @@ public class BlockEnergyGenerator extends ModPersistentBlock {
 			if (playerIn.inventory.getCurrentItem().getItem() == ModItems.UPGRADE_CARD) {
 				TileEntityEnergyGenerator generator = (TileEntityEnergyGenerator) worldIn.getTileEntity(pos);
 				if (generator != null) {
-					generator.upgrade(generator.getTier().getUpgrade());
+					generator.upgrade(generator.getCurrentTier().getUpgrade());
 				}
 			}
 		}

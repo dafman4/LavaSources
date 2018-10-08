@@ -26,7 +26,8 @@ public enum EnumEnergyTier {
 	
 	public ModEnergyStorage getEnergyStorage(int currentHeld){ return getEnergyStorage(this.CAPACITY, this.getGenerated(), this.getRequired(), currentHeld); }
 	public ModEnergyStorage getEnergyStorage(int capacity, int maxReceived, int maxExtracted, int currentHeld){ return new ModEnergyStorage(true, true,capacity, maxReceived,maxExtracted, currentHeld); }
-	
+	public ModEnergyStorage getEnergyStorage(int capacity, int currentHeld){return getEnergyStorage(capacity, MAX_TRANSFER, MAX_TRANSFER, currentHeld);}
+
 	public static EnumEnergyTier getTier(EnumUpgradeTier tier){
 		return EnumEnergyTier.values()[tier.LEVEL];
 	}
