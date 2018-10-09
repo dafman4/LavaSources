@@ -1,8 +1,7 @@
-package squedgy.lavasources.generic;
+package squedgy.lavasources.block;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -10,10 +9,11 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraft.block.BlockShulkerBox;
+import squedgy.lavasources.block.ModBlock;
+import squedgy.lavasources.generic.IPersistentInventory;
 
 
-public abstract class ModPersistentBlock extends ModBlock{
+public abstract class ModPersistentBlock extends ModBlock {
 
 	public ModPersistentBlock(String unlocalizedName, int BLOCK_ID) {
 		super(unlocalizedName, BLOCK_ID);

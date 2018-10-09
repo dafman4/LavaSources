@@ -2,18 +2,14 @@ package squedgy.lavasources.inventory;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.inventory.IContainerListener;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import squedgy.lavasources.gui.GuiCoreModifier;
 import squedgy.lavasources.init.ModItems;
 import squedgy.lavasources.inventory.slots.SlotCoreModifierInput;
 import squedgy.lavasources.inventory.slots.SlotCoreModifierOutput;
 import squedgy.lavasources.tileentity.TileEntityCoreModifier.SlotEnum;
-import squedgy.lavasources.generic.ModContainer;
 
 /**
  *

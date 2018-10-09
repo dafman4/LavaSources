@@ -1,22 +1,16 @@
 package squedgy.lavasources.tileentity;
 
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
-import squedgy.lavasources.block.BlockEnergyGenerator;
 import squedgy.lavasources.capabilities.ModEnergyStorage;
 import squedgy.lavasources.enums.EnumUpgradeTier;
 import squedgy.lavasources.generic.IPersistentInventory;
 import squedgy.lavasources.generic.IUpgradeable;
-import squedgy.lavasources.generic.ModBlock;
-import squedgy.lavasources.generic.ModTileEntity;
 
 
 /**

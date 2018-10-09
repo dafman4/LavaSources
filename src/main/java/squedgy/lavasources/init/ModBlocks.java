@@ -25,12 +25,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import squedgy.lavasources.block.*;
 import squedgy.lavasources.LavaSources;
 import squedgy.lavasources.block.fluid.BlockLiquidRedstone;
-import squedgy.lavasources.generic.ModBlock;
-import squedgy.lavasources.tileentity.TileEntityCoreModifier;
-import squedgy.lavasources.tileentity.TileEntityEnergyCable;
-import squedgy.lavasources.tileentity.TileEntityEnergyGenerator;
-import squedgy.lavasources.tileentity.TileEntityLavaSource;
-import squedgy.lavasources.tileentity.TileEntityLiquefier;
+import squedgy.lavasources.block.ModBlock;
 
 /**
  *

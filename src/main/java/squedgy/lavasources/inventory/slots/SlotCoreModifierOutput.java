@@ -1,10 +1,7 @@
 package squedgy.lavasources.inventory.slots;
 
 import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
-import squedgy.lavasources.generic.ModSlot;
-import squedgy.lavasources.init.ModItems;
 
 /**
  *

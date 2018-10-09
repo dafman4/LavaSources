@@ -15,7 +15,6 @@ import squedgy.lavasources.capabilities.CapacityAndStorageWrapper;
 import squedgy.lavasources.capabilities.ModFluidTank;
 import squedgy.lavasources.capabilities.FluidHandler;
 import squedgy.lavasources.generic.IPersistentInventory;
-import squedgy.lavasources.generic.ModLockableTileEntity;
 
 public class TileEntityLavaStation extends ModLockableTileEntity implements IPersistentInventory {
 //<editor-fold defaultstate=collapsed desc=". . . . Fields/Constructors">

@@ -1,5 +1,6 @@
-package squedgy.lavasources.generic;
+package squedgy.lavasources.gui;
 
+import jline.internal.Nullable;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.inventory.Container;
@@ -20,24 +21,24 @@ public abstract class ModGui extends GuiContainer {
 
 	public ModGui(Container inventorySlotsIn) { this(inventorySlotsIn, DEFAULT_GUI);}
 
-	public ModGui(Container inventorySlotsIn, GuiLocation backgroundGui){
+	public ModGui(@Nullable Container inventorySlotsIn, GuiLocation backgroundGui){
 		super(inventorySlotsIn);
-		if(inventorySlotsIn instanceof ModContainer){
-			for(Slot s : ((ModContainer) inventorySlotsIn).getGuiSlots()) addElement(new ElementSlot(this, s, null));
+		if(inventorySlotsIn != null){
+			for(Slot s : inventorySlotsIn.inventorySlots) addElement(new ElementSlot(this, s, null));
 		}
 		this.BACKGROUND = backgroundGui;
+		this.xSize = BACKGROUND.width;
+		this.ySize = BACKGROUND.height;
 	}
 
 	protected void addElement(GuiElement toAdd){ ELEMENTS.add(toAdd);}
 
 	@Override
-	protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
-		drawForegroundLayer(mouseX, mouseY);
-	}
+	protected final void drawGuiContainerForegroundLayer(int mouseX, int mouseY) { drawForegroundLayer(mouseX, mouseY); }
 	protected abstract void drawForegroundLayer(int mouseX, int mouseY);
 
 	@Override
-	protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
+	protected final void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
 		this.drawDefaultBackground();
 		GlStateManager.color(1.0f, 1.0f, 1.0f,1.0f);
 		mc.renderEngine.bindTexture(BACKGROUND.location);
@@ -48,7 +49,14 @@ public abstract class ModGui extends GuiContainer {
 		ELEMENTS.forEach((element) -> element.drawGuiElement(getHorizontalMargin(), getVerticalMargin()));
 	}
 
+	/**
+	 * Extends background layer in case a gui has extra bits that aren't part of an element
+	 * @param partialTicks
+	 * @param mouseX
+	 * @param mouseY
+	 */
 	protected abstract void drawBackgroundLayer(float partialTicks, int mouseX, int mouseY);
-	protected abstract int getHorizontalMargin();
-	protected abstract int getVerticalMargin();
+
+	protected final int getHorizontalMargin() { return (width - xSize) / 2; }
+	protected final int getVerticalMargin() { return (height - ySize) / 2; }
 }

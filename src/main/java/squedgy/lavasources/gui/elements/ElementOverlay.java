@@ -7,8 +7,8 @@ import squedgy.lavasources.helper.GuiLocation;
 public class ElementOverlay extends GuiElement{
 	private final GuiLocation OVERLAY;
 
-	public ElementOverlay(Gui drawer, int locationX, int locationY, int width, int height, IInventory container, GuiLocation overlay) {
-		super(drawer, locationX, locationY, width, height, container);
+	public ElementOverlay(Gui drawer, int locationX, int locationY, IInventory container, GuiLocation overlay) {
+		super(drawer, locationX, locationY, overlay.width, overlay.height, container);
 		this.OVERLAY = overlay;
 	}
 

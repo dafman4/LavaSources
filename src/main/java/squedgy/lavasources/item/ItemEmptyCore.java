@@ -1,8 +1,5 @@
 package squedgy.lavasources.item;
 
-import squedgy.lavasources.generic.ModItem;
-import net.minecraft.init.Items;
-
 /**
  *
  * @author David

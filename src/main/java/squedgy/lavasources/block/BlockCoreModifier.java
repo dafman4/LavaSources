@@ -12,12 +12,13 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import squedgy.lavasources.LavaSources;
 import squedgy.lavasources.enums.EnumGuiElements;
-import squedgy.lavasources.generic.ModPersistentBlock;
 import squedgy.lavasources.init.ModBlocks;
+import squedgy.lavasources.init.ModCapabilities;
 import squedgy.lavasources.init.ModItems;
 import squedgy.lavasources.tileentity.TileEntityCoreModifier;
 
@@ -102,8 +103,6 @@ public class BlockCoreModifier extends ModPersistentBlock {
 //</editor-fold>
 
 	@Override
-	public Class<? extends TileEntity> getTileEntityClass() {
-		return TileEntityCoreModifier.class;
-	}
+	public Class<? extends TileEntity> getTileEntityClass() { return TileEntityCoreModifier.class; }
 
 }

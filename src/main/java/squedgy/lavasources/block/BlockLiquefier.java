@@ -16,7 +16,6 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import squedgy.lavasources.LavaSources;
 import squedgy.lavasources.enums.EnumGuiElements;
-import squedgy.lavasources.generic.ModPersistentBlock;
 import squedgy.lavasources.init.ModBlocks;
 import squedgy.lavasources.init.ModItems;
 import squedgy.lavasources.tileentity.TileEntityLiquefier;
@@ -92,7 +91,7 @@ public class BlockLiquefier extends ModPersistentBlock {
 			}else{
 				TileEntity te = worldIn.getTileEntity(pos);
 				if(te instanceof TileEntityLiquefier){
-					playerIn.openGui(LavaSources.INSTANCE, EnumGuiElements.LIQUIFIER.ordinal(), worldIn, pos.getX(), pos.getY(), pos.getZ());
+					playerIn.openGui(LavaSources.INSTANCE, EnumGuiElements.LIQUEFIER.ordinal(), worldIn, pos.getX(), pos.getY(), pos.getZ());
 				}
 			}
 		}

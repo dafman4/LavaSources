@@ -1,0 +1,14 @@
+{
+	"forge_marker":1,
+	"defaults":{
+		"model":"builtin/generated",
+		"transform":"forge:default-item",
+		"textures":{
+			"layer0":"lavasources:items/guide_book"
+		}
+	},
+	"variants":{
+		"normal":[{}],
+		"inventory":[{}]
+	}
+}

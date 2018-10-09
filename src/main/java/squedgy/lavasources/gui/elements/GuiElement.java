@@ -5,7 +5,9 @@ import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fluids.FluidStack;
+import squedgy.lavasources.helper.GuiLocation;
 
 public abstract class GuiElement {
 	protected static final Minecraft mc = Minecraft.getMinecraft();
@@ -26,8 +28,8 @@ public abstract class GuiElement {
 
 	protected TextureAtlasSprite getFluidSprite(FluidStack fluid){return mc.getTextureMapBlocks().getAtlasSprite(fluid.getFluid().getStill().toString()); }
 	protected void bindTextureAtlasTextures(){ mc.renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE); }
-	protected int getProgressOrFillLevel(int pixels, int amount, int max){ return amount * pixels / max;}
-	protected int getField(int fieldId){ return container.getField(fieldId); }
+	protected static int getProgressOrFillLevel(int pixels, int amount, int max){ return amount * pixels / max;}
+	protected int getField(int fieldId){ return container != null ? container.getField(fieldId) : -1; }
 
 
 	protected void drawTexturedModal(int horizontalMargin, int verticalMargin, int xAddition, int yAddition, TextureAtlasSprite sprite, int width, int height){
@@ -47,7 +49,11 @@ public abstract class GuiElement {
 				textX,
 				textY,
 				width,
-				height);
+				height
+		);
 	}
+
+	protected void bindTexture(GuiLocation texture){ bindTexture(texture.location); }
+	protected void bindTexture(ResourceLocation texture){ mc.renderEngine.bindTexture(texture); }
 
 }

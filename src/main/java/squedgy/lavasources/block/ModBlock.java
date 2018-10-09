@@ -1,4 +1,4 @@
-package squedgy.lavasources.generic;
+package squedgy.lavasources.block;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
@@ -17,6 +17,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import squedgy.lavasources.LavaSources;
+import squedgy.lavasources.generic.IPotentialOreDictionaryMember;
 import squedgy.lavasources.init.ModBlocks;
 
 import java.util.Random;

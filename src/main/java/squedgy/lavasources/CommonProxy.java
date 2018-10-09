@@ -1,6 +1,7 @@
 package squedgy.lavasources;
 
 import net.minecraft.entity.player.EntityPlayer;
+import squedgy.lavasources.init.ModCapabilities;
 import squedgy.lavasources.init.ModFluids;
 
 /**
@@ -11,6 +12,7 @@ public abstract class CommonProxy {
 	
 	public void preInit() throws Exception{
         ModFluids.RegistrationHandler.registerFluids();
+		ModCapabilities.RegistryHandler.loadCapabilities();
 	}
 	
 	public void init(){

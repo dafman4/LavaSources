@@ -8,7 +8,6 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import squedgy.lavasources.generic.ModContainer;
 import squedgy.lavasources.gui.GuiLiquefier;
 import squedgy.lavasources.inventory.slots.SlotLiquefier;
 import squedgy.lavasources.tileentity.TileEntityLiquefier.SlotEnum;
@@ -26,9 +25,7 @@ public class ContainerLiquefier extends ModContainer{
 	}
 
     @Override
-    public String getFieldName(int fieldId) {
-        return GuiLiquefier.EnumFields.values()[fieldId].name();
-    }
+    public String getFieldName(int fieldId) { return GuiLiquefier.EnumFields.values()[fieldId].name(); }
 
     @Override
 	public ItemStack transferStackInSlot(EntityPlayer playerIn, int index) {

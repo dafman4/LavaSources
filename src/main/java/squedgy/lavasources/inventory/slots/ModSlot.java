@@ -1,4 +1,4 @@
-package squedgy.lavasources.generic;
+package squedgy.lavasources.inventory.slots;
 
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;

@@ -1,7 +1,5 @@
 package squedgy.lavasources.item;
 
-import squedgy.lavasources.generic.ModItem;
-
 /**
  *
  * @author David

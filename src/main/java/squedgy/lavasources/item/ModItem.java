@@ -1,17 +1,17 @@
-package squedgy.lavasources.generic;
+package squedgy.lavasources.item;
 
 import net.minecraft.item.Item;
+import net.minecraftforge.common.capabilities.Capability;
 import squedgy.lavasources.LavaSources;
+import squedgy.lavasources.generic.IPotentialOreDictionaryMember;
 
 /**
  *
  * @author David
  */
-public abstract class ModItem extends Item implements IPotentialOreDictionaryMember{
+public abstract class ModItem extends Item implements IPotentialOreDictionaryMember {
 	
-	public ModItem(String unlocName){
-		this(unlocName, 64);
-	}
+	public ModItem(String unlocName){ this(unlocName, 64); }
 	
 	public ModItem(String unlocalizedName, int stackSize){
 		this.setUnlocalizedName(unlocalizedName);

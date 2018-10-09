@@ -12,7 +12,6 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import squedgy.lavasources.generic.ModBlock;
 import squedgy.lavasources.init.ModBlocks;
 import squedgy.lavasources.init.ModItems;
 import squedgy.lavasources.tileentity.TileEntityEnergyCable;

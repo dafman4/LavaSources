@@ -21,8 +21,8 @@ public class ElementFillable extends GuiElement{
 	private GuiLocation fill, border;
 	private EnumFillableType type;
 
-	private ElementFillable(Gui parent, int x, int y, int width, int height, IInventory container, int fieldAmount, int fieldMax, EnumFillableType type, GuiLocation fill, IFluidReturner returner, GuiLocation border){
-		super(parent, x, y, width, height, container);
+	private ElementFillable(Gui parent, int x, int y, IInventory container, int fieldAmount, int fieldMax, EnumFillableType type, GuiLocation fill, IFluidReturner returner, GuiLocation border){
+		super(parent, x, y, type.WIDTH - 2, type.HEIGHT - 2, container);
 		AMOUNT = fieldAmount;
 		MAX = fieldMax;
 		fluidReturner = returner;
@@ -31,19 +31,19 @@ public class ElementFillable extends GuiElement{
 		this.type = type;
 	}
 
-	public ElementFillable(Gui parent,int x, int y, int width, int height, IInventory container, int fieldAmount, int fieldMax, EnumFillableType type, IFluidReturner returner){
-		this(parent, x, y, width, height, container,fieldAmount, fieldMax, type, DEFAULT_FILL, returner, (type == HORIZONTAL_FILL ? GuiLocation.FILLABLE_HORIZONTAL : GuiLocation.FILLABLE_VERTICAL));
+	public ElementFillable(Gui parent,int x, int y, IInventory container, int fieldAmount, int fieldMax, EnumFillableType type, IFluidReturner returner){
+		this(parent, x, y, container,fieldAmount, fieldMax, type, DEFAULT_FILL, returner, type.LOCATION);
 	}
-	public ElementFillable(Gui parent,int x, int y, int width, int height, IInventory container, int fieldAmount, int fieldMax, EnumFillableType type, IFluidReturner returner, GuiLocation border){
-		this(parent, x, y, width, height, container,fieldAmount, fieldMax, type, DEFAULT_FILL, returner, border);
-	}
-
-	public ElementFillable(Gui parent, int x, int y, int width, int height, IInventory container, int fieldAmount, int fieldMax, EnumFillableType type, GuiLocation fill){
-		this(parent, x, y, width, height, container, fieldAmount, fieldMax, type, fill, null,(type == HORIZONTAL_FILL ? GuiLocation.FILLABLE_HORIZONTAL : GuiLocation.FILLABLE_VERTICAL));
+	public ElementFillable(Gui parent,int x, int y, IInventory container, int fieldAmount, int fieldMax, EnumFillableType type, IFluidReturner returner, GuiLocation border){
+		this(parent, x, y, container,fieldAmount, fieldMax, type, DEFAULT_FILL, returner, border);
 	}
 
-	public ElementFillable(Gui parent, int x, int y, int width, int height, IInventory container, int fieldAmount, int fieldMax, EnumFillableType type){
-		this(parent, x, y, width, height, container, fieldAmount, fieldMax, type, DEFAULT_FILL);
+	public ElementFillable(Gui parent, int x, int y, IInventory container, int fieldAmount, int fieldMax, EnumFillableType type, GuiLocation fill){
+		this(parent, x, y, container, fieldAmount, fieldMax, type, fill, null, type.LOCATION);
+	}
+
+	public ElementFillable(Gui parent, int x, int y, IInventory container, int fieldAmount, int fieldMax, EnumFillableType type){
+		this(parent, x, y, container, fieldAmount, fieldMax, type, DEFAULT_FILL);
 	}
 
 //</editor-fold>
@@ -52,10 +52,9 @@ public class ElementFillable extends GuiElement{
 	public void drawGuiElement(int horizontalMargin, int verticalMargin) {
 		mc.renderEngine.bindTexture(border.location);
 		drawTexturedModal(horizontalMargin, verticalMargin, 0, 0, border.textureX, border.textureY, border.width, border.height);
-		int progress = getProgressOrFillLevel(type == HORIZONTAL_FILL ? width : height, container.getField(AMOUNT), container.getField(MAX));
-		if (progress > 0){
-			int height = (type == VERTICAL_FILL ? getProgressOrFillLevel(this.height, container.getField(AMOUNT), container.getField(MAX)) : this.height),
-				width = (type == HORIZONTAL_FILL ? getProgressOrFillLevel(this.width, container.getField(AMOUNT), container.getField(MAX)) : this.width),
+		if (container.getField(AMOUNT) > 0){
+			int height= type.getProgressOrHeight(this.height, container.getField(AMOUNT), container.getField(MAX)),
+				width = type.getProgressOrWidth(this.width, container.getField(AMOUNT), container.getField(MAX)),
 				textureHeight, textureWidth;
 			TextureAtlasSprite sprite = null;
 			if(fluidReturner != null){
@@ -90,8 +89,27 @@ public class ElementFillable extends GuiElement{
 	}
 
 	public enum EnumFillableType{
-		HORIZONTAL_FILL,
-		VERTICAL_FILL
+		HORIZONTAL_FILL(GuiLocation.FILLABLE_HORIZONTAL),
+		VERTICAL_FILL(GuiLocation.FILLABLE_VERTICAL),
+		WIDE_FILL(GuiLocation.FILLABLE_WIDE)
+		;
+		public final int WIDTH, HEIGHT;
+		public final GuiLocation LOCATION;
+		EnumFillableType(GuiLocation location){
+			this.LOCATION = location;
+			this.WIDTH = location.width;
+			this.HEIGHT = location.height;
+		}
+
+		public int getProgressOrHeight(int height, int amount, int max){
+			if(VERTICAL_FILL == this || WIDE_FILL == this) return getProgressOrFillLevel(height, amount, max);
+			return height;
+		}
+
+		public int getProgressOrWidth(int width, int amount, int max){
+			if(HORIZONTAL_FILL == this) return getProgressOrFillLevel(width, amount, max);
+			return width;
+		}
 	}
 
 	public interface IFluidReturner{

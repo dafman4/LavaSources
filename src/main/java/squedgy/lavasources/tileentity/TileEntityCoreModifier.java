@@ -21,7 +21,6 @@ import squedgy.lavasources.capabilities.ModFluidTank;
 import squedgy.lavasources.enums.EnumUpgradeTier;
 import squedgy.lavasources.generic.IPersistentInventory;
 import squedgy.lavasources.generic.IUpgradeable;
-import squedgy.lavasources.generic.ModLockableTileEntity;
 import squedgy.lavasources.helper.EnumConversions;
 import squedgy.lavasources.init.ModFluids;
 import squedgy.lavasources.init.ModItems;

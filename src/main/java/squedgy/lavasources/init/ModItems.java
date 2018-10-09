@@ -12,7 +12,7 @@ import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.oredict.OreDictionary;
 import squedgy.lavasources.LavaSources;
-import squedgy.lavasources.generic.ModItem;
+import squedgy.lavasources.item.ModItem;
 import squedgy.lavasources.item.*;
 
 /**
@@ -26,6 +26,7 @@ public class ModItems {
 	public static final ItemLavaCore LAVA_CORE = new ItemLavaCore();
 	public static final ItemEmptyCore EMPTY_CORE = new ItemEmptyCore();
 	public static final ItemEnergyCore ENERGY_CORE = new ItemEnergyCore();
+	public static final ItemGuideBook GUIDE_BOOK = new ItemGuideBook();
 	
 	@Mod.EventBusSubscriber
 	public static class RegistryHelper{
@@ -35,7 +36,8 @@ public class ModItems {
             CORE_PIECE,
             LAVA_CORE,
             EMPTY_CORE,
-            ENERGY_CORE
+            ENERGY_CORE,
+	        GUIDE_BOOK
         };
 		
 		@SubscribeEvent//Register OreDictionary here

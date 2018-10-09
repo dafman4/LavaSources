@@ -1,4 +1,4 @@
-package squedgy.lavasources.generic;
+package squedgy.lavasources.tileentity;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTTagCompound;

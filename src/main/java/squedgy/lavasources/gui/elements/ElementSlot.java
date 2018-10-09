@@ -3,6 +3,7 @@ package squedgy.lavasources.gui.elements;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
+import squedgy.lavasources.LavaSources;
 import squedgy.lavasources.helper.GuiLocation;
 
 public class ElementSlot extends GuiElement {

@@ -1,4 +1,4 @@
-package squedgy.lavasources.generic;
+package squedgy.lavasources.inventory;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -23,6 +23,8 @@ public abstract class ModContainer extends Container{
 	public static final int PLAYER_INVENTORY_SIZE = 27;
 	public static final int PLAYER_HOTBAR_SIZE = 9;
 	protected final int[] FIELDS;
+
+	public ModContainer(InventoryPlayer player, IInventory inventory, Slot... slots){ this(player, inventory, 8, 50, slots); }
 	
 	public ModContainer(InventoryPlayer playerInventory, IInventory tileInventory,int playerInvX, int playerInvY, Slot... slots){
 		TILE_ENTITY = tileInventory;
@@ -62,14 +64,10 @@ public abstract class ModContainer extends Container{
 	
 	@SideOnly(Side.CLIENT)
 	@Override
-	public void updateProgressBar(int id, int value){
-		this.TILE_ENTITY.setField(id, value);
-	}
+	public void updateProgressBar(int id, int value){ this.TILE_ENTITY.setField(id, value); }
 	
 	@Override
-	public final boolean canInteractWith(EntityPlayer playerIn){
-		return this.TILE_ENTITY.isUsableByPlayer(playerIn);
-	}
+	public final boolean canInteractWith(EntityPlayer playerIn){ return this.TILE_ENTITY.isUsableByPlayer(playerIn); }
 	
 	@Override
 	public void addListener(IContainerListener listener) {
