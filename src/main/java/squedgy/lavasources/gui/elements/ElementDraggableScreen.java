@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import net.minecraft.client.gui.Gui;
 import squedgy.lavasources.helper.GuiLocation;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -13,7 +14,7 @@ public class ElementDraggableScreen extends GuiElement {
 	private int totalHeight, totalWidth;
 	private GuiLocation background = GuiLocation.DEFAULT_SCROLLABLE_BACKGROUND;
 	private final GuiLocation referenceImage = null;
-	private List<ElementDraggableScreen> children = Lists.newArrayList();
+	private List<ElementDraggableScreen> children = new ArrayList();
 
 	public ElementDraggableScreen(Gui drawer, int locationX, int locationY, int height, int width, ElementDraggableScreen... children){
 		super(drawer, locationX, locationY,height, width, null);

@@ -1,5 +1,5 @@
 {
-	"type":"minecraft:crafting_shaped",
+	"type":"forge:ore_shaped",
 	"pattern":[
 		"#X#",
 		"XDX",
@@ -7,10 +7,12 @@
 	],
 	"key":{
 		"X": {
-			"item":"minecraft:redstone_block"
+			"type":"forge:ore_dict",
+			"ore":"blockRedstone"
 		},
 		"#":{
-			"item":"minecraft:iron_block"
+			"type":"forge:ore_dict",
+			"ore":"blockIron"
 		},
 		"D":{
 			"item":"lavasources:energy_core"

@@ -1,0 +1,8 @@
+{
+	"ingredients":{
+
+	},
+	"recipes":{
+		"research_recipe":"squedgy.lavasources.crafting.recipes.ResearchBlockedRecipe$Factory"
+	}
+}

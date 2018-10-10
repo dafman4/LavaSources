@@ -6,20 +6,27 @@ import net.minecraft.inventory.IInventory;
 import org.lwjgl.input.Keyboard;
 import squedgy.lavasources.gui.elements.BookDisplayFull;
 import squedgy.lavasources.gui.elements.BookDisplayPartial;
-import squedgy.lavasources.gui.elements.ElementBookDisplay;
+import squedgy.lavasources.gui.elements.ResearchTab;
 import squedgy.lavasources.helper.GuiLocation;
+import squedgy.lavasources.init.ModResearch;
 
 import java.io.IOException;
 import java.util.Queue;
 
 public class GuiGuideBook extends ModGui {
 //<editor-fold defaultstate="collapsed" desc=". . . . Fields/Constructors">
-
+	private static BookDisplayFull display;
 	private Queue<BookDisplayPartial> partialQueue = Queues.newLinkedBlockingQueue();
 	private BookDisplayFull currentPage;
 
-	public GuiGuideBook(InventoryPlayer player, IInventory inventory) {
+	public GuiGuideBook(InventoryPlayer player, IInventory inventory, ResearchTab tabOpen){
 		super(new ContainerEmpty(), GuiLocation.BOOK_BASE);
+		if(display == null) display = new BookDisplayFull(this, inventory, tabOpen);
+		else display.setTab(tabOpen);
+	}
+
+	public GuiGuideBook(InventoryPlayer player, IInventory inventory) {
+		this(player, inventory, ModResearch.MAIN);
 	}
 
 //</editor-fold>
@@ -30,14 +37,16 @@ public class GuiGuideBook extends ModGui {
 	protected void drawForegroundLayer(int mouseX, int mouseY) { }
 
 	@Override
-	protected void drawBackgroundLayer(float partialTicks, int mouseX, int mouseY) { }
+	protected void drawBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
+		currentPage.drawGuiElement(getHorizontalMargin(), getVerticalMargin());
+	}
 
 	@Override
 	protected void keyTyped(char typedChar, int keyCode) throws IOException {
 		if(keyCode == Keyboard.KEY_E){
-
+		}else {
+			super.keyTyped(typedChar, keyCode);
 		}
-		super.keyTyped(typedChar, keyCode);
 	}
 
 //</editor-fold>

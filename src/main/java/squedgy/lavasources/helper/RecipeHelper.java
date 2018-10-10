@@ -48,6 +48,8 @@ public class RecipeHelper {
 		registerRecipe(output, params, EnumRecipe.SHAPELESS);
 	}
 
+	public static void registerRecipe(IRecipe recipe){ GameData.register_impl(recipe); }
+
 	private static void registerRecipe(ItemStack output, Object[] input, EnumRecipe type){
 		ResourceLocation recipeLocation = getNameForRecipe(output);
 		IRecipe recipe = null;
@@ -62,11 +64,15 @@ public class RecipeHelper {
 			recipe = new ShapelessRecipes(recipeLocation.getResourceDomain(), output, getInputList(input));
 		}
 		recipe.setRegistryName(recipeLocation);
-		GameData.register_impl(recipe);
+		registerRecipe(recipe);
 	}
 
 	public static ResourceLocation getNameForRecipe(ItemStack output){
 		ResourceLocation baseLocation = new ResourceLocation(LavaSources.MOD_ID, output.getItem().getRegistryName().getResourcePath());
+		return getNameForRecipe(baseLocation);
+	}
+
+	public static ResourceLocation getNameForRecipe(ResourceLocation baseLocation){
 		ResourceLocation recipeLocation = baseLocation;
 		int recipeNumber = 0;
 		while(CraftingManager.REGISTRY.containsKey(recipeLocation)){
@@ -74,6 +80,11 @@ public class RecipeHelper {
 			recipeLocation = new ResourceLocation(LavaSources.MOD_ID, baseLocation.getResourcePath() + "_" + recipeNumber);
 		}
 		return recipeLocation;
+
+	}
+
+	public static ResourceLocation getNameForRecipe(String s){
+		return getNameForRecipe(new ResourceLocation(LavaSources.MOD_ID, s));
 	}
 
 	public static NonNullList<Ingredient> getInputList(Object[] input){

@@ -1,5 +1,5 @@
 {
-	"type":"minecraft:crafting_shaped",
+	"type":"forge:ore_shaped",
 	"pattern":[
 		"#X#",
 		"XDX",
@@ -10,7 +10,8 @@
 			"item":"minecraft:lava_bucket"
 		},
 		"#":{
-			"item":"minecraft:diamond"
+			"type":"forge:ore_dict",
+			"ore":"gemDiamond"
 		},
 		"D":{
 			"item":"lavasources:empty_core"

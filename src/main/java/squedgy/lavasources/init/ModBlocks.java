@@ -1,11 +1,14 @@
 package squedgy.lavasources.init;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockWorkbench;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.client.model.ModelLoader;
@@ -15,10 +18,8 @@ import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.registries.IForgeRegistry;
 import com.google.common.base.Preconditions;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import static net.minecraftforge.fml.relauncher.Side.CLIENT;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -36,7 +37,7 @@ public class ModBlocks {
 	public static final int LAVA_SOURCE= 1;
 	public static final int ENERGY_CABLE= 2;
 	public static final int CORE_MODIFIER= 3;
-	public static final int LIQUIFIER= 4;
+	public static final int LIQUEFIER = 4;
 	public static final int LAVA_STATION = 5;
 	public static final BlockLiquidRedstone LIQUID_REDSTONE = new BlockLiquidRedstone();
 
@@ -58,7 +59,7 @@ public class ModBlocks {
 			new ItemBlock(BLOCKS.get(LAVA_SOURCE)),
 			new ItemBlock(BLOCKS.get(ENERGY_CABLE)),
 			new ItemBlock(BLOCKS.get(CORE_MODIFIER)),
-			new ItemBlock(BLOCKS.get(LIQUIFIER)),
+			new ItemBlock(BLOCKS.get(LIQUEFIER)),
 			new ItemBlock(BLOCKS.get(LAVA_STATION))
 		};
 		
@@ -66,9 +67,12 @@ public class ModBlocks {
 		@SideOnly(CLIENT)
 		public static void registerItemBlockModels(ModelRegistryEvent event){
 			for(ItemBlock b : ITEMS){
-				ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(b.getBlock()), 0, new ModelResourceLocation(b.getRegistryName(), "inventory"));
+				ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(b.getBlock()), 0, new ModelResourceLocation(Objects.requireNonNull(b.getRegistryName()), "inventory"));
 			}
 		}
+
+		@SubscribeEvent
+		public static void attachToBlocks(AttachCapabilitiesEvent<Block> event){ }
 		
 		@SubscribeEvent
 		public  static void registerBlocks(RegistryEvent.Register<Block> event){
@@ -101,11 +105,6 @@ public class ModBlocks {
 		
 		public static void registerTileEntities(){
 			for(ModBlock b : BLOCKS) if(b.hasTileEntity())registerTileEntity(b.getTileEntityClass(), b.getUnlocalizedName().substring("tile.".length()));
-//			registerTileEntity(TileEntityLavaSource.class, "lava_source");
-//			registerTileEntity(TileEntityEnergyGenerator.class, "energy_generator");
-//			registerTileEntity(TileEntityEnergyCable.class, "energy_cable");
-//			registerTileEntity(TileEntityCoreModifier.class, "core_modifier");
-//			registerTileEntity(TileEntityLiquefier.class, "liquefier");
 		}
 		
 		private static void registerTileEntity(final Class<? extends TileEntity> clazz, final String name){

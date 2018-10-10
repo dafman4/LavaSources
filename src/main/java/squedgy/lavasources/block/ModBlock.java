@@ -17,13 +17,18 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import squedgy.lavasources.LavaSources;
+import squedgy.lavasources.generic.IModCraftable;
 import squedgy.lavasources.generic.IPotentialOreDictionaryMember;
 import squedgy.lavasources.init.ModBlocks;
+import squedgy.lavasources.research.Research;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
-public abstract class ModBlock extends BlockContainer implements IPotentialOreDictionaryMember {
+public abstract class ModBlock extends BlockContainer implements IPotentialOreDictionaryMember, IModCraftable {
 	protected final int BLOCK_ID;
+	private final List<Research> required = new ArrayList<>();
 
 	public ModBlock(String unlocalizedName, int BLOCK_ID, float hardness, float resistance, SoundType sound){
 		super(Material.IRON);
@@ -98,5 +103,15 @@ public abstract class ModBlock extends BlockContainer implements IPotentialOreDi
 	    }
 	    return false;
     }
+
+	@Override
+	public final List<Research> getRequirements() {
+		return new ArrayList<>(required);
+	}
+
+	@Override
+	public final void addRequirement(Research requirement) {
+		if(this.required.indexOf(requirement) < 0) required.add(requirement);
+	}
 
 }

@@ -1,5 +1,5 @@
 {
-	"type":"minecraft:crafting_shaped",
+	"type":"forge:ore_shaped",
 	"pattern":[
 		"#X#",
 		"XDX",
@@ -7,13 +7,16 @@
 	],
 	"key":{
 		"X": {
-			"item":"minecraft:iron_ingot"
+			"type":"forge:ore_dict",
+			"ore":"ingotIron"
 		},
 		"#":{
-			"item":"minecraft:obsidian"
+			"type":"forge:ore_dict",
+			"ore":"obsidian"
 		},
 		"D":{
-			"item":"minecraft:diamond"
+			"type":"forge:ore_dict",
+			"ore":"gemDiamond"
 		}
 	},
 	"result":{

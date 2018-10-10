@@ -12,9 +12,14 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.Mod;
+import squedgy.lavasources.LavaSources;
+import squedgy.lavasources.capabilities.IPlayerResearchCapability;
 import squedgy.lavasources.capabilities.ModFluidTank;
 import squedgy.lavasources.init.ModBlocks;
+import squedgy.lavasources.init.ModCapabilities;
 import squedgy.lavasources.init.ModItems;
+import squedgy.lavasources.init.ModResearch;
 import squedgy.lavasources.tileentity.TileEntityLavaSource;
 
 import java.util.Objects;
@@ -77,6 +82,15 @@ public class BlockLavaSource extends ModPersistentBlock{
 		}else if(playerIn.inventory.getCurrentItem().getItem() == ModItems.UPGRADE_CARD){
 			TileEntityLavaSource source = (TileEntityLavaSource) worldIn.getTileEntity(pos);
 			ret = source.upgrade(source.getTier().getUpgrade());
+		}
+		if(playerIn.hasCapability(ModCapabilities.PLAYER_RESEARCH_CAPABILITY, null)){
+			IPlayerResearchCapability cap = playerIn.getCapability(ModCapabilities.PLAYER_RESEARCH_CAPABILITY, null);
+			if(!cap.hasResearch(ModResearch.TEST)){
+				cap.addResearch(ModResearch.TEST);
+				LavaSources.writeMessage(getClass(), "added " + ModResearch.TEST);
+			}else{
+				LavaSources.writeMessage(getClass(), "player already has " + ModResearch.TEST);
+			}
 		}
 		return ret;
 	}

@@ -35,7 +35,7 @@ public class BlockLiquefier extends ModPersistentBlock {
 	}
 	
 	public BlockLiquefier(String unlocName){
-		super(unlocName, ModBlocks.LIQUIFIER);
+		super(unlocName, ModBlocks.LIQUEFIER);
 		this.setDefaultState(this.getDefaultState()
 			.withProperty(FACING, EnumFacing.NORTH)
 			.withProperty(LIQUEFYING, false)

@@ -1,6 +1,5 @@
 package squedgy.lavasources.capabilities;
 
-import com.google.common.collect.Lists;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.capabilities.Capability;
@@ -10,11 +9,12 @@ import squedgy.lavasources.research.Research;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.List;
 
 public class PlayerResearchCapability implements IPlayerResearchCapability {
 	public static List<Research> CREATIVE_RESEARCH = Research.getAllResearch();
-	private final List<Research> RESEARCH = Lists.newArrayList();
+	private final List<Research> RESEARCH = new ArrayList();
 
 	@Override
 	public List<Research> getResearch() { return RESEARCH; }

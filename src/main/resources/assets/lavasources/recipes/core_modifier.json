@@ -1,5 +1,5 @@
 {
-	"type":"minecraft:crafting_shaped",
+	"type":"lavasources:research_recipe",
 	"pattern":[
 		"#X#",
 		"FDF",
@@ -7,10 +7,12 @@
 	],
 	"key":{
 		"X": {
-			"item":"minecraft:redstone_block"
+			"type":"forge:ore_dict",
+			"ore":"blockRedstone"
 		},
 		"#":{
-			"item":"minecraft:iron_block"
+			"type":"forge:ore_dict",
+			"ore":"blockIron"
 		},
 		"D":{
 			"item":"lavasources:empty_core"
@@ -19,7 +21,10 @@
 			"item":"minecraft:lava_bucket"
 		}
 	},
-	"result":{
-		"item":"lavasources:core_modifier"
-	}
+	"result": {
+		"item": "lavasources:core_modifier"
+	},
+	"required":[
+		"test"
+	]
 }

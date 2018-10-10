@@ -13,7 +13,6 @@ import squedgy.lavasources.LavaSources;
 import squedgy.lavasources.capabilities.IPlayerResearchCapability;
 import squedgy.lavasources.capabilities.PlayerResearchCapability;
 
-
 public class ModCapabilities {
 
 	@CapabilityInject(IPlayerResearchCapability.class)

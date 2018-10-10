@@ -19,9 +19,13 @@ public abstract class GenericFactory {
 		try{
 			Class clazz = Class.forName(className);
 			Constructor cons = clazz.getDeclaredConstructor(new Class[0]);
-			if(!cons.isAccessible())
+			boolean flag = true;
+			if(!cons.isAccessible()){
+				flag = false;
 				cons.setAccessible(true);
+			}
 			T ret = (T)cons.newInstance(new Object[0]);
+			cons.setAccessible(flag);
 			return ret;
 		}catch(Exception e){
 			throw new Exception("There was an issue instantiating class: " + className + " with error : " + e.getMessage());
