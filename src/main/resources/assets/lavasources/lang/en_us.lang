@@ -32,3 +32,7 @@ container.liquefier=Liquefier
 container.lava_station=Lava Station
 
 fluid.liquid_redstone=Liquid Redstone
+
+lava_research.test=Test Research
+
+lava_tab.default_tab=General Research

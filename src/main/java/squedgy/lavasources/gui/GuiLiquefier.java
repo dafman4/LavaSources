@@ -35,9 +35,9 @@ public class GuiLiquefier extends ModGui {
 		super(new ContainerLiquefier(player, inventory));
 		this.PLAYER_INVENTORY = player;
 		this.INVENTORY = inventory;
-		addElement(new ElementFillable(this, 7, 4, inventory, ENERGY_AMOUNT.ordinal(), MAX_ENERGY_STORED.ordinal(), VERTICAL_FILL, ENERGY_FILL));
-		addElement(new ElementFillable(this, 107, 5, inventory, FLUIDS_AMOUNT.ordinal(), FLUID_CAPACITY.ordinal(), WIDE_FILL, () -> FluidRegistry.getFluidStack(ModFluids.LIQUID_REDSTONE.getName(), 0), FILLABLE_WIDE));
-		addElement(new ElementOverlay (this, 108, 6, inventory, FILLABLE_WIDE_OVERLAY));
+		addElement(new ElementFillable(this, 7, 4, inventory, ENERGY_AMOUNT.ordinal(), MAX_ENERGY_STORED.ordinal(), VERTICAL_FILL, energy_fill));
+		addElement(new ElementFillable(this, 107, 5, inventory, FLUIDS_AMOUNT.ordinal(), FLUID_CAPACITY.ordinal(), WIDE_FILL, () -> FluidRegistry.getFluidStack(ModFluids.LIQUID_REDSTONE.getName(), 0), fillable_wide));
+		addElement(new ElementOverlay (this, 108, 6, inventory, fillable_wide_overlay));
 	}
 
 	@Override

@@ -24,6 +24,7 @@ import squedgy.lavasources.generic.IModCraftable;
 import squedgy.lavasources.helper.RecipeHelper;
 import squedgy.lavasources.init.ModCapabilities;
 import squedgy.lavasources.research.Research;
+import squedgy.lavasources.research.ResearchUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -97,12 +98,11 @@ public class ResearchBlockedRecipe extends IForgeRegistryEntry.Impl<IRecipe> imp
 	public static final class Factory implements IRecipeFactory{
 
 		private class ResearchReturn implements Returnable<Research>{
-
 			@Override
 			public Research getItem(int i, JsonArray arr) {
 				LavaSources.writeMessage(getClass(), "trying to get research from " + arr.get(i));
 				if(isPrimitive(arr.get(i))){
-					return Research.getResearch(arr.get(i).getAsJsonPrimitive().getAsString());
+					return ResearchUtil.getResearch(arr.get(i).getAsJsonPrimitive().getAsString());
 				}
 				return null;
 			}
@@ -110,11 +110,12 @@ public class ResearchBlockedRecipe extends IForgeRegistryEntry.Impl<IRecipe> imp
 
 		@Override
 		public IRecipe parse(JsonContext context, JsonObject json) {
+			LavaSources.writeMessage(getClass(), "reading texture " + json);
 			if(json.has("pattern") && json.has("key") && json.has("result")){
 				Research[] required = new Research[0];
 
 				if(json.has("required")){
-					required = getArrayFromJson(json, "required", new ResearchReturn(), new Research[0]);
+					required = getArrayFromJson(json, "required", new ResearchReturn());
 				}
 				ShapedOreRecipe recipe = ShapedOreRecipe.factory(context, json);
 				recipe.setRegistryName(RecipeHelper.getNameForRecipe(recipe.getRecipeOutput()));
@@ -124,11 +125,10 @@ public class ResearchBlockedRecipe extends IForgeRegistryEntry.Impl<IRecipe> imp
 		}
 
 		@FunctionalInterface
-		private interface Returnable<T>{
-			T getItem(int i , JsonArray arr);
-		}
+		private interface Returnable<T>{ T getItem(int i , JsonArray arr); }
 
-		private <T> T[] getArrayFromJson(JsonObject obj, String arrayNode, Returnable<T> returnable, T[] empty){
+		@SafeVarargs
+		private final <T> T[] getArrayFromJson(JsonObject obj, String arrayNode, Returnable<T> returnable, T... empty){
 			JsonArray arr = JsonUtils.getJsonArray(obj, arrayNode);
 			ArrayList<T> ret = new ArrayList<>(arr.size());
 			for(int i = 0; i < arr.size(); i++){

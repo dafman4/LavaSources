@@ -1,29 +1,35 @@
 package squedgy.lavasources.gui.elements;
 
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraftforge.registries.IForgeRegistryEntry;
+import squedgy.lavasources.CustomRegistryUtil;
+import squedgy.lavasources.LavaSources;
 import squedgy.lavasources.helper.GuiLocation;
 import squedgy.lavasources.research.Research;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-public class ResearchTab {
+public class ResearchTab  extends IForgeRegistryEntry.Impl<ResearchTab>{
 
 //<editor-fold defaultstate="collapsed" desc=". . . . Fields/Constructors">
+
 	private static final List<ResearchTab> TABS = new ArrayList();
-	private final String TAB_NAME;
-	private final List<Research> RELATED_RESEARCH = new ArrayList();
-	private final GuiLocation TAB_BACKGROUND;
+	private String TAB_NAME;
+	private List<Research> RELATED_RESEARCH = new ArrayList();
+	private String[] researchNames;
+	private GuiLocation tabBackground;
 
-	public ResearchTab(String tabName,GuiLocation background, Research... relatedResearch){
+	public ResearchTab(String tabName, String resourceLocation, GuiLocation background, String... relatedResearch){
 		TAB_NAME = tabName;
-		RELATED_RESEARCH.addAll(Arrays.asList(relatedResearch));
-		TAB_BACKGROUND = background;
+		researchNames = relatedResearch;
+		tabBackground = background;
+		if(resourceLocation.indexOf(':') < 0) setRegistryName(LavaSources.MOD_ID, resourceLocation);
+		else setRegistryName(resourceLocation);
+		LavaSources.writeMessage(getClass(), this.toString());
 	}
-	public  ResearchTab(String tabName, Research... relatedResearch){
-		this(tabName, GuiLocation.DEFAULT_SCROLLABLE_BACKGROUND, relatedResearch);
-	}
-
+	public  ResearchTab(String tabName, String resourceLocation, String... relatedResearch){ this(tabName, resourceLocation, GuiLocation.getGuiLocation("default_scrollable_background"), relatedResearch); }
 
 //</editor-fold>
 
@@ -44,8 +50,25 @@ public class ResearchTab {
 
 	public String getTabName(){ return TAB_NAME; }
 
-	public GuiLocation getTabBackground(){ return TAB_BACKGROUND; }
+	public GuiLocation getTabBackground(){ return tabBackground == null ? GuiLocation.default_scrollable_background : tabBackground; }
+
+	public void init(){
+		for(String s : researchNames) RELATED_RESEARCH.add(GameRegistry.findRegistry(Research.class).getValue(new ResourceLocation(s)));
+		researchNames = null;
+	}
 
 //</editor-fold>
+
+	@Override
+	public String toString(){
+		return "ResearchTab{background = " + this.tabBackground +", displayName = " +this.TAB_NAME + "}";
+	}
+
+	public static void initAllTabs(){
+		GameRegistry.findRegistry(ResearchTab.class).getValuesCollection().forEach(ResearchTab::init);
+	}
+
+	public static ResearchTab getResearchTab(ResourceLocation rl){ return CustomRegistryUtil.getRegistryEntry(ResearchTab.class, rl); }
+	public static ResearchTab getResearchTab(String name){ return CustomRegistryUtil.getRegistryEntry(ResearchTab.class, name); }
 
 }

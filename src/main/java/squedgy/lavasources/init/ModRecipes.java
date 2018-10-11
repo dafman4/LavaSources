@@ -11,8 +11,7 @@ public class ModRecipes {
 	private ModRecipes(){}
 	private static ResourceLocation getResourceLocation(String s) { return new ResourceLocation(LavaSources.MOD_ID, s); }
 
-	@Mod.EventBusSubscriber
-	public static class RegistryHandler{
+	@Mod.EventBusSubscriber(modid = LavaSources.MOD_ID)	public static class RegistryHandler{
 
 		@SubscribeEvent
 		public static void registerRecipes(RegistryEvent<IRecipe> event){ }

@@ -11,7 +11,7 @@ import squedgy.lavasources.inventory.ContainerCoreModifier;
 import static squedgy.lavasources.gui.GuiCoreModifier.EnumFields.*;
 import static squedgy.lavasources.gui.elements.ElementFillable.EnumFillableType.HORIZONTAL_FILL;
 import static squedgy.lavasources.gui.elements.ElementFillable.EnumFillableType.VERTICAL_FILL;
-import static squedgy.lavasources.helper.GuiLocation.ENERGY_FILL;
+import static squedgy.lavasources.helper.GuiLocation.energy_fill;
 import static squedgy.lavasources.tileentity.TileEntityCoreModifier.POSSIBLE_FLUIDS;
 
 /**
@@ -47,7 +47,7 @@ public class GuiCoreModifier extends ModGui {
 			)
 		);
 		addElement(new ElementFillable(this, 75, 21, inventory, TICKS_FILLING.ordinal(), FILL_TIME.ordinal(), HORIZONTAL_FILL));
-		addElement(new ElementFillable(this, 161, 4, inventory, ENERGY_AMOUNT.ordinal(), MAX_ENERGY_STORED.ordinal(), VERTICAL_FILL, ENERGY_FILL));
+		addElement(new ElementFillable(this, 161, 4, inventory, ENERGY_AMOUNT.ordinal(), MAX_ENERGY_STORED.ordinal(), VERTICAL_FILL, energy_fill));
 	}
 
 	@Override

@@ -13,6 +13,7 @@ import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import squedgy.lavasources.creativetabs.CreativeTabLavaSources;
+import squedgy.lavasources.events.EventListener;
 import squedgy.lavasources.init.ModBlocks;
 import squedgy.lavasources.init.ModGuis;
 import squedgy.lavasources.tileentity.TileEntityCoreModifier;
@@ -27,33 +28,31 @@ public class LavaSources{
 	@Instance(MOD_ID) public static LavaSources INSTANCE = null;
 	
 	private static Logger logger;
-	static { FluidRegistry.enableUniversalBucket();}
+	static {
+		MinecraftForge.EVENT_BUS.register(new EventListener());
+		FluidRegistry.enableUniversalBucket();
+	}
 	@SidedProxy(clientSide="squedgy.lavasources.ClientProxy", serverSide="squedgy.lavasources.ServerProxy")
 	public static CommonProxy proxy;
 	
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event) throws Exception{
 		logger = event.getModLog();
-		writeMessage(LavaSources.class, "Starting pre-initialization for " + NAME + " v." + VERSION);
+		writeMessage(LavaSources.class, "\n\n\n\nStarting pre-initialization for " + NAME + " v." + VERSION);
  		proxy.preInit();
 	}
 	
 	@EventHandler
 	public void init(FMLInitializationEvent event){
-		writeMessage(LavaSources.class, "Starting initialization for " + NAME + " v." + VERSION);
+		writeMessage(LavaSources.class, "\n\n\n\nStarting initialization for " + NAME + " v." + VERSION);
 		NetworkRegistry.INSTANCE.registerGuiHandler(INSTANCE, new ModGuis());
 		proxy.init();
 	}
 	
 	@EventHandler
 	public void postInit(FMLPostInitializationEvent event){
-		writeMessage(LavaSources.class,"post init");
+		writeMessage(LavaSources.class,"\n\n\n\nPost init for " + NAME + " v." +VERSION);
 		proxy.postInit();
-		logger.info("energy generator : " + ModBlocks.ENERGY_GENERATOR);
-		logger.info("lava source : " + ModBlocks.LAVA_SOURCE);
-//		if(FluidRegistry.getFluid("heavywater") != null){
-//			TileEntityCoreModifier.addPossibleFluid(FluidRegistry.getFluidStack("heavywater", 0));
-//		}
 	}
 	
 	public static String getResourceName(String resourceName){

@@ -18,6 +18,7 @@ public class BookDisplayFull extends ElementBookDisplay {
 		super(drawer, 0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT, container);
 		this.fullHeight = DISPLAY_HEIGHT;
 		this.fullWidth = DISPLAY_WIDTH;
+		LavaSources.writeMessage(getClass(), "background");
 		this.background = tab.getTabBackground();
 	}
 

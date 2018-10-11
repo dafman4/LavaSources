@@ -1,12 +1,8 @@
 package squedgy.lavasources;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraftforge.common.MinecraftForge;
-import squedgy.lavasources.events.EventListener;
-import squedgy.lavasources.init.ModCapabilities;
-import squedgy.lavasources.init.ModFluids;
-import squedgy.lavasources.init.ModRecipes;
-import squedgy.lavasources.init.ModResearch;
+import squedgy.lavasources.init.*;
+import squedgy.lavasources.research.Research;
 
 /**
  *
@@ -15,15 +11,14 @@ import squedgy.lavasources.init.ModResearch;
 public abstract class CommonProxy {
 	
 	public void preInit() throws Exception{
+		ModRegistries.RegistryHandler.preInit();
         ModFluids.RegistrationHandler.registerFluids();
-		ModCapabilities.RegistryHandler.loadCapabilities();
 		ModResearch.RegistryHandler.register();
-		ModRecipes.RegistryHandler.register();
-		MinecraftForge.EVENT_BUS.register(new EventListener());
+		ModCapabilities.RegistryHandler.loadCapabilities();
 	}
 	
 	public void init(){
-		
+		Research.initAllResearch();
 	}
 	
 	public void postInit(){

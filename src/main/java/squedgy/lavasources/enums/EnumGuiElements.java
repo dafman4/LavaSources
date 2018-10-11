@@ -1,6 +1,5 @@
 package squedgy.lavasources.enums;
 
-import jline.internal.Nullable;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
@@ -10,6 +9,8 @@ import squedgy.lavasources.generic.IGuiCreator;
 import squedgy.lavasources.gui.*;
 import squedgy.lavasources.inventory.ContainerCoreModifier;
 import squedgy.lavasources.inventory.ContainerLiquefier;
+
+import javax.annotation.Nullable;
 
 /**
  *
@@ -38,7 +39,8 @@ public enum EnumGuiElements {
 		this.ITEM = item;
 	}
 
-	public @Nullable Container getContainer(InventoryPlayer player, IInventory inventory){
+	public @Nullable
+	Container getContainer(InventoryPlayer player, IInventory inventory){
 		if(CONTAINER_CREATOR == null) return new ContainerEmpty();
 		return CONTAINER_CREATOR.getContainer(player, inventory);
 	}

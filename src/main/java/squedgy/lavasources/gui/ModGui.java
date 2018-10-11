@@ -1,6 +1,5 @@
 package squedgy.lavasources.gui;
 
-import jline.internal.Nullable;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.inventory.Container;
@@ -9,17 +8,18 @@ import squedgy.lavasources.gui.elements.ElementSlot;
 import squedgy.lavasources.gui.elements.GuiElement;
 import squedgy.lavasources.helper.GuiLocation;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-import static squedgy.lavasources.helper.GuiLocation.DEFAULT_GUI;
+import static squedgy.lavasources.helper.GuiLocation.default_gui;
 
 public abstract class ModGui extends GuiContainer {
 
 	private final List<GuiElement> ELEMENTS = new ArrayList<>();
 	protected final GuiLocation BACKGROUND;
 
-	public ModGui(Container inventorySlotsIn) { this(inventorySlotsIn, DEFAULT_GUI);}
+	public ModGui(Container inventorySlotsIn) { this(inventorySlotsIn, default_gui);}
 
 	public ModGui(@Nullable Container inventorySlotsIn, GuiLocation backgroundGui){
 		super(inventorySlotsIn);

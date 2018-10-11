@@ -11,7 +11,7 @@ public class ElementSlot extends GuiElement {
 
 //<editor-fold defaultstate="collapsed" desc=". . . . Fields/Constructors">
 
-	private static final GuiLocation TEXTURE = GuiLocation.INVENTORY_SLOT;
+	private static final GuiLocation TEXTURE = GuiLocation.inventory_slot;
 
 	public ElementSlot(Gui parent, Slot s, IInventory container){
 		this(parent, s.xPos-1, s.yPos-1, TEXTURE.width, TEXTURE.height, container);

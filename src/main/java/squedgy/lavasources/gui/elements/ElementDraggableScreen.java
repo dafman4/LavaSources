@@ -12,7 +12,7 @@ public class ElementDraggableScreen extends GuiElement {
 //<editor-fold defaultstate="collapsed" desc=". . . . Fields/Constructors">
 
 	private int totalHeight, totalWidth;
-	private GuiLocation background = GuiLocation.DEFAULT_SCROLLABLE_BACKGROUND;
+	private GuiLocation background = GuiLocation.default_scrollable_background;
 	private final GuiLocation referenceImage = null;
 	private List<ElementDraggableScreen> children = new ArrayList();
 

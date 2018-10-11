@@ -4,16 +4,18 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
+import net.minecraftforge.fml.common.registry.GameRegistry;
 import squedgy.lavasources.init.ModCapabilities;
 import squedgy.lavasources.research.Research;
+import squedgy.lavasources.research.ResearchUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class PlayerResearchCapability implements IPlayerResearchCapability {
-	public static List<Research> CREATIVE_RESEARCH = Research.getAllResearch();
 	private final List<Research> RESEARCH = new ArrayList();
 
 	@Override
@@ -28,14 +30,14 @@ public class PlayerResearchCapability implements IPlayerResearchCapability {
 	@Override
 	public NBTTagCompound serializeNBT() {
 		NBTTagCompound tag = new NBTTagCompound();
-		for(Research r : RESEARCH) tag.setString(r.getName(),"");
+		for(Research r : RESEARCH)if(r != null) tag.setString(r.getName(),"");
 		return tag;
 	}
 
 	@Override
 	public void deserializeNBT(NBTTagCompound nbt) {
 		RESEARCH.clear();
-		for(String s : nbt.getKeySet()) RESEARCH.add(Research.getResearch(s));
+		for(String s : nbt.getKeySet()) RESEARCH.add(ResearchUtil.getResearch(s));
 	}
 
 	public static class Provider implements ICapabilitySerializable<NBTTagCompound>{
@@ -54,13 +56,9 @@ public class PlayerResearchCapability implements IPlayerResearchCapability {
 		}
 
 		@Override
-		public NBTTagCompound serializeNBT() {
-			return instance.serializeNBT();
-		}
+		public NBTTagCompound serializeNBT() { return instance.serializeNBT(); }
 
 		@Override
-		public void deserializeNBT(NBTTagCompound nbt) {
-			instance.deserializeNBT(nbt);
-		}
+		public void deserializeNBT(NBTTagCompound nbt) { instance.deserializeNBT(nbt); }
 	}
 }

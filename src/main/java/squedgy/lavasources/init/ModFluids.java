@@ -21,8 +21,7 @@ public class ModFluids {
 
 	public static final Fluid LIQUID_REDSTONE = new Fluid("liquid_redstone", new ResourceLocation(LavaSources.MOD_ID, "blocks/fluids/liquid_redstone"), new ResourceLocation(LavaSources.MOD_ID, "blocks/fluids/liquid_redstone"));
 	
-	@Mod.EventBusSubscriber
-	public static class RegistrationHandler{
+	@Mod.EventBusSubscriber(modid = LavaSources.MOD_ID)	public static class RegistrationHandler{
         public static void registerFluids(){
             FluidRegistry.registerFluid(LIQUID_REDSTONE);
             FluidRegistry.addBucketForFluid(LIQUID_REDSTONE);

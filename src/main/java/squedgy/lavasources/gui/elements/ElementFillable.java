@@ -32,10 +32,10 @@ public class ElementFillable extends GuiElement{
 	}
 
 	public ElementFillable(Gui parent,int x, int y, IInventory container, int fieldAmount, int fieldMax, EnumFillableType type, IFluidReturner returner){
-		this(parent, x, y, container,fieldAmount, fieldMax, type, DEFAULT_FILL, returner, type.LOCATION);
+		this(parent, x, y, container,fieldAmount, fieldMax, type, default_fill, returner, type.LOCATION);
 	}
 	public ElementFillable(Gui parent,int x, int y, IInventory container, int fieldAmount, int fieldMax, EnumFillableType type, IFluidReturner returner, GuiLocation border){
-		this(parent, x, y, container,fieldAmount, fieldMax, type, DEFAULT_FILL, returner, border);
+		this(parent, x, y, container,fieldAmount, fieldMax, type, default_fill, returner, border);
 	}
 
 	public ElementFillable(Gui parent, int x, int y, IInventory container, int fieldAmount, int fieldMax, EnumFillableType type, GuiLocation fill){
@@ -43,7 +43,7 @@ public class ElementFillable extends GuiElement{
 	}
 
 	public ElementFillable(Gui parent, int x, int y, IInventory container, int fieldAmount, int fieldMax, EnumFillableType type){
-		this(parent, x, y, container, fieldAmount, fieldMax, type, DEFAULT_FILL);
+		this(parent, x, y, container, fieldAmount, fieldMax, type, default_fill);
 	}
 
 //</editor-fold>
@@ -89,9 +89,9 @@ public class ElementFillable extends GuiElement{
 	}
 
 	public enum EnumFillableType{
-		HORIZONTAL_FILL(GuiLocation.FILLABLE_HORIZONTAL),
-		VERTICAL_FILL(GuiLocation.FILLABLE_VERTICAL),
-		WIDE_FILL(GuiLocation.FILLABLE_WIDE)
+		HORIZONTAL_FILL(GuiLocation.fillable_horizontal),
+		VERTICAL_FILL(GuiLocation.fillable_vertical),
+		WIDE_FILL(GuiLocation.fillable_wide)
 		;
 		public final int WIDTH, HEIGHT;
 		public final GuiLocation LOCATION;

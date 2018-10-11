@@ -17,17 +17,14 @@ public class GuiGuideBook extends ModGui {
 //<editor-fold defaultstate="collapsed" desc=". . . . Fields/Constructors">
 	private static BookDisplayFull display;
 	private Queue<BookDisplayPartial> partialQueue = Queues.newLinkedBlockingQueue();
-	private BookDisplayFull currentPage;
 
 	public GuiGuideBook(InventoryPlayer player, IInventory inventory, ResearchTab tabOpen){
-		super(new ContainerEmpty(), GuiLocation.BOOK_BASE);
+		super(new ContainerEmpty(), GuiLocation.book_base);
 		if(display == null) display = new BookDisplayFull(this, inventory, tabOpen);
 		else display.setTab(tabOpen);
 	}
 
-	public GuiGuideBook(InventoryPlayer player, IInventory inventory) {
-		this(player, inventory, ModResearch.MAIN);
-	}
+	public GuiGuideBook(InventoryPlayer player, IInventory inventory) { this(player, inventory, ModResearch.DEFAULT_TAB); }
 
 //</editor-fold>
 
@@ -38,7 +35,7 @@ public class GuiGuideBook extends ModGui {
 
 	@Override
 	protected void drawBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
-		currentPage.drawGuiElement(getHorizontalMargin(), getVerticalMargin());
+		display.drawGuiElement(getHorizontalMargin(), getVerticalMargin());
 	}
 
 	@Override

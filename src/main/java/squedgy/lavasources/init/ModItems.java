@@ -28,8 +28,7 @@ public class ModItems {
 	public static final ItemEnergyCore ENERGY_CORE = new ItemEnergyCore();
 	public static final ItemGuideBook GUIDE_BOOK = new ItemGuideBook();
 	
-	@Mod.EventBusSubscriber
-	public static class RegistryHelper{
+	@Mod.EventBusSubscriber(modid = LavaSources.MOD_ID)	public static class RegistryHelper{
 
         private static final ModItem[] ITEMS = {
             UPGRADE_CARD,

@@ -1,0 +1,6 @@
+{
+	"name":"lava_research.test",
+	"key":"test",
+	"image":"lava_bucket",
+	"dependencies":[]
+}
