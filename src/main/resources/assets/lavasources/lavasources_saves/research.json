@@ -1,0 +1,9 @@
+{
+  "research": [
+    {
+      "name": "test",
+      "key": "lavasources:test",
+      "dependencies": []
+    }
+  ]
+}

@@ -1,39 +1,43 @@
 package squedgy.lavasources.research;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.registries.IForgeRegistryEntry;
 import squedgy.lavasources.CustomRegistryUtil;
 import squedgy.lavasources.LavaSources;
 import squedgy.lavasources.gui.elements.ResearchTab;
 import squedgy.lavasources.helper.GuiLocation;
+import squedgy.lavasources.helper.JsonWriting;
+import squedgy.lavasources.helper.JsonWriting.Getter;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.*;
 
+@SuppressWarnings("ConstantConditions")
 public class Research extends IForgeRegistryEntry.Impl<Research>{
 
 //<editor-fold defaultstate="collapsed" desc=". . . . Fields/Constructors">
 
-	private String description, displayName;
+	private String displayName;
 	private final List<Research> DEPENDENCIES = new ArrayList<>();
 	private final String[] research_names;
-	public final GuiLocation IMAGE;
 
 	public Research(String name, String key, String... dependencies){
-		this(name, key, GuiLocation.lava_bucket, dependencies);
-	}
-
-	public Research(String name, String key, GuiLocation location, String... dependencies){
 		if(key.indexOf(':') < 0)setRegistryName(LavaSources.MOD_ID, key);
 		else setRegistryName(key);
 		research_names = dependencies;
-		IMAGE = location;
 		this.displayName = name;
-		LavaSources.writeMessage(getClass(), "Instantiated research with name: " + getDisplayName().getUnformattedText() + ", and registry key: "+ getRegistryName());
+		if(!JsonWriting.writing)
+		LavaSources.writeMessage(getClass(), "Instantiated research: " + toString());
 	}
 
 //</editor-fold>
@@ -47,9 +51,15 @@ public class Research extends IForgeRegistryEntry.Impl<Research>{
 
 //</editor-fold>
 
-	@Override
-	public String toString() { return "Research{name="+displayName+", dependencies="+this.DEPENDENCIES+"}"; }
 
+	@Override
+	public String toString() {
+		return "Research{" +
+				", displayName='" + displayName + '\'' +
+				", DEPENDENCIES=" + DEPENDENCIES + '\'' +
+				", RegistryName='" + getRegistryName() + '\'' +
+		'}';
+	}
 
 	public static void initAllResearch(){
 		//change the research strings from file to research classes to allow faster comparisons
@@ -60,5 +70,36 @@ public class Research extends IForgeRegistryEntry.Impl<Research>{
 
 	public static Research getResearch(ResourceLocation rl){ return CustomRegistryUtil.getRegistryEntry(Research.class, rl); }
 	public static Research getResearch(String name){ return CustomRegistryUtil.getRegistryEntry(Research.class, name); }
+
+//<editor-fold defaultstate="collapsed" desc=". . . . JsonWriting info">
+
+	public static List<Research> getAllKnownInstances(){
+		return Arrays.asList(
+			new Research("test", "test")
+		);
+	}
+
+	public static Map<String, Getter<Research, JsonElement>> getGetters(){
+		Map<String, Getter<Research,JsonElement>> getters = new HashMap<>();
+		getters.put("name", r -> new JsonPrimitive(r.displayName));
+		getters.put("key", r -> new JsonPrimitive(r.getRegistryName().toString()));
+		getters.put("dependencies", r ->{
+			JsonArray arr = new JsonArray();
+			for(Research research : r.DEPENDENCIES) arr.add(new JsonPrimitive(research.getRegistryName().toString()));
+			return arr;
+		});
+
+		return getters;
+	}
+
+	public static File getSaveFileLocationForLavaSources(){ return getSaveFileLocation("lavasources"); }
+
+	public static File getSaveFileLocation(String modId){
+		return new File(JsonWriting.getModAssetDir(modId) + "research.json");
+	}
+
+	public static File getSaveFileLocation(ModContainer mod){ return getSaveFileLocation(mod.getModId()); }
+
+//</editor-fold>
 
 }

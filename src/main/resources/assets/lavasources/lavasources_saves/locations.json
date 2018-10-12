@@ -3,8 +3,7 @@
     "0": "lavasources:textures/gui/elements/elements.png",
     "1": "lavasources:textures/gui/container/blank_default_gui.png",
     "2": "lavasources:textures/gui/container/book_default.png",
-    "3": "minecraft:textures/blocks/stone.png",
-    "4": "minecraft:textures/items/bucket_lava.png"
+    "3": "minecraft:textures/blocks/stone.png"
   },
   "locations": [
     {
@@ -120,9 +119,9 @@
       "height": 16
     },
     {
-      "image": "#4",
+      "image": "#0",
       "textureX": 0,
-      "textureY": 0,
+      "textureY": 130,
       "name": "lavasources:lava_bucket",
       "width": 16,
       "height": 16

@@ -9,7 +9,9 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.util.JsonUtils;
+import net.minecraft.util.NonNullList;
 import net.minecraft.world.World;
 import net.minecraftforge.common.crafting.IRecipeFactory;
 import net.minecraftforge.common.crafting.IShapedRecipe;
@@ -93,6 +95,13 @@ public class ResearchBlockedRecipe extends IForgeRegistryEntry.Impl<IRecipe> imp
 		return RECIPE.getRecipeOutput();
 	}
 
+	@Override
+	public NonNullList<Ingredient> getIngredients() {
+		return RECIPE.getIngredients();
+	}
+
+
+
 //</editor-fold>
 
 	public static final class Factory implements IRecipeFactory{
@@ -109,8 +118,8 @@ public class ResearchBlockedRecipe extends IForgeRegistryEntry.Impl<IRecipe> imp
 		}
 
 		@Override
-		public IRecipe parse(JsonContext context, JsonObject json) {
-			LavaSources.writeMessage(getClass(), "reading texture " + json);
+		public IShapedRecipe parse(JsonContext context, JsonObject json) {
+			LavaSources.writeMessage(getClass(), "reading recipe " + json);
 			if(json.has("pattern") && json.has("key") && json.has("result")){
 				Research[] required = new Research[0];
 
@@ -121,7 +130,7 @@ public class ResearchBlockedRecipe extends IForgeRegistryEntry.Impl<IRecipe> imp
 				recipe.setRegistryName(RecipeHelper.getNameForRecipe(recipe.getRecipeOutput()));
 				return new ResearchBlockedRecipe(required, recipe);
 			}else
-			throw new IllegalArgumentException("The recipe provided didn't have one of the following members \"pattern, key, result\"");
+			throw new IllegalArgumentException("The recipe provided didn't have one or more of the following members \"pattern, key, result\"");
 		}
 
 		@FunctionalInterface

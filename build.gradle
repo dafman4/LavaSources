@@ -11,7 +11,15 @@ apply plugin: 'net.minecraftforge.gradle.forge'
 //Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 
 
-version = "1.0"
+Properties props = new Properties()
+
+InputStream inp = (new FileInputStream(System.getProperty("user.dir") +"/gradle.properties"))
+
+props.load(inp)
+
+inp.close()
+
+version = "1.0-${props.getProperty("mc_version")}"
 group = "squedgy.lavasources" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "lavasources"
 
@@ -33,12 +41,28 @@ minecraft {
     // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
 }
 
+repositories {
+	maven {
+		// location of the maven that hosts JEI files
+		name = "Progwml6 maven"
+		url = "http://dvs1.progwml6.com/files/maven"
+	}
+	maven {
+		// location of a maven mirror for JEI files, as a fallback
+		name = "ModMaven"
+		url = "modmaven.k-4u.nl"
+	}
+}
+
 dependencies {
     // you may put jars on which you depend on in ./libs
     // or you may define them like so..
     //compile "some.group:artifact:version:classifier"
     //compile "some.group:artifact:version"
-      
+	// compile against the JEI API but do not include it at runtime
+	deobfProvided "mezz.jei:jei_${props.getProperty("mc_version")}:${props.get("jei_version")}:api"
+	// at runtime, use the full JEI jar
+	runtime "mezz.jei:jei_${props.getProperty("mc_version")}:${props.get("jei_version")}"
     // real examples
     //compile 'com.mod-buildcraft:buildcraft:6.0.8:dev'  // adds buildcraft to the dev env
     //compile 'com.googlecode.efficient-java-matrix-library:ejml:0.24' // adds ejml to the dev env

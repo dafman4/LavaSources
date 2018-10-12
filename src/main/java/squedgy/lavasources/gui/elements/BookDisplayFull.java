@@ -4,6 +4,7 @@ import net.minecraft.client.gui.Gui;
 import net.minecraft.inventory.IInventory;
 import squedgy.lavasources.LavaSources;
 import squedgy.lavasources.helper.GuiLocation;
+import squedgy.lavasources.init.ModResearch;
 import squedgy.lavasources.research.Research;
 
 public class BookDisplayFull extends ElementBookDisplay {
@@ -12,14 +13,14 @@ public class BookDisplayFull extends ElementBookDisplay {
 
 	public static final int DISPLAY_WIDTH = 183, DISPLAY_HEIGHT = 163;
 	private int fullWidth, fullHeight, drawX = 0, drawY = 0;
-	private GuiLocation background;
+	private ResearchTab displayTab;
 
 	public BookDisplayFull(Gui drawer, IInventory container, ResearchTab tab){
 		super(drawer, 0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT, container);
 		this.fullHeight = DISPLAY_HEIGHT;
 		this.fullWidth = DISPLAY_WIDTH;
-		LavaSources.writeMessage(getClass(), "background");
-		this.background = tab.getTabBackground();
+		LavaSources.writeMessage(getClass(),"tab = " + tab);
+		this.displayTab = tab;
 	}
 
 //</editor-fold>
@@ -31,6 +32,7 @@ public class BookDisplayFull extends ElementBookDisplay {
 
 	@Override
 	public void drawGuiElement(int horizontalMargin, int verticalMargin) {
+		GuiLocation background = displayTab.getTabBackground();
 		int xDrawAmount = width/background.width, yDrawAmount = height/background.height;
 		int drawX = xDrawAmount * background.width, drawY =yDrawAmount * background.height;
 		for(int xDraws = 0 ; xDraws <= xDrawAmount; xDraws++){
@@ -60,7 +62,13 @@ public class BookDisplayFull extends ElementBookDisplay {
 	}
 
 	public void setTab(ResearchTab tab){
+		if(tab == null) tab = ModResearch.DEFAULT_TAB;
+		this.displayTab = tab;
 
+	}
+
+	public ResearchTab getTab(){
+		return displayTab;
 	}
 
 }

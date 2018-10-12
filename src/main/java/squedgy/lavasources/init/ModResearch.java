@@ -1,7 +1,6 @@
 package squedgy.lavasources.init;
 
 import com.google.gson.*;
-import net.minecraft.client.gui.Gui;
 import net.minecraft.util.JsonUtils;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.crafting.CraftingHelper;
@@ -18,8 +17,10 @@ import squedgy.lavasources.LavaSources;
 import squedgy.lavasources.gui.elements.ResearchTab;
 import squedgy.lavasources.helper.GuiLocation;
 import squedgy.lavasources.research.Research;
+import squedgy.lavasources.research.ResearchButton;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.nio.file.Files;
 import java.util.*;
 import java.util.Map.Entry;
@@ -42,11 +43,13 @@ public class ModResearch {
 
 		@SubscribeEvent
 		public static void registerResearch(RegistryEvent.Register<Research> event){
-			Loader.instance().getActiveModList().forEach(mod ->findResearchForMod(mod, event));
+			LavaSources.writeMessage(GuiLocation.class, "\n\n\n\tRegistering Research");
+			Loader.instance().getActiveModList().forEach(mod -> registerResearchForMod(mod, event));
 		}
 
 		@SubscribeEvent
 		public static void registerResearchTabs(RegistryEvent.Register<ResearchTab> event){
+			LavaSources.writeMessage(GuiLocation.class, "\n\n\n\tRegistering ResearchTabs");
 			Loader.instance().getActiveModList().forEach(mod ->registerTabsForMod(mod, event));
 		}
 
@@ -62,29 +65,30 @@ public class ModResearch {
 
 		public static void registerGuiLocationsForMod(ModContainer mod, RegistryEvent.Register<GuiLocation> event){
 			JsonContext context = new JsonContext(mod.getModId());
-
 			CraftingHelper.findFiles(
 					mod,
-					"assets/" + mod.getModId() + "/guilocations",
-					root -> true,
+					"assets/" + mod.getModId() + "/lavasources_saves/locations.json",
+					root -> root.endsWith("locations.json"),
 					(root, file) ->{
 						Loader.instance().setActiveModContainer(mod);
+
 						String relative = root.relativize(file).toString();
-						if(!"json".equals(FilenameUtils.getExtension(file.toString())) || relative.startsWith("_")) return true;
-						String name = FilenameUtils.removeExtension(relative).replaceAll("\\\\", "/");
+						if(!"json".equals(FilenameUtils.getExtension(file.toString())) || relative.startsWith("_"))
+							return true;
+						String name = FilenameUtils.removeExtension(relative).replaceAll("\\\\","/");
 						ResourceLocation key = new ResourceLocation(context.getModId(), name);
+
 						BufferedReader reader = null;
 						try{
 							reader = Files.newBufferedReader(file);
-							JsonObject json = JsonUtils.fromJson(ModResearch.RegistryHandler.GSON, reader, JsonObject.class);
-							if(!jsonHasAllMembers(json, "locations"))return true;
-							event.getRegistry().registerAll(getGuiLocationFromJson(json, context).toArray(new GuiLocation[0]));
+							JsonObject json = JsonUtils.fromJson(GSON, reader, JsonObject.class);
+							if(jsonHasAllMembers(json, "locations")){
+								event.getRegistry().registerAll(getGuiLocationFromJson(json, context).toArray(new GuiLocation[0]));
+								LavaSources.writeMessage(GuiLocation.class, "registered");
+							}
 						}catch(Exception e){
 							LavaSources.writeMessage(GuiLocation.class, "Error reading file " + file + "::: error: " + e);
-						}finally{
-							IOUtils.closeQuietly(reader);
-						}
-
+						}finally {IOUtils.closeQuietly(reader);}
 						return true;
 					},
 					true,
@@ -93,34 +97,33 @@ public class ModResearch {
 
 		}
 
-		public static void findResearchForMod(ModContainer mod, RegistryEvent.Register<Research> event){
+		public static void registerResearchForMod(ModContainer mod, RegistryEvent.Register<Research> event){
 
 			JsonContext context = new JsonContext(mod.getModId());
-
-			CraftingHelper.findFiles(mod,
-					"assets/" + mod.getModId() + "/lava_research",
-					root -> true,
-					(root, file) -> {
+			CraftingHelper.findFiles(
+					mod,
+					"assets/" + mod.getModId() + "/lavasources_saves/research.json",
+					root -> root.endsWith("research.json"),
+					(root, file) ->{
 						Loader.instance().setActiveModContainer(mod);
+
 						String relative = root.relativize(file).toString();
-						if(!"json".equals(FilenameUtils.getExtension(file.toString())) || relative.startsWith("_")) return true;
-						String name = FilenameUtils.removeExtension(relative).replaceAll("\\\\", "/");
+						if(!"json".equals(FilenameUtils.getExtension(file.toString())) || relative.startsWith("_"))
+							return true;
+						String name = FilenameUtils.removeExtension(relative).replaceAll("\\\\","/");
 						ResourceLocation key = new ResourceLocation(context.getModId(), name);
+
 						BufferedReader reader = null;
-						try {
-							LavaSources.writeMessage(Research.class, "found new file for research creation:" + file);
+						try{
 							reader = Files.newBufferedReader(file);
 							JsonObject json = JsonUtils.fromJson(GSON, reader, JsonObject.class);
-							if(json == null) throw new IllegalArgumentException("The given file was not parsable as a json even with the json extension.");
-							if(!jsonHasAllMembers(json, "name", "key"))return true;
-							event.getRegistry().register(getResearchFromJson(json, context));
-							LavaSources.writeMessage(Research.class, "registered");
-						}catch(Exception e) {
-							LavaSources.writeMessage(Research.class, "Error reading research json at: " + file + "\n\t\t" + e.getLocalizedMessage());
-						}finally{
-							IOUtils.closeQuietly(reader);
-						}
-
+							if(jsonHasAllMembers(json, "research")){
+								event.getRegistry().registerAll(getResearchFromJson(json, context).toArray(new Research[0]));
+								LavaSources.writeMessage(Research.class, "registered");
+							}
+						}catch(Exception e){
+							LavaSources.writeMessage(Research.class, "Error reading file " + file + "::: error: " + e);
+						}finally {IOUtils.closeQuietly(reader);}
 						return true;
 					},
 					true,
@@ -131,37 +134,35 @@ public class ModResearch {
 
 		public static void registerTabsForMod(net.minecraftforge.fml.common.ModContainer mod, RegistryEvent.Register<ResearchTab> event){
 			JsonContext context = new JsonContext(mod.getModId());
-
-			CraftingHelper.findFiles(mod,
-					"assets/" + mod.getModId() + "/lava_tabs",
-					root -> true,
-					(root, file) -> {
+			CraftingHelper.findFiles(
+					mod,
+					"assets/" + mod.getModId() + "/lavasources_saves/tabs.json",
+					root -> root.endsWith("tabs.json"),
+					(root, file) ->{
 						Loader.instance().setActiveModContainer(mod);
+
 						String relative = root.relativize(file).toString();
-						if(!"json".equals(FilenameUtils.getExtension(file.toString())) || relative.startsWith("_")) return true;
-						String name = FilenameUtils.removeExtension(relative).replaceAll("\\\\", "/");
+						if(!"json".equals(FilenameUtils.getExtension(file.toString())) || relative.startsWith("_"))
+							return true;
+						String name = FilenameUtils.removeExtension(relative).replaceAll("\\\\","/");
 						ResourceLocation key = new ResourceLocation(context.getModId(), name);
+
 						BufferedReader reader = null;
-						try {
-							LavaSources.writeMessage(ResearchTab.class, "found new file for ResearchTabs: " + file);
+						try{
 							reader = Files.newBufferedReader(file);
 							JsonObject json = JsonUtils.fromJson(GSON, reader, JsonObject.class);
-							if(json == null) throw new IllegalArgumentException("The given file was not parsable as a json even with the json extension.");
-							if(!jsonHasAllMembers(json, "name", "key"))return true;
-							event.getRegistry().register(getResearchTabFromJson(json, context));
-							LavaSources.writeMessage(ResearchTab.class, "registered");
-						}catch(Exception e) {
-							LavaSources.writeMessage(ResearchTab.class, "Error reading research tab json at: " + file + "\n\t\t" + e.getLocalizedMessage());
-						}finally{
-							IOUtils.closeQuietly(reader);
-						}
-
+							if(jsonHasAllMembers(json, "tabs")){
+								event.getRegistry().registerAll(getResearchTabFromJson(json, context).toArray(new ResearchTab[0]));
+								LavaSources.writeMessage(ResearchTab.class, "registered");
+							}
+						}catch(Exception e){
+							LavaSources.writeMessage(ResearchTab.class, "Error reading file " + file + "::: error: " + e);
+						}finally {IOUtils.closeQuietly(reader);}
 						return true;
 					},
 					true,
 					true
 			);
-
 		}
 
 //</editor-fold>
@@ -196,38 +197,54 @@ public class ModResearch {
 			return ret;
 		}
 
-		public static Research getResearchFromJson(JsonObject json , JsonContext context){
-			LavaSources.writeMessage(Research.class, "research json = " + json.toString());
-			String name = JsonUtils.getString(json, "name"), key = JsonUtils.getString(json, "key");
-			List<String> research = new ArrayList<>();
-			if(json.has("dependencies")){
-				JsonArray arr = JsonUtils.getJsonArray(json, "dependencies");
-				for(int i = 0; i < arr.size(); i++){
-					research.add(arr.get(i).getAsString());
-				}
+		public static List<Research> getResearchFromJson(JsonObject json , JsonContext context){
+			JsonArray locations = JsonUtils.getJsonArray(json, "research");
+			List<Research> ret = new ArrayList<>(locations.size());
+			for(int i = 0; i < locations.size(); i++){
+				JsonObject location = locations.get(i).getAsJsonObject();
+				if(jsonHasAllMembers(location, "name", "key", "dependencies")){
+					String name = JsonUtils.getString(location, "name"),
+							key = JsonUtils.getString(location, "key");
+					JsonArray dependencies = JsonUtils.getJsonArray(location, "dependencies");
+					String[] depends = new String[dependencies.size()];
+					for(int f = 0; f < dependencies.size(); f++) depends[f] = dependencies.get(f).getAsJsonPrimitive().getAsString();
+					ret.add(
+							new Research(name, key, depends)
+					);
+				}else LavaSources.writeMessage(ModResearch.class, "There was an issue turning the following json object into a location: " + location.toString());
 			}
-			if(json.has("image")) return new Research(name, key,  GuiLocation.getGuiLocation(JsonUtils.getString(json, "image")), research.toArray(new String[0]));
-
-			return new Research(name, key, research.toArray(new String[0]));
+			return ret;
 		}
 
-		public static ResearchTab getResearchTabFromJson(JsonObject json , JsonContext context){
-			LavaSources.writeMessage(ResearchTab.class, "research tab json = " + json.toString());
-			String name = JsonUtils.getString(json, "name"), key = JsonUtils.getString(json, "key");
-			List<String> research = new ArrayList<>();
-			if(json.has("research")){
-				JsonArray arr = JsonUtils.getJsonArray(json, "research");
-				for(int i = 0; i < arr.size(); i++){
-					JsonObject researchTab = arr.get(i).getAsJsonObject();
-					if(jsonHasAllMembers(researchTab,"researchName","x","y","description")){
-						String researchName = JsonUtils.getString(researchTab, "researchName"), description = JsonUtils.getString(researchTab, "description");
-						int x = JsonUtils.getInt(researchTab, "x"), y = JsonUtils.getInt(researchTab, "y");
-					}
-				}
+		public static List<ResearchTab> getResearchTabFromJson(JsonObject json , JsonContext context){
+			JsonArray locations = JsonUtils.getJsonArray(json, "tabs");
+			List<ResearchTab> ret = new ArrayList<>(locations.size());
+			for(int i = 0; i < locations.size(); i++){
+				JsonObject location = locations.get(i).getAsJsonObject();
+				if(jsonHasAllMembers(location, "image", "name", "key", "research")){
+					String image = JsonUtils.getString(location, "image"),
+							name = JsonUtils.getString(location, "name"),
+							key = JsonUtils.getString(location, "key");
+					JsonArray dependencies = JsonUtils.getJsonArray(location, "research");
+					ResearchButton[] depends = new ResearchButton[dependencies.size()];
+					for(int f = 0; f < dependencies.size(); f++) depends[f] = getResearchButtonFromJsonObject(dependencies.get(i).getAsJsonObject());
+					ret.add(
+							new ResearchTab(name, key, depends)
+					);
+				}else LavaSources.writeMessage(ModResearch.class, "There was an issue turning the following json object into a location: " + location.toString());
 			}
-			if(json.has("image")) return new ResearchTab(name, key,  GuiLocation.getGuiLocation(JsonUtils.getString(json, "image")), research.toArray(new String[0]));
+			return ret;
+		}
 
-			return new ResearchTab(name, key, research.toArray(new String[0]));
+		public static ResearchButton getResearchButtonFromJsonObject(JsonObject json){
+			if(jsonHasAllMembers(json, "researchName", "x", "y", "description", "image")){
+				String name = JsonUtils.getString(json, "researchName"),
+						description = JsonUtils.getString(json ,"description"),
+						image = JsonUtils.getString(json, "image");
+				int x = JsonUtils.getInt(json, "x"), y = JsonUtils.getInt(json, "y");
+				return new ResearchButton(x, y, Research.getResearch(name), description, GuiLocation.getGuiLocation(image));
+			}else
+				throw new IllegalArgumentException("The given json object did not have all required members \"researchName, x, y, description, image\": " + json);
 		}
 
 //</editor-fold>

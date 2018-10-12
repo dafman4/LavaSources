@@ -4,11 +4,12 @@ import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
+import net.minecraftforge.fml.client.config.GuiUtils;
 import squedgy.lavasources.gui.elements.ElementSlot;
 import squedgy.lavasources.gui.elements.GuiElement;
 import squedgy.lavasources.helper.GuiLocation;
+import squedgy.lavasources.research.ResearchButton;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,7 +22,7 @@ public abstract class ModGui extends GuiContainer {
 
 	public ModGui(Container inventorySlotsIn) { this(inventorySlotsIn, default_gui);}
 
-	public ModGui(@Nullable Container inventorySlotsIn, GuiLocation backgroundGui){
+	public ModGui(Container inventorySlotsIn, GuiLocation backgroundGui){
 		super(inventorySlotsIn);
 		if(inventorySlotsIn != null){
 			for(Slot s : inventorySlotsIn.inventorySlots) addElement(new ElementSlot(this, s, null));
@@ -44,9 +45,16 @@ public abstract class ModGui extends GuiContainer {
 		mc.renderEngine.bindTexture(BACKGROUND.location);
 		drawTexturedModalRect(getHorizontalMargin(), getVerticalMargin(), 0, 0, BACKGROUND.width, BACKGROUND.height);
 		drawBackgroundLayer(partialTicks, mouseX, mouseY);
-
+//		GlStateManager.color(1.0f, 1.0f, 1.0f,1.0f);
+//		buttonList.forEach(b ->{
+//			LavaSources.writeMessage(ModGui.class, "drawing button now:" + b);
+//			b.drawButton(mc, mouseX, mouseY, partialTicks);
+//		});
 		GlStateManager.color(1.0f, 1.0f, 1.0f,1.0f);
 		ELEMENTS.forEach((element) -> element.drawGuiElement(getHorizontalMargin(), getVerticalMargin()));
+		buttonList.forEach(b ->{
+			b.drawButton(mc, mouseX, mouseY, partialTicks);
+		});
 	}
 
 	/**
