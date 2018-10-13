@@ -36,3 +36,6 @@ fluid.liquid_redstone=Liquid Redstone
 lava_research.test=Test Research
 
 lava_tab.default_tab=General Research
+
+jei.core_modifier=Core Modifier
+jei.ingredient.energy=Energy (RF)

@@ -1,11 +1,15 @@
 package squedgy.lavasources.crafting;
 
+import com.google.gson.JsonObject;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.*;
+import scala.Char;
 import squedgy.lavasources.LavaSources;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 
@@ -49,5 +53,36 @@ public abstract class CraftingUtils {
 			}
 		}
 		return null;
+	}
+
+	public static String getJsonObjectPrettyPrinted(JsonObject object){
+		String json = object.toString();
+
+		for(int i = 0, tabs = 0; i < json.length(); i++){
+			int index = i;
+			StringBuilder a = new StringBuilder(json.substring(0, index+1));
+			StringBuilder b = new StringBuilder(json.substring(index+1));
+			if(json.charAt(i) == ('{') || json.charAt(i) == '['){
+				a.append("\n");
+				append(a, "\t", ++tabs);
+				i += tabs + 1;
+			}else if( i < json.length()-1 && (json.charAt(i+1) == '}' || json.charAt(i+1) == ']')){
+				a.append('\n');
+				append(a, "\t", --tabs);
+				i += tabs+1;
+			}else if(json.charAt(i) == ','){
+				a.append("\n");
+				append(a, "\t", tabs);
+				i += tabs+1;
+			}
+			json = a.toString() + b.toString();
+		}
+		return json;
+	}
+
+	private static void append(StringBuilder b, String append, int amount){
+		for (int i = 0; i < amount; i++) {
+			b.append(append);
+		}
 	}
 }

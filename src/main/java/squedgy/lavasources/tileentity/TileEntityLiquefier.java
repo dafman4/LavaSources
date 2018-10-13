@@ -19,11 +19,12 @@ import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
+import squedgy.lavasources.LavaSources;
 import squedgy.lavasources.capabilities.ModEnergyStorage;
 import squedgy.lavasources.capabilities.ModFluidTank;
 import squedgy.lavasources.enums.EnumUpgradeTier;
-import squedgy.lavasources.generic.IPersistentInventory;
-import squedgy.lavasources.generic.IUpgradeable;
+import squedgy.lavasources.generic.tileentities.IPersistentInventory;
+import squedgy.lavasources.generic.tileentities.IUpgradeable;
 import squedgy.lavasources.init.ModFluids;
 import squedgy.lavasources.init.ModItems;
 import squedgy.lavasources.inventory.ContainerLiquefier;
@@ -94,20 +95,22 @@ public class TileEntityLiquefier extends ModLockableTileEntity implements IUpgra
 		boolean flag = false;
 		ItemStack inputSlot = inventory.get(INPUT_SLOT.ordinal());
 		boolean isBlock = !inputSlot.isItemEqual(Items.REDSTONE.getDefaultInstance());
+		int fluidMultiplier = isBlock ? 10 : 1, energyMultiplier = isBlock ? 12 : 1;
 		if(!world.isRemote){
+			boolean liquefying = false;
 			if(inputSlot.isItemEqual(Items.REDSTONE.getDefaultInstance()) || inputSlot.isItemEqual(Item.getItemFromBlock(Blocks.REDSTONE_BLOCK).getDefaultInstance()) && this.energy.getEnergyStored() >= energyPerTick){
-				if(FLUID_PER_REDSTONE * (isBlock ? 10 : 1) == fluids.internalFill(new FluidStack(ModFluids.LIQUID_REDSTONE, FLUID_PER_REDSTONE * (isBlock ? 10 : 1)), false)){
-					if(energy.internalExtract(energyPerTick * (isBlock ? 12 : 1), true) == energyPerTick * (isBlock ? 12 : 1)){
-						fluids.internalFill(new FluidStack(ModFluids.LIQUID_REDSTONE, FLUID_PER_REDSTONE * (isBlock ? 10 : 1)), true);
-						energy.internalExtract(energyPerTick * (isBlock ? 12 : 1), false);
+				if(FLUID_PER_REDSTONE * fluidMultiplier == fluids.internalFill(new FluidStack(ModFluids.LIQUID_REDSTONE, FLUID_PER_REDSTONE * fluidMultiplier), false)){
+					if(energy.internalExtract(energyPerTick * energyMultiplier, true) == energyPerTick * energyMultiplier){
+						fluids.internalFill(new FluidStack(ModFluids.LIQUID_REDSTONE, FLUID_PER_REDSTONE * fluidMultiplier), true);
+						energy.internalExtract(energyPerTick * energyMultiplier, false);
 						this.inventory.get(INPUT_SLOT.ordinal()).shrink(1);
 						setLiquefying(true);
 						flag = true;
 						if(this.inventory.get(INPUT_SLOT.ordinal()).isEmpty())inventory.set(INPUT_SLOT.ordinal(), ItemStack.EMPTY);
 					}
 				}
-			}else setLiquefying(false);
-
+			}
+			setLiquefying(liquefying);
 			if(fluids.getFluidAmount() > 0){
 				for(EnumFacing f : EnumFacing.values()){
 					if(fluids.getFluidAmount() == 0) break;
@@ -119,7 +122,7 @@ public class TileEntityLiquefier extends ModLockableTileEntity implements IUpgra
 									received = handler.fill(new FluidStack(ModFluids.LIQUID_REDSTONE, extracted), false);
 							received = handler.fill(new FluidStack(ModFluids.LIQUID_REDSTONE, Math.min(extracted, received)), true);
 							if (received > 0) {
-								fluids.drain(extracted, true);
+								fluids.drain(received, true);
 								flag = true;
 							}
 						}

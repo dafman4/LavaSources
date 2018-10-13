@@ -1,4 +1,4 @@
-package squedgy.lavasources.generic;
+package squedgy.lavasources.generic.init;
 
 /**
  *

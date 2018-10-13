@@ -53,49 +53,9 @@ public class ModResearch {
 			Loader.instance().getActiveModList().forEach(mod ->registerTabsForMod(mod, event));
 		}
 
-		@SubscribeEvent
-		public static void registerGuiLocations(RegistryEvent.Register<GuiLocation> event){
-			LavaSources.writeMessage(GuiLocation.class, "\n\n\n\tRegistering GuiLocations");
-			Loader.instance().getActiveModList().forEach(mod -> registerGuiLocationsForMod(mod, event));
-		}
-
 //</editor-fold>
 
 //<editor-fold defaultstate="collapsed" desc=". . . . File Reader Methods">
-
-		public static void registerGuiLocationsForMod(ModContainer mod, RegistryEvent.Register<GuiLocation> event){
-			JsonContext context = new JsonContext(mod.getModId());
-			CraftingHelper.findFiles(
-					mod,
-					"assets/" + mod.getModId() + "/lavasources_saves/locations.json",
-					root -> root.endsWith("locations.json"),
-					(root, file) ->{
-						Loader.instance().setActiveModContainer(mod);
-
-						String relative = root.relativize(file).toString();
-						if(!"json".equals(FilenameUtils.getExtension(file.toString())) || relative.startsWith("_"))
-							return true;
-						String name = FilenameUtils.removeExtension(relative).replaceAll("\\\\","/");
-						ResourceLocation key = new ResourceLocation(context.getModId(), name);
-
-						BufferedReader reader = null;
-						try{
-							reader = Files.newBufferedReader(file);
-							JsonObject json = JsonUtils.fromJson(GSON, reader, JsonObject.class);
-							if(jsonHasAllMembers(json, "locations")){
-								event.getRegistry().registerAll(getGuiLocationFromJson(json, context).toArray(new GuiLocation[0]));
-								LavaSources.writeMessage(GuiLocation.class, "registered");
-							}
-						}catch(Exception e){
-							LavaSources.writeMessage(GuiLocation.class, "Error reading file " + file + "::: error: " + e);
-						}finally {IOUtils.closeQuietly(reader);}
-						return true;
-					},
-					true,
-					true
-			);
-
-		}
 
 		public static void registerResearchForMod(ModContainer mod, RegistryEvent.Register<Research> event){
 
@@ -168,34 +128,6 @@ public class ModResearch {
 //</editor-fold>
 
 //<editor-fold defaultstate="collapsed" desc=". . . . Instantiators">
-
-		public static List<GuiLocation> getGuiLocationFromJson(JsonObject json, JsonContext context){
-			Map<String, String> keys = null;
-			if(jsonHasAllMembers(json, "keys")){
-				keys = json.get("keys").getAsJsonObject().entrySet().stream().collect(Collectors.toMap(Entry::getKey, i -> i.getValue().getAsJsonPrimitive().getAsString()));
-			}
-			JsonArray locations = JsonUtils.getJsonArray(json, "locations");
-			List<GuiLocation> ret = new ArrayList<>(locations.size());
-			for(int i = 0; i < locations.size(); i++){
-				JsonObject location = locations.get(i).getAsJsonObject();
-				if(jsonHasAllMembers(location, "image", "name", "width", "height", "textureX", "textureY")){
-					String image = JsonUtils.getString(location, "image"), name = JsonUtils.getString(location, "name");
-					int width = JsonUtils.getInt(location, "width"), height = JsonUtils.getInt(location, "height"),
-							textureX = JsonUtils.getInt(location, "textureX"), textureY = JsonUtils.getInt(location, "textureY");
-					ret.add(
-						new GuiLocation(
-							new ResourceLocation(image.startsWith("#") ? keys.get(image.substring(1)) : image),
-							new ResourceLocation(name.indexOf(':') < 0 ? context.getModId() + ":" + name : name),
-							width,
-							height,
-							textureX,
-							textureY
-						)
-					);
-				}else LavaSources.writeMessage(ModResearch.class, "There was an issue turning the following json object into a location: " + location.toString());
-			}
-			return ret;
-		}
 
 		public static List<Research> getResearchFromJson(JsonObject json , JsonContext context){
 			JsonArray locations = JsonUtils.getJsonArray(json, "research");

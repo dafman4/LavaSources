@@ -111,6 +111,7 @@ public abstract class ModLockableTileEntity extends ModTileEntity implements ILo
 
 //</editor-fold>
 
+	//if it has an inventory we're saving the shit outta it :3
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound compound){
 		super.writeToNBT(compound);
@@ -123,7 +124,7 @@ public abstract class ModLockableTileEntity extends ModTileEntity implements ILo
 		classTag.setTag(INVENTORY_TAG, ItemStackHelper.saveAllItems(new NBTTagCompound(), getInventory()));
 		return compound;
 	}
-
+	//and reading it too
 	@Override
 	public void readFromNBT(NBTTagCompound compound){
 		super.readFromNBT(compound);

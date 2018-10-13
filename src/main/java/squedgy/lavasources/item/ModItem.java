@@ -2,8 +2,8 @@ package squedgy.lavasources.item;
 
 import net.minecraft.item.Item;
 import squedgy.lavasources.LavaSources;
-import squedgy.lavasources.generic.IModCraftable;
-import squedgy.lavasources.generic.IPotentialOreDictionaryMember;
+import squedgy.lavasources.generic.blocksoritems.IModCraftable;
+import squedgy.lavasources.generic.blocksoritems.IPotentialOreDictionaryMember;
 import squedgy.lavasources.research.Research;
 
 import java.util.ArrayList;

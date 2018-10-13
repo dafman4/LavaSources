@@ -14,7 +14,7 @@ import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import squedgy.lavasources.capabilities.CapacityAndStorageWrapper;
 import squedgy.lavasources.capabilities.ModFluidTank;
 import squedgy.lavasources.capabilities.FluidHandler;
-import squedgy.lavasources.generic.IPersistentInventory;
+import squedgy.lavasources.generic.tileentities.IPersistentInventory;
 
 public class TileEntityLavaStation extends ModLockableTileEntity implements IPersistentInventory {
 //<editor-fold defaultstate=collapsed desc=". . . . Fields/Constructors">

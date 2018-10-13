@@ -1,0 +1,18 @@
+{
+	"recipes":[
+		{
+			"name":"lava_core",
+			"fluid":"lava",
+			"fluidAmount":4000,
+			"energy":4000,
+			"output":"lavasources:lava_core"
+		},
+		{
+			"name":"energy_core",
+			"fluid":"liquid_redstone",
+			"fluidAmount":4000,
+			"energy":4000,
+			"output":"lavasources:energy_core"
+		}
+	]
+}

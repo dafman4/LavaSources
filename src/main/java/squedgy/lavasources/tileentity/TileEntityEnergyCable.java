@@ -10,7 +10,7 @@ import net.minecraftforge.energy.IEnergyStorage;
 import squedgy.lavasources.capabilities.ModEnergyStorage;
 import squedgy.lavasources.enums.EnumCableTier;
 import squedgy.lavasources.enums.EnumUpgradeTier;
-import squedgy.lavasources.generic.IUpgradeable;
+import squedgy.lavasources.generic.tileentities.IUpgradeable;
 
 /**
  *

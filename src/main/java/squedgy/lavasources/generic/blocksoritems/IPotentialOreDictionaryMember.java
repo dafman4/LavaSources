@@ -1,4 +1,4 @@
-package squedgy.lavasources.generic;
+package squedgy.lavasources.generic.blocksoritems;
 
 public interface IPotentialOreDictionaryMember {
     public abstract boolean hasOreDictionaryName();

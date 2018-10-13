@@ -10,17 +10,22 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
+import net.minecraftforge.registries.IForgeRegistry;
+import scala.xml.dtd.EMPTY;
 import squedgy.lavasources.LavaSources;
 import squedgy.lavasources.capabilities.ModEnergyStorage;
 import squedgy.lavasources.capabilities.ModFluidTank;
+import squedgy.lavasources.crafting.recipes.CoreModifierRecipe;
 import squedgy.lavasources.enums.EnumUpgradeTier;
-import squedgy.lavasources.generic.IPersistentInventory;
-import squedgy.lavasources.generic.IUpgradeable;
+import squedgy.lavasources.generic.recipes.ICoreModifierRecipe;
+import squedgy.lavasources.generic.tileentities.IPersistentInventory;
+import squedgy.lavasources.generic.tileentities.IUpgradeable;
 import squedgy.lavasources.helper.EnumConversions;
 import squedgy.lavasources.init.ModFluids;
 import squedgy.lavasources.init.ModItems;
@@ -35,24 +40,14 @@ import java.util.stream.IntStream;
  */
 public class TileEntityCoreModifier extends ModLockableTileEntity implements IUpgradeable, ITickable, ISidedInventory, IPersistentInventory {
 	
-//<editor-fold defaultstate="collapsed" desc=". . . . Fields">
-	public enum SlotEnum{ INPUT_SLOT, OUTPUT_SLOT }
-	public enum EnumMaking{ ENERGY_CORE(ModItems.ENERGY_CORE), LAVA_CORE(ModItems.LAVA_CORE);
-		private final Item RETURN_ITEM;
-
-		EnumMaking(Item returnItem){RETURN_ITEM = returnItem;}
-
-		public Item getItem(){return RETURN_ITEM;}
-	}
-	public static final List<FluidStack> POSSIBLE_FLUIDS = new ArrayList(Arrays.asList(
-			new FluidStack(FluidRegistry.LAVA, 0),
-			new FluidStack(ModFluids.LIQUID_REDSTONE, 0)
-	));
+//<editor-fold defaultstate="collapsed" desc=". . . . Fields/Constructors">
+	public static final ICoreModifierRecipe BLANK_RECIPE = new CoreModifierRecipe(new ResourceLocation("lavasources:empty_recipe"), null, FluidRegistry.getFluidStack(FluidRegistry.LAVA.getName(), 0), 0);
+	private static List<ICoreModifierRecipe> RECIPES = Collections.EMPTY_LIST;
     private static final String FLUIDS_TAG = "fluids", TIER_TAG = "tier", ENERGY_TAG = "energy", TICKS_TAG = "ticks", MAKING_TAG = "making";
 	private static final int[] SLOTS = {SlotEnum.INPUT_SLOT.ordinal(), SlotEnum.OUTPUT_SLOT.ordinal()};
-	public  static final int FILL_TIME = EnumConversions.SECONDS_TO_TICKS.convertToInt(20);
+	public static final int FILL_TIME = EnumConversions.SECONDS_TO_TICKS.convertToInt(20);
 	private NonNullList<ItemStack> inventory = NonNullList.withSize(2, ItemStack.EMPTY);
-	private EnumMaking making = null;
+	private ICoreModifierRecipe making = BLANK_RECIPE;
 	private int ticksFilling, energyPerTick, fluidPerTick;
 	private EnumUpgradeTier tier;
 	private ModEnergyStorage energy;
@@ -60,37 +55,57 @@ public class TileEntityCoreModifier extends ModLockableTileEntity implements IUp
 	private EnumFacing facing;
 	protected boolean destroyedByCreative;
 	private int makingFluidAmount = 0;
-//</editor-fold>	
 
-//<editor-fold defaultstate="collapsed" desc=". . . . Constructors">
 	public TileEntityCoreModifier(EnumUpgradeTier tier){
 		super("core_modifier");
 		this.tier = tier;
 		this.updateTierRelatedComponents(0,
-				FluidRegistry.getFluidStack(FluidRegistry.LAVA.getName(), 0),
-				POSSIBLE_FLUIDS.stream().filter((fluid) -> !fluid.isFluidEqual(FluidRegistry.getFluidStack(FluidRegistry.LAVA.getName(), 0))).toArray(FluidStack[]::new)
+				POSSIBLE_FLUIDS.get(0),
+				POSSIBLE_FLUIDS.stream().filter((fluid) -> !fluid.isFluidEqual(POSSIBLE_FLUIDS.get(0))).toArray(FluidStack[]::new)
 		);
         LavaSources.writeMessage(getClass(), "Fill time = " + FILL_TIME + " ticks");
 	}
 	
-	public TileEntityCoreModifier(){
-		this(EnumUpgradeTier.BASIC);
-	}
+	public TileEntityCoreModifier(){ this(EnumUpgradeTier.BASIC); }
+
 //</editor-fold>
 
 //<editor-fold defaultstate="collapsed" desc=". . . . Getters/Setters">
 	public EnumUpgradeTier getTier() { return tier; }
 
-	public EnumMaking getMaking() { return making; }
+	public ICoreModifierRecipe getMaking() { return making; }
+
+	private void setMaking(ICoreModifierRecipe recipe) {
+		if(recipe == null) recipe = BLANK_RECIPE;
+		making = recipe;
+		setFluidPerTick(recipe.getRequiredFluid().amount / FILL_TIME);
+		setEnergyPerTick(recipe.getRequiredEnergy() / FILL_TIME);
+	}
+
+	private void setFluidPerTick(int fluidPerTick){
+		if(fluidPerTick < 1) fluidPerTick = 1;
+		this.fluidPerTick = fluidPerTick;
+	}
+
+	private void setEnergyPerTick(int energy){
+		if(energy < 1) energy = 1;
+		this.energyPerTick = energy;
+	}
 
 	public ModFluidTank getFluids() { return fluids; }
 
 	public void setFacing(EnumFacing facing){
 		boolean test = false;
-		for(EnumFacing face : EnumFacing.HORIZONTALS)
-			test = test | facing == face;
-		if(test)
+		for(EnumFacing face : EnumFacing.HORIZONTALS){
+			if(this.facing == face){
+				test = true;
+				break;
+			}
+		}
+		if(test){
 			this.facing = facing;
+			notifyBlockUpdate();
+		}
 	}
 	
 	public EnumFacing getFacing(){ return facing; }
@@ -99,7 +114,9 @@ public class TileEntityCoreModifier extends ModLockableTileEntity implements IUp
 	
 	public NonNullList<ItemStack> getInventory(){ return this.inventory; }
 
-	public boolean isMaking(){ return making != null; }
+	public boolean isMaking(){ return making != BLANK_RECIPE; }
+
+	public static Collection<ICoreModifierRecipe> getRecipes(){ return RECIPES; }
 	
 //</editor-fold>
 
@@ -107,50 +124,39 @@ public class TileEntityCoreModifier extends ModLockableTileEntity implements IUp
 	
 	@Override
 	public void update() {
-		boolean markdirty = false, flagMaking = isMaking();
-        if(this.making != null && ticksFilling < FILL_TIME && Objects.requireNonNull(this.fluids.drain(fluidPerTick, false)).amount >= this.fluidPerTick && this.energy.extractEnergy(energyPerTick, true) >= this.energyPerTick){
-            int drained =  Objects.requireNonNull(this.fluids.drain(fluidPerTick, true)).amount;
-            makingFluidAmount += drained;
+		boolean markDirty = false;
+        if(isMaking() && ticksFilling < FILL_TIME && Objects.requireNonNull(this.fluids.internalDrain(fluidPerTick, false)).amount == this.fluidPerTick && this.energy.internalExtract(energyPerTick, true) == this.energyPerTick){
+            int drained =  Objects.requireNonNull(this.fluids.internalDrain(fluidPerTick, true)).amount;
             this.energy.extractEnergy(energyPerTick, false);
             this.ticksFilling++;
-        }else if(making == null && ticksFilling > 0){
-            this.ticksFilling = 0;
-            this.makingFluidAmount = 0;
+        }else if(!isMaking() && ticksFilling > 0){
+        	stopMaking();
         }
 		if(!world.isRemote){
-			if(this.making == null){
+			if(!isMaking()){
 				if(this.ticksFilling > 0){
-					this.ticksFilling = 0;
-					markdirty = true;
+					stopMaking();
+					markDirty = true;
 				}
 				ItemStack stack = this.inventory.get(SlotEnum.INPUT_SLOT.ordinal());
 				if(stack.getItem() == ModItems.EMPTY_CORE){
 					if(this.fluids.getFluid() != null && this.fluids.getInfoWrapper().getAmountStored() > 0){
-                        if(this.fluids.getFluid().isFluidEqual(new FluidStack(FluidRegistry.LAVA, 0))){
-							making = EnumMaking.LAVA_CORE;
-						}else if(this.fluids.getFluid().getFluid() == ModFluids.LIQUID_REDSTONE){
-							making = EnumMaking.ENERGY_CORE;
-						}
-						markdirty = true;
+						RECIPES.stream().filter(r -> r.getRequiredFluid().isFluidEqual(this.fluids.getFluid())).findFirst().ifPresent(this::setMaking);
+						notifyBlockUpdate();
 					}
 				}
 			}else if(this.inventory.get(SlotEnum.INPUT_SLOT.ordinal()).getItem() != ModItems.EMPTY_CORE){
-				this.making = null;
-				this.ticksFilling = 0;
+				stopMaking();
 			}else if(this.ticksFilling >= FILL_TIME){
 				if(this.inventory.get(SlotEnum.OUTPUT_SLOT.ordinal()).isEmpty()){
-					this.inventory.set(SlotEnum.OUTPUT_SLOT.ordinal(), new ItemStack(making.getItem(), 1));
+					this.inventory.set(SlotEnum.OUTPUT_SLOT.ordinal(), making.getOutput());
 					this.inventory.get(SlotEnum.INPUT_SLOT.ordinal()).shrink(1);
-					LavaSources.writeMessage(getClass(), "Making Fluid Amount = " + makingFluidAmount);
-					this.ticksFilling = 0;
-					this.makingFluidAmount = 0;
-					this.making = null;
-					markdirty = true;
-				}
+					stopMaking();
+					markDirty = true;
+				}else ticksFilling = FILL_TIME;
 			}
 		}
-		if(markdirty) markDirty();
-		if(flagMaking != isMaking())notifyBlockUpdate();
+		if(markDirty) markDirty();
 	}
 	
 //</editor-fold>
@@ -220,7 +226,7 @@ public class TileEntityCoreModifier extends ModLockableTileEntity implements IUp
 				return index.isPresent() ? index.getAsInt() : -1;
 			case 4: return this.fluids.getCapacity();
 			case 5: return this.energy.getMaxEnergyStored();
-			case 6: return making != null ? this.making.ordinal() : -1;
+			case 6: return RECIPES.indexOf(making);
 			case 7: return FILL_TIME;
 			default: return 0;
 		}
@@ -248,8 +254,8 @@ public class TileEntityCoreModifier extends ModLockableTileEntity implements IUp
 				this.energy.setCapacity(value);
 				break;
 			case 6:
-				if(value > -1) making = EnumMaking.values()[value];
-				else making = null;
+				if(value > -1) making = RECIPES.get(value);
+				else stopMaking();
 				break;
 		}
 	}
@@ -289,7 +295,7 @@ public class TileEntityCoreModifier extends ModLockableTileEntity implements IUp
 	
 //</editor-fold>
 	
-//<editor-fold defaultstate=collapsed desc=". . . . Persistent Inventory">
+//<editor-fold defaultstate="collapsed" desc=". . . . Persistent Inventory">
 	public boolean shouldDropSpecial(){
 		return inventory.stream().anyMatch((s) -> !s.isEmpty())
 				|| this.hasCustomName()
@@ -310,7 +316,7 @@ public class TileEntityCoreModifier extends ModLockableTileEntity implements IUp
 		compound.setTag(ENERGY_TAG, energy.serializeNBT());
 		compound.setTag(FLUIDS_TAG, fluids.serializeNBT());
 		compound.setInteger(TICKS_TAG, this.ticksFilling);
-		compound.setInteger(MAKING_TAG, making != null ? making.ordinal() : -1);
+		compound.setString(MAKING_TAG, making.getRegistryName().toString());
 		return compound;
 	}
 
@@ -321,12 +327,12 @@ public class TileEntityCoreModifier extends ModLockableTileEntity implements IUp
 		if(compound.hasKey(ENERGY_TAG))energy.deserializeNBT(compound.getCompoundTag(ENERGY_TAG));
 		if(compound.hasKey(FLUIDS_TAG))fluids.deserializeNBT(compound.getCompoundTag(FLUIDS_TAG));
 		if(compound.hasKey(TICKS_TAG)) ticksFilling = compound.getInteger(TICKS_TAG);
-		int making = this.making!= null? this.making.ordinal(): -1;
-		if(compound.hasKey(MAKING_TAG)) making = compound.getInteger(MAKING_TAG);
-		if(making > -1)
-			this.making = EnumMaking.values()[making];
+		if(compound.hasKey(MAKING_TAG)){
+			ResourceLocation location = new ResourceLocation(compound.getString(MAKING_TAG));
+			setMaking(RECIPES.stream().filter(r -> r.getRegistryName().equals(location)).findFirst().orElse(BLANK_RECIPE));
+		}
 		else
-			this.making = null;
+			stopMaking();
 	}
 
 	@Override
@@ -338,7 +344,13 @@ public class TileEntityCoreModifier extends ModLockableTileEntity implements IUp
 	}
 //</editor-fold>
 
-//<editor-fold defaultstate=collapsed desc=". . . . Helpers">
+//<editor-fold defaultstate="collapsed" desc=". . . . Helpers">
+
+	private void stopMaking(){
+		setMaking(BLANK_RECIPE);
+		ticksFilling = 0;
+		notifyBlockUpdate();
+	}
 
 	public void updateTierRelatedComponents(){
 		this.updateTierRelatedComponents(energy.getEnergyStored(),
@@ -355,9 +367,19 @@ public class TileEntityCoreModifier extends ModLockableTileEntity implements IUp
 		markDirty();
 	}
 
-	public static void addPossibleFluid(FluidStack newFluid){
-		if(POSSIBLE_FLUIDS.stream().noneMatch((fluid) -> fluid.isFluidEqual(newFluid))) POSSIBLE_FLUIDS.add(newFluid);
+	public static void addPossibleFluid(FluidStack newFluid){ if(POSSIBLE_FLUIDS.stream().noneMatch((fluid) -> fluid.isFluidEqual(newFluid))) POSSIBLE_FLUIDS.add(newFluid); }
+
+	public static void initRecipes(IForgeRegistry<ICoreModifierRecipe> registry){
+		RECIPES = new ArrayList(registry.getValuesCollection());
+		LavaSources.writeMessage(TileEntityCoreModifier.class, "RECIPES = " + RECIPES);
 	}
+
+	public enum SlotEnum{ INPUT_SLOT, OUTPUT_SLOT }
+
+	public static final List<FluidStack> POSSIBLE_FLUIDS = new ArrayList(Arrays.asList(
+			new FluidStack(FluidRegistry.LAVA, 0),
+			new FluidStack(ModFluids.LIQUID_REDSTONE, 0)
+	));
 
 //</editor-fold>
 }

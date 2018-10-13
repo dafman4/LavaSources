@@ -28,7 +28,7 @@ public abstract class GuiElement {
 
 	protected TextureAtlasSprite getFluidSprite(FluidStack fluid){return mc.getTextureMapBlocks().getAtlasSprite(fluid.getFluid().getStill().toString()); }
 	protected void bindTextureAtlasTextures(){ mc.renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE); }
-	protected static int getProgressOrFillLevel(int pixels, int amount, int max){ return amount * pixels / max;}
+	public static int getProgressOrFillLevel(int pixels, int amount, int max){ return amount * pixels / max;}
 	protected int getField(int fieldId){ return container != null ? container.getField(fieldId) : -1; }
 
 

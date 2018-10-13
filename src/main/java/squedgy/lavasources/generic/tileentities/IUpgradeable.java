@@ -1,5 +1,5 @@
 
-package squedgy.lavasources.generic;
+package squedgy.lavasources.generic.tileentities;
 
 // Author David
 

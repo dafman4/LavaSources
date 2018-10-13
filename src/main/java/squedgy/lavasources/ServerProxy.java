@@ -2,8 +2,6 @@ package squedgy.lavasources;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import squedgy.lavasources.factory.GenericFactory;
-import squedgy.lavasources.generic.ILoader;
 
 /**
  *

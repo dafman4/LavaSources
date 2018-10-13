@@ -1,4 +1,4 @@
-package squedgy.lavasources.generic;
+package squedgy.lavasources.generic.blocksoritems;
 
 import squedgy.lavasources.research.Research;
 

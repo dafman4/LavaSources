@@ -1,4 +1,4 @@
-package squedgy.lavasources.generic;
+package squedgy.lavasources.generic.gui;
 
 import net.minecraft.client.gui.Gui;
 import net.minecraft.entity.player.InventoryPlayer;

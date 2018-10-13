@@ -9,8 +9,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import squedgy.lavasources.block.ModBlock;
-import squedgy.lavasources.generic.IPersistentInventory;
+import squedgy.lavasources.generic.tileentities.IPersistentInventory;
 
 
 public abstract class ModPersistentBlock extends ModBlock {

@@ -3,8 +3,7 @@ package squedgy.lavasources.enums;
 
 // Author David
 
-import squedgy.lavasources.LavaSources;
-import squedgy.lavasources.generic.IUpgradeable;
+import squedgy.lavasources.generic.tileentities.IUpgradeable;
 
 public enum EnumUpgradeTier {
 	BASIC,

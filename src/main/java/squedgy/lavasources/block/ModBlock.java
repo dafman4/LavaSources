@@ -17,8 +17,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import squedgy.lavasources.LavaSources;
-import squedgy.lavasources.generic.IModCraftable;
-import squedgy.lavasources.generic.IPotentialOreDictionaryMember;
+import squedgy.lavasources.generic.blocksoritems.IModCraftable;
+import squedgy.lavasources.generic.blocksoritems.IPotentialOreDictionaryMember;
 import squedgy.lavasources.init.ModBlocks;
 import squedgy.lavasources.research.Research;
 

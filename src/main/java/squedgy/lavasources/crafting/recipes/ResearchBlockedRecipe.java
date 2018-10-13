@@ -1,154 +1,87 @@
 package squedgy.lavasources.crafting.recipes;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.InventoryCrafting;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.util.JsonUtils;
 import net.minecraft.util.NonNullList;
 import net.minecraft.world.World;
-import net.minecraftforge.common.crafting.IRecipeFactory;
-import net.minecraftforge.common.crafting.IShapedRecipe;
 import net.minecraftforge.common.crafting.JsonContext;
-import net.minecraftforge.oredict.ShapedOreRecipe;
+import net.minecraftforge.oredict.ShapelessOreRecipe;
 import net.minecraftforge.registries.IForgeRegistryEntry;
-import scala.actors.threadpool.Arrays;
 import squedgy.lavasources.LavaSources;
 import squedgy.lavasources.capabilities.IPlayerResearchCapability;
 import squedgy.lavasources.crafting.CraftingUtils;
-import squedgy.lavasources.generic.IModCraftable;
-import squedgy.lavasources.helper.RecipeHelper;
 import squedgy.lavasources.init.ModCapabilities;
 import squedgy.lavasources.research.Research;
-import squedgy.lavasources.research.ResearchUtil;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-public class ResearchBlockedRecipe extends IForgeRegistryEntry.Impl<IRecipe> implements IShapedRecipe {
+public class ResearchBlockedRecipe<T extends IRecipe> extends IForgeRegistryEntry.Impl<IRecipe> implements IRecipe {
 
-//<editor-fold defaultstate="collapsed" desc=". . . . Fields/Constructors">
+	public static final RecipeFactory.RecipeReturnable<ResearchBlockedRecipe<ShapelessOreRecipe>> RESEARCH_BLOCKED_FACTORY = (context, object, r) -> new ResearchBlockedRecipe(((context1, object1, r1) -> ShapelessOreRecipe.factory(context1, object1)), context, object, r);
+	protected final List<Research> BLOCKED_BY = new ArrayList<>();
+	protected final T RECIPE;
 
-	private final List<Research> BLOCKED_BY = new ArrayList<>();
-	private final ShapedOreRecipe RECIPE;
-
-	public ResearchBlockedRecipe(Research[] blockedBy, ShapedOreRecipe recipe){
-		this.BLOCKED_BY.addAll(Arrays.asList(blockedBy));
-		this.RECIPE = recipe;
+	public ResearchBlockedRecipe(Factory.RecipeReturnable<T> factory, JsonContext context, JsonObject obj, Research... required){
+		RECIPE = factory.getRecipe(context, obj);
+		BLOCKED_BY.addAll(Arrays.asList(required));
 	}
-
-//</editor-fold>
-
-//<editor-fold defaultstate="collapsed" desc=". . . . Getters/Setters">
 
 	public boolean isPlayerCraftable(EntityPlayer player){
-		if(ModCapabilities.PLAYER_RESEARCH_CAPABILITY != null)
-			if (player.hasCapability(ModCapabilities.PLAYER_RESEARCH_CAPABILITY, null)) {
-				IPlayerResearchCapability cap = player.getCapability(ModCapabilities.PLAYER_RESEARCH_CAPABILITY, null);
-				for (Research r : BLOCKED_BY) if (!cap.hasResearch(r)) return false;
-				return true;
-			}
-		return false;
-	}
-
-	@Override
-	public int getRecipeWidth() {
-		return RECIPE.getRecipeWidth();
-	}
-
-	@Override
-	public int getRecipeHeight() {
-		return RECIPE.getRecipeHeight();
-	}
-
-	@Override
-	public boolean matches(InventoryCrafting inv, World worldIn) {
-		try {
-			EntityPlayer pl = CraftingUtils.getPlayerIfPossible(inv);
-			if(pl != null && isPlayerCraftable(pl)) return RECIPE.matches(inv, worldIn);
-		} catch (Exception e) {
-			LavaSources.writeMessage(getClass(), "There was an issue retrieving the player crafting this recipe: this is potentially not LavaSources fault");
-			LavaSources.writeMessage(getClass(), e.getMessage());
-			LavaSources.writeMessage(getClass(), "recipe = " + RECIPE.getRegistryName());
+		boolean ret = true;
+		if (player.hasCapability(ModCapabilities.PLAYER_RESEARCH_CAPABILITY, null)) {
+			IPlayerResearchCapability cap = player.getCapability(ModCapabilities.PLAYER_RESEARCH_CAPABILITY, null);
+			for(Research r : BLOCKED_BY)if(!cap.hasResearch(r))ret = false;
+		}else{
+			ret = false;
 		}
-		return false;
+		return ret;
 	}
 
 	@Override
-	public ItemStack getCraftingResult(InventoryCrafting inv) {
-		return RECIPE.getCraftingResult(inv);
-	}
-
-	@Override
-	public boolean canFit(int width, int height) {
-		return RECIPE.canFit(width, height);
-	}
-
-	@Override
-	public ItemStack getRecipeOutput() {
-		return RECIPE.getRecipeOutput();
-	}
-
-	@Override
-	public NonNullList<Ingredient> getIngredients() {
-		return RECIPE.getIngredients();
-	}
-
-
-
-//</editor-fold>
-
-	public static final class Factory implements IRecipeFactory{
-
-		private class ResearchReturn implements Returnable<Research>{
-			@Override
-			public Research getItem(int i, JsonArray arr) {
-				LavaSources.writeMessage(getClass(), "trying to get research from " + arr.get(i));
-				if(isPrimitive(arr.get(i))){
-					return ResearchUtil.getResearch(arr.get(i).getAsJsonPrimitive().getAsString());
-				}
-				return null;
+	public boolean matches(InventoryCrafting inventoryCrafting, World world) {
+		boolean flag = true;
+		if(world != null && world.isRemote) {
+			try {
+				EntityPlayer p = CraftingUtils.getPlayerIfPossible(inventoryCrafting);
+				flag = isPlayerCraftable(p);
+			} catch (Exception e) {
+				LavaSources.writeMessage(getClass(), "there was an issue finding the player crafting!\n\t\tthis might not be LavaSources fault!\n\t\terror: " + e.getLocalizedMessage());
+				flag = false;
 			}
 		}
+		return flag && RECIPE.matches(inventoryCrafting, world);
+	}
 
-		@Override
-		public IShapedRecipe parse(JsonContext context, JsonObject json) {
-			LavaSources.writeMessage(getClass(), "reading recipe " + json);
-			if(json.has("pattern") && json.has("key") && json.has("result")){
-				Research[] required = new Research[0];
+	@Override
+	public ItemStack getCraftingResult(InventoryCrafting inventoryCrafting) { return RECIPE.getCraftingResult(inventoryCrafting); }
 
-				if(json.has("required")){
-					required = getArrayFromJson(json, "required", new ResearchReturn());
-				}
-				ShapedOreRecipe recipe = ShapedOreRecipe.factory(context, json);
-				recipe.setRegistryName(RecipeHelper.getNameForRecipe(recipe.getRecipeOutput()));
-				return new ResearchBlockedRecipe(required, recipe);
-			}else
-			throw new IllegalArgumentException("The recipe provided didn't have one or more of the following members \"pattern, key, result\"");
-		}
+	@Override
+	public boolean canFit(int i, int i1) { return RECIPE.canFit(i, i1); }
 
-		@FunctionalInterface
-		private interface Returnable<T>{ T getItem(int i , JsonArray arr); }
+	@Override
+	public ItemStack getRecipeOutput() { return RECIPE.getRecipeOutput(); }
 
-		@SafeVarargs
-		private final <T> T[] getArrayFromJson(JsonObject obj, String arrayNode, Returnable<T> returnable, T... empty){
-			JsonArray arr = JsonUtils.getJsonArray(obj, arrayNode);
-			ArrayList<T> ret = new ArrayList<>(arr.size());
-			for(int i = 0; i < arr.size(); i++){
-				ret.add(returnable.getItem(i, arr));
-			}
-			return ret.toArray(empty);
-		}
+	@Override
+	public NonNullList<ItemStack> getRemainingItems(InventoryCrafting inv) { return RECIPE.getRemainingItems(inv); }
 
-		private boolean isPrimitive(JsonElement e) {
-			if(!e.isJsonPrimitive()) throw new IllegalArgumentException("An element that should be json primitive is not!");
-			return true;
-		}
+	@Override
+	public NonNullList<Ingredient> getIngredients() { return RECIPE.getIngredients(); }
+
+	@Override
+	public boolean isDynamic() { return RECIPE.isDynamic(); }
+
+	@Override
+	public String getGroup() { return RECIPE.getGroup(); }
+
+	public static class Factory extends RecipeFactory<ResearchBlockedRecipe<ShapelessOreRecipe>> {
+
+		public Factory() { super(RESEARCH_BLOCKED_FACTORY); }
+
 	}
 }

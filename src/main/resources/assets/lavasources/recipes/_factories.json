@@ -3,6 +3,7 @@
 
 	},
 	"recipes":{
-		"research_recipe":"squedgy.lavasources.crafting.recipes.ResearchBlockedRecipe$Factory"
+		"research_recipe":"squedgy.lavasources.crafting.recipes.ResearchBlockedRecipe$Factory",
+		"research_recipe_shaped":"squedgy.lavasources.crafting.recipes.ResearchBlockedShapedRecipe$Factory"
 	}
 }

@@ -45,8 +45,6 @@ public abstract class ModTileEntity extends TileEntity {
 	}
 
 	protected void notifyBlockUpdate(){
-		LavaSources.writeMessage(getClass(), "notifyBlockUpdate()");
-		if(this instanceof TileEntityLiquefier) LavaSources.writeMessage(getClass(), "" + ((TileEntityLiquefier)this).isLiquefying());
 		IBlockState state = world.getBlockState(pos).getActualState(world, pos);
 		world.notifyBlockUpdate(pos, state, state, 1 & 2);
 	}
