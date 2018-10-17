@@ -1,0 +1,16 @@
+{
+	"recipes":[
+		{
+			"name":"redstone_dust",
+			"fluid":"liquid_redstone",
+			"ore":"dustRedstone",
+			"output":100
+		},
+		{
+			"name":"redstone_block",
+			"fluid":"liquid_redstone",
+			"ore":"blockRedstone",
+			"output":1000
+		}
+	]
+}

@@ -32,6 +32,7 @@ import squedgy.lavasources.init.ModItems;
 import squedgy.lavasources.inventory.ContainerCoreModifier;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
@@ -221,9 +222,7 @@ public class TileEntityCoreModifier extends ModLockableTileEntity implements IUp
 			case 0: return this.ticksFilling;
 			case 1: return this.fluids.getFluidAmount();
 			case 2: return this.energy.getEnergyStored();
-			case 3:
-				OptionalInt index = IntStream.range(0, POSSIBLE_FLUIDS.size()).filter((i) -> POSSIBLE_FLUIDS.get(i).isFluidEqual(fluids.getFluid())).findFirst();
-				return index.isPresent() ? index.getAsInt() : -1;
+			case 3: return IntStream.range(0, POSSIBLE_FLUIDS.size()).filter((i) -> POSSIBLE_FLUIDS.get(i).isFluidEqual(fluids.getFluid())).findFirst().orElse(-1);
 			case 4: return this.fluids.getCapacity();
 			case 5: return this.energy.getMaxEnergyStored();
 			case 6: return RECIPES.indexOf(making);
@@ -367,19 +366,16 @@ public class TileEntityCoreModifier extends ModLockableTileEntity implements IUp
 		markDirty();
 	}
 
-	public static void addPossibleFluid(FluidStack newFluid){ if(POSSIBLE_FLUIDS.stream().noneMatch((fluid) -> fluid.isFluidEqual(newFluid))) POSSIBLE_FLUIDS.add(newFluid); }
-
 	public static void initRecipes(IForgeRegistry<ICoreModifierRecipe> registry){
 		RECIPES = new ArrayList(registry.getValuesCollection());
+		POSSIBLE_FLUIDS.clear();
+		POSSIBLE_FLUIDS.addAll(RECIPES.stream().map(ICoreModifierRecipe::getRequiredFluid).distinct().collect(Collectors.toList()));
 		LavaSources.writeMessage(TileEntityCoreModifier.class, "RECIPES = " + RECIPES);
 	}
 
 	public enum SlotEnum{ INPUT_SLOT, OUTPUT_SLOT }
 
-	public static final List<FluidStack> POSSIBLE_FLUIDS = new ArrayList(Arrays.asList(
-			new FluidStack(FluidRegistry.LAVA, 0),
-			new FluidStack(ModFluids.LIQUID_REDSTONE, 0)
-	));
+	public static final List<FluidStack> POSSIBLE_FLUIDS = new ArrayList();
 
 //</editor-fold>
 }

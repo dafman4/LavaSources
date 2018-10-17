@@ -1,17 +1,19 @@
 package squedgy.lavasources.gui;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraftforge.fluids.FluidRegistry;
-import org.lwjgl.input.Keyboard;
 import squedgy.lavasources.gui.elements.ElementFillable;
-import squedgy.lavasources.gui.elements.ElementOverlay;
+import squedgy.lavasources.gui.elements.ElementTextDisplay;
 import squedgy.lavasources.init.ModFluids;
 import squedgy.lavasources.inventory.ContainerLiquefier;
 
+import java.util.Arrays;
+
 import static squedgy.lavasources.gui.GuiLiquefier.EnumFields.*;
 import static squedgy.lavasources.gui.elements.ElementFillable.EnumFillableType.*;
-import static squedgy.lavasources.helper.GuiLocation.*;
+import static squedgy.lavasources.helper.GuiLocation.GuiLocations.*;
 
 /**
  *
@@ -35,16 +37,25 @@ public class GuiLiquefier extends ModGui {
 		super(new ContainerLiquefier(player, inventory));
 		this.PLAYER_INVENTORY = player;
 		this.INVENTORY = inventory;
-		addElement(new ElementFillable(this, 7, 4, inventory, ENERGY_AMOUNT.ordinal(), MAX_ENERGY_STORED.ordinal(), VERTICAL_FILL, energy_fill));
-		addElement(new ElementFillable(this, 107, 5, inventory, FLUIDS_AMOUNT.ordinal(), FLUID_CAPACITY.ordinal(), WIDE_FILL, () -> FluidRegistry.getFluidStack(ModFluids.LIQUID_REDSTONE.getName(), 0), fillable_wide));
-		addElement(new ElementOverlay (this, 108, 6, inventory, fillable_wide_overlay));
+	}
+
+
+	@Override
+	protected void setElements(){
+		addElement(new ElementFillable(this, 7, 4, INVENTORY, ENERGY_AMOUNT.ordinal(), MAX_ENERGY_STORED.ordinal(), VERTICAL_FILL, energy_fill));
+		addElement(new ElementFillable(this, 107, 5, INVENTORY, FLUIDS_AMOUNT.ordinal(), FLUID_CAPACITY.ordinal(), WIDE_FILL, () -> FluidRegistry.getFluidStack(ModFluids.LIQUID_REDSTONE.getName(), 0), fillable_wide));
+		String s = INVENTORY.getDisplayName().getUnformattedText();
+		int sWidth = fontRenderer.getStringWidth(s);
+		addElement(new ElementTextDisplay(this, xSize/4-sWidth/2, 6,sWidth, fontRenderer.FONT_HEIGHT, null, Arrays.asList(s)));
+		addElement(new ElementTextDisplay(this, 8, 40, fontRenderer.getStringWidth(PLAYER_INVENTORY.getDisplayName().getUnformattedComponentText()), fontRenderer.FONT_HEIGHT, null, Arrays.asList(PLAYER_INVENTORY.getDisplayName().getUnformattedComponentText()) ));
+
 	}
 
 	@Override
 	protected void drawForegroundLayer(int mouseX, int mouseY){
-		String s = INVENTORY.getDisplayName().getUnformattedText();
-		this.fontRenderer.drawString(s, xSize/4-this.fontRenderer.getStringWidth(s)/2, 6,0x404040);
-		this.fontRenderer.drawString(PLAYER_INVENTORY.getDisplayName().getUnformattedText(), 8, 40, 0x404040);
+//		String s = INVENTORY.getDisplayName().getUnformattedText();
+//		this.fontRenderer.drawString(s, xSize/4-this.fontRenderer.getStringWidth(s)/2, 6,0x404040);
+//		this.fontRenderer.drawString(PLAYER_INVENTORY.getDisplayName().getUnformattedText(), 8, 40, 0x404040);
 	}
 	
 	@Override

@@ -14,7 +14,7 @@ import squedgy.lavasources.research.ResearchUtil;
 
 import java.util.ArrayList;
 
-import static squedgy.lavasources.init.ModResearch.RegistryHandler.jsonHasAllMembers;
+import static squedgy.lavasources.events.EventListener.jsonHasAllMembers;
 
 public class RecipeFactory<T extends IRecipe> implements IRecipeFactory {
 

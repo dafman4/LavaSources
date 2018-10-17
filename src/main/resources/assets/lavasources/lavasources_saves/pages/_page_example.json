@@ -1,0 +1,12 @@
+{
+	"page":[
+		{
+			"image":"lavasources:page_test_image",
+			"_Comment":"this is a link to a GuiLocation image"
+		},
+		{
+			"text":"lavasources.pages.example.text1",
+			"_Comment":"this is a reference to a lang file property"
+		}
+	]
+}

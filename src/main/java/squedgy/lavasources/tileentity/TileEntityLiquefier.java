@@ -15,23 +15,26 @@ import net.minecraft.util.ITickable;
 import net.minecraft.util.NonNullList;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.energy.CapabilityEnergy;
-import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.fml.common.registry.GameRegistry;
 import squedgy.lavasources.LavaSources;
 import squedgy.lavasources.capabilities.ModEnergyStorage;
 import squedgy.lavasources.capabilities.ModFluidTank;
+import squedgy.lavasources.crafting.recipes.LiquefierRecipe;
 import squedgy.lavasources.enums.EnumUpgradeTier;
+import squedgy.lavasources.generic.recipes.ILiquefierRecipe;
 import squedgy.lavasources.generic.tileentities.IPersistentInventory;
 import squedgy.lavasources.generic.tileentities.IUpgradeable;
 import squedgy.lavasources.init.ModFluids;
 import squedgy.lavasources.init.ModItems;
 import squedgy.lavasources.inventory.ContainerLiquefier;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static squedgy.lavasources.tileentity.TileEntityLiquefier.SlotEnum.INPUT_SLOT;
 
@@ -44,10 +47,11 @@ public class TileEntityLiquefier extends ModLockableTileEntity implements IUpgra
 //<editor-fold defaultstate="collapsed" desc=". . . . Fields/Constructors">
 	public static final String TIER_TAG = "tier", ENERGY_TAG = "energy", FLUID_TAG = "fluid", LIQUEFYING_TAG = "liquefying", INVENTORY_TAG = "inventory";
 	public enum SlotEnum{ INPUT_SLOT }
-	public static final List<Fluid> POSSIBLE_FLUIDS = Arrays.asList(ModFluids.LIQUID_REDSTONE);
 	private static final int[] SLOTS = {INPUT_SLOT.ordinal()};
 	private NonNullList<ItemStack> inventory = NonNullList.<ItemStack>withSize(1, ItemStack.EMPTY);
-	public static final int FLUID_PER_REDSTONE = 100;
+	private static List<ILiquefierRecipe> recipes;
+	private static final ILiquefierRecipe BLANK_RECIPE = new LiquefierRecipe("empty_recipe", null, null, 0);
+	private ILiquefierRecipe recipe = BLANK_RECIPE;
 	private int energyPerTick;
 	private EnumUpgradeTier tier;
 	private ModEnergyStorage energy;
@@ -71,7 +75,7 @@ public class TileEntityLiquefier extends ModLockableTileEntity implements IUpgra
 
 	public ModFluidTank getFluids() { return fluids; }
 	
-	public boolean isLiquefying(){ return this.liquefying; }
+	public boolean isLiquefying(){ return liquefying; }
 
 	public void setLiquefying(boolean newValue){
 		if(newValue != liquefying) notifyBlockUpdate();
@@ -93,21 +97,24 @@ public class TileEntityLiquefier extends ModLockableTileEntity implements IUpgra
 	@Override
 	public void update() {
 		boolean flag = false;
-		ItemStack inputSlot = inventory.get(INPUT_SLOT.ordinal());
-		boolean isBlock = !inputSlot.isItemEqual(Items.REDSTONE.getDefaultInstance());
-		int fluidMultiplier = isBlock ? 10 : 1, energyMultiplier = isBlock ? 12 : 1;
 		if(!world.isRemote){
+			ItemStack input = inventory.get(INPUT_SLOT.ordinal());
 			boolean liquefying = false;
-			if(inputSlot.isItemEqual(Items.REDSTONE.getDefaultInstance()) || inputSlot.isItemEqual(Item.getItemFromBlock(Blocks.REDSTONE_BLOCK).getDefaultInstance()) && this.energy.getEnergyStored() >= energyPerTick){
-				if(FLUID_PER_REDSTONE * fluidMultiplier == fluids.internalFill(new FluidStack(ModFluids.LIQUID_REDSTONE, FLUID_PER_REDSTONE * fluidMultiplier), false)){
-					if(energy.internalExtract(energyPerTick * energyMultiplier, true) == energyPerTick * energyMultiplier){
-						fluids.internalFill(new FluidStack(ModFluids.LIQUID_REDSTONE, FLUID_PER_REDSTONE * fluidMultiplier), true);
-						energy.internalExtract(energyPerTick * energyMultiplier, false);
-						this.inventory.get(INPUT_SLOT.ordinal()).shrink(1);
-						setLiquefying(true);
-						flag = true;
-						if(this.inventory.get(INPUT_SLOT.ordinal()).isEmpty())inventory.set(INPUT_SLOT.ordinal(), ItemStack.EMPTY);
-					}
+			if(!recipe.hasInput(input)){
+				recipe = recipes.stream().filter(r -> r.hasInput(input)).findFirst().orElse(BLANK_RECIPE);
+			}
+			if(recipe != BLANK_RECIPE && this.energy.getEnergyStored() >= energyPerTick && (fluids.getCapacity() - fluids.getFluidAmount()) >= recipe.getOutput(input).amount){
+				FluidStack output = recipe.getOutput(input);
+				LavaSources.writeMessage(getClass(), "output = [" + output.getFluid().getName() + ", " + output.amount + "]");
+				int energyExtract = energy.internalExtract(energyPerTick, true), fluidExtract = fluids.internalFill(output, false);
+				LavaSources.writeMessage(getClass(), "energyExtract = " + energyExtract + " , " + energyPerTick + ", fluidExtract = " + fluidExtract);
+				if(energyExtract == energyPerTick && fluidExtract == output.amount){
+					energy.internalExtract(energyPerTick, false);
+					fluids.internalFill(output, true);
+					flag = true;
+					liquefying = true;
+					input.shrink(1);
+					if(input.isEmpty())inventory.set(INPUT_SLOT.ordinal(), ItemStack.EMPTY);
 				}
 			}
 			setLiquefying(liquefying);
@@ -170,7 +177,7 @@ public class TileEntityLiquefier extends ModLockableTileEntity implements IUpgra
 	public void updateTierRelatedComponents(){ updateTierRelatedComponents(energy.getEnergyStored(), fluids.getFluidAmount()); }
 
 	private void updateTierRelatedComponents(int energyStored, int fluidHeld){
-		fluids = tier.getFluidTier().getFluidTank(new FluidStack(ModFluids.LIQUID_REDSTONE, fluidHeld), false);
+		fluids = tier.getFluidTier().getFluidTank(new FluidStack(ModFluids.LIQUID_REDSTONE, fluidHeld), recipes.stream().map(r -> r.getOutput(r.getInputs()[0])).toArray(FluidStack[]::new));
 		energy = tier.getEnergyTier().getEnergyStorage(energyStored);
 		this.energyPerTick = tier.getEnergyTier().getRequired();
 	}
@@ -270,9 +277,13 @@ public class TileEntityLiquefier extends ModLockableTileEntity implements IUpgra
 		this.updateTierRelatedComponents();
 		if(compound.hasKey(ENERGY_TAG)) energy.deserializeNBT(compound.getCompoundTag(ENERGY_TAG));
 		if(compound.hasKey(FLUID_TAG)) fluids.deserializeNBT(compound.getCompoundTag(FLUID_TAG));
-		if(compound.hasKey(LIQUEFYING_TAG)) setLiquefying(compound.getBoolean(LIQUEFYING_TAG));
+		if(compound.hasKey(LIQUEFYING_TAG)) liquefying = (compound.getBoolean(LIQUEFYING_TAG));
 	}
 
 //</editor-fold>
+
+	public static void updateRecipes(){
+		recipes = new ArrayList<>(GameRegistry.findRegistry(ILiquefierRecipe.class).getValuesCollection());
+	}
 
 }

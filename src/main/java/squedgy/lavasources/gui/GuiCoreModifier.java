@@ -11,7 +11,7 @@ import squedgy.lavasources.inventory.ContainerCoreModifier;
 import static squedgy.lavasources.gui.GuiCoreModifier.EnumFields.*;
 import static squedgy.lavasources.gui.elements.ElementFillable.EnumFillableType.HORIZONTAL_FILL;
 import static squedgy.lavasources.gui.elements.ElementFillable.EnumFillableType.VERTICAL_FILL;
-import static squedgy.lavasources.helper.GuiLocation.energy_fill;
+import static squedgy.lavasources.helper.GuiLocation.GuiLocations.energy_fill;
 import static squedgy.lavasources.tileentity.TileEntityCoreModifier.POSSIBLE_FLUIDS;
 
 /**
@@ -38,16 +38,20 @@ public class GuiCoreModifier extends ModGui {
 		super(new ContainerCoreModifier(player, inventory));
 		INVENTORY = inventory;
 		PLAYER_INVENTORY = player;
-		addElement(new ElementFillable(this, 7, 4, inventory, FLUIDS_AMOUNT.ordinal(), FLUID_CAPACITY.ordinal(), VERTICAL_FILL,
-				() -> {
-					FluidStack ret =null;
-					ret = POSSIBLE_FLUIDS.get(this.INVENTORY.getField(FLUID_INDEX.ordinal()));
-					return ret;
-				}
-			)
+	}
+
+	@Override
+	protected void setElements() {
+		addElement(new ElementFillable(this, 7, 4, INVENTORY, FLUIDS_AMOUNT.ordinal(), FLUID_CAPACITY.ordinal(), VERTICAL_FILL,
+						() -> {
+							FluidStack ret;
+							ret = POSSIBLE_FLUIDS.get(this.INVENTORY.getField(FLUID_INDEX.ordinal()));
+							return ret;
+						}
+				)
 		);
-		addElement(new ElementFillable(this, 75, 21, inventory, TICKS_FILLING.ordinal(), FILL_TIME.ordinal(), HORIZONTAL_FILL));
-		addElement(new ElementFillable(this, 161, 4, inventory, ENERGY_AMOUNT.ordinal(), MAX_ENERGY_STORED.ordinal(), VERTICAL_FILL, energy_fill));
+		addElement(new ElementFillable(this, 75, 21, INVENTORY, TICKS_FILLING.ordinal(), FILL_TIME.ordinal(), HORIZONTAL_FILL));
+		addElement(new ElementFillable(this, 161, 4, INVENTORY, ENERGY_AMOUNT.ordinal(), MAX_ENERGY_STORED.ordinal(), VERTICAL_FILL, energy_fill));
 	}
 
 	@Override

@@ -1,30 +1,26 @@
 package squedgy.lavasources.jei;
 
-import com.google.gson.JsonObject;
 import mezz.jei.api.ingredients.IIngredients;
 import mezz.jei.api.ingredients.VanillaTypes;
 import mezz.jei.api.recipe.*;
 import mezz.jei.api.recipe.wrapper.IShapedCraftingRecipeWrapper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.util.NonNullList;
-import net.minecraftforge.common.crafting.IShapedRecipe;
-import net.minecraftforge.common.crafting.JsonContext;
 import squedgy.lavasources.crafting.recipes.ResearchBlockedRecipe;
 import squedgy.lavasources.crafting.recipes.ResearchBlockedShapedRecipe;
-import squedgy.lavasources.research.Research;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class ResearchBlockedRecipeIntegration<T extends ResearchBlockedRecipe> extends BlankRecipeWrapper{
+public class ResearchBlockedIntegration<T extends ResearchBlockedRecipe> extends BlankRecipeWrapper{
+
 
 	protected T recipe;
 
-	private ResearchBlockedRecipeIntegration(T recipe){
+	private ResearchBlockedIntegration(T recipe){
 		super();
 		this.recipe = recipe;
 	}
@@ -38,7 +34,7 @@ public class ResearchBlockedRecipeIntegration<T extends ResearchBlockedRecipe> e
 		ingredients.setInputLists(VanillaTypes.ITEM, inputs);
 	}
 
-	public static class ResearchBlockedShapedRecipeWrapper extends ResearchBlockedRecipeIntegration<ResearchBlockedShapedRecipe> implements IShapedCraftingRecipeWrapper {
+	public static class ResearchBlockedShapedRecipeWrapper extends ResearchBlockedIntegration<ResearchBlockedShapedRecipe> implements IShapedCraftingRecipeWrapper {
 
 		public ResearchBlockedShapedRecipeWrapper(ResearchBlockedShapedRecipe recipe) { super(recipe); }
 
@@ -49,7 +45,7 @@ public class ResearchBlockedRecipeIntegration<T extends ResearchBlockedRecipe> e
 		public int getHeight() { return recipe.getRecipeHeight(); }
 	}
 
-	public static class ResearchBlockedRecipeWrapper extends ResearchBlockedRecipeIntegration<ResearchBlockedRecipe>{
+	public static class ResearchBlockedRecipeWrapper extends ResearchBlockedIntegration<ResearchBlockedRecipe> {
 
 		public ResearchBlockedRecipeWrapper(ResearchBlockedRecipe recipe) { super(recipe); }
 	}
@@ -83,4 +79,5 @@ public class ResearchBlockedRecipeIntegration<T extends ResearchBlockedRecipe> e
 			return ret;
 		}
 	}
+
 }

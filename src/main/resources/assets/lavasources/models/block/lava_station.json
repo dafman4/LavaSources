@@ -3,22 +3,19 @@
 	"ambientocclusion": false,
 	"textures": {
 		"general": "lavasources:blocks/lava_station",
-		"particle": "lavasources:blocks/lava_station_side",
 		"water": "lavasources:blocks/water_bottom",
-		"lava_bottom": "lavasources:blocks/lava_bottom"
+		"lava_bottom": "lavasources:blocks/lava_bottom",
+		"particle": "lavasources:blocks/lava_station_side"
 	},
 	"elements": [
 		{
-			"name": "solid_side",
-			"from": [1, 0, 1],
-			"to": [15, 16, 8],
+			"name": "solid_side_south",
+			"from": [0, 0, 4],
+			"to": [16, 16, 8],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 4.5]},
 			"faces": {
-				"north": {"uv": [0, 16, 14.99476, 16], "texture": "#missing"},
-				"east": {"uv": [1.00001, 16, 16, 16], "texture": "#missing"},
-				"south": {"uv": [1.00524, 16, 16, 16], "texture": "#general"},
-				"west": {"uv": [0, 16, 14.99999, 16], "texture": "#missing"},
-				"up": {"uv": [0, 0, 15.99453, 15.99922], "texture": "#general"},
-				"down": {"uv": [1.00524, 1.00001, 16, 16], "texture": "#general"}
+				"south": {"uv": [0, 0, 16, 16], "texture": "#general"},
+				"up": {"uv": [0, 12, 16, 16], "texture": "#general"}
 			}
 		},
 		{
@@ -26,12 +23,7 @@
 			"from": [1, 0, 8],
 			"to": [7, 1, 15],
 			"faces": {
-				"north": {"uv": [0, 16, 14.99476, 16], "texture": "#missing"},
-				"east": {"uv": [1.00001, 16, 16, 16], "texture": "#missing"},
-				"south": {"uv": [1.00524, 16, 16, 16], "texture": "#general"},
-				"west": {"uv": [0, 16, 14.99999, 16], "texture": "#missing"},
-				"up": {"uv": [0, 0, 15.99453, 15.99922], "texture": "#lava_bottom"},
-				"down": {"uv": [1.00524, 1.00001, 16, 16], "texture": "#general"}
+				"up": {"uv": [0, 0, 16, 16], "texture": "#lava_bottom"}
 			}
 		},
 		{
@@ -43,8 +35,7 @@
 				"east": {"uv": [1.00001, 16, 16, 16], "texture": "#missing"},
 				"south": {"uv": [1.00524, 16, 16, 16], "texture": "#general"},
 				"west": {"uv": [0, 16, 14.99999, 16], "texture": "#missing"},
-				"up": {"uv": [0, 0, 15.99453, 15.99922], "texture": "#water"},
-				"down": {"uv": [1.00524, 1.00001, 16, 16], "texture": "#general"}
+				"up": {"uv": [0, 0, 16, 16], "texture": "#water"}
 			}
 		},
 		{
@@ -54,7 +45,6 @@
 			"faces": {
 				"north": {"uv": [0, 0, 16, 16], "texture": "#particle"},
 				"east": {"uv": [0, 0, 1, 16], "texture": "#general"},
-				"south": {"uv": [0, 0, 16, 16], "texture": "#general"},
 				"west": {"uv": [0, 0, 1, 16], "texture": "#general"},
 				"up": {"uv": [0, 0, 16, 1], "texture": "#general"},
 				"down": {"uv": [0, 0, 16, 1], "texture": "#general"}
@@ -69,47 +59,110 @@
 				"east": {"uv": [0, 0, 1, 16], "texture": "#general"},
 				"south": {"uv": [0, 0, 16, 16], "texture": "#particle"},
 				"west": {"uv": [0, 0, 1, 16], "texture": "#general"},
-				"up": {"uv": [0, 0, 16, 1], "texture": "#general"},
-				"down": {"uv": [0, 0, 16, 1], "texture": "#general"}
+				"up": {"uv": [0, 15, 15, 16], "texture": "#general"},
+				"down": {"uv": [0, 0, 16, 1], "texture": "#particle"}
 			}
 		},
 		{
-			"name": "west",
-			"from": [15, 0, 0],
-			"to": [16, 16, 16],
+			"name": "inner_liquid_barrier_east",
+			"from": [8, 1, 8],
+			"to": [9, 16, 12],
 			"faces": {
-				"north": {"uv": [0, 0, 1, 16], "texture": "#particle"},
-				"east": {"uv": [0, 0, 16, 16], "texture": "#particle"},
-				"south": {"uv": [0, 0, 1, 16], "texture": "#general"},
-				"west": {"uv": [0, 0, 16, 16], "texture": "#general"},
-				"up": {"uv": [0, 0, 1, 16], "texture": "#general"},
-				"down": {"uv": [0, 0, 1, 16], "texture": "#general"}
+				"east": {"uv": [12, 0, 16, 15], "texture": "#general"},
+				"up": {"uv": [15, 12, 16, 16], "texture": "#general"}
 			}
 		},
 		{
-			"name": "east",
-			"from": [0, 0, 0],
-			"to": [1, 16, 16],
-			"faces": {
-				"north": {"uv": [0, 0, 1, 16], "texture": "#particle"},
-				"east": {"uv": [0, 0, 16, 16], "texture": "#general"},
-				"south": {"uv": [0, 0, 1, 16], "texture": "#general"},
-				"west": {"uv": [0, 0, 16, 16], "texture": "#particle"},
-				"up": {"uv": [0, 0, 1, 16], "texture": "#general"},
-				"down": {"uv": [0, 0, 1, 16], "texture": "#general"}
-			}
-		},
-		{
-			"name": "liquid_barrier",
-			"from": [7, 0, 8],
+			"name": "outter_liquid_barrier_east",
+			"from": [8, 1, 12],
 			"to": [9, 16, 15],
 			"faces": {
-				"north": {"uv": [0, 0, 2, 16], "texture": "#general"},
-				"east": {"uv": [0, 0, 7, 16], "texture": "#general"},
-				"south": {"uv": [0, 0, 2, 16], "texture": "#general"},
-				"west": {"uv": [0, 0, 7, 16], "texture": "#general"},
-				"up": {"uv": [0, 0, 2, 7], "texture": "#general"},
-				"down": {"uv": [0, 0, 2, 7], "texture": "#general"}
+				"east": {"uv": [0, 0, 3, 15], "texture": "#general"},
+				"up": {"uv": [15, 13, 16, 16], "texture": "#general"}
+			}
+		},
+		{
+			"name": "inner_liquid_barrier_west",
+			"from": [7, 1, 8],
+			"to": [8, 16, 12],
+			"faces": {
+				"west": {"uv": [0, 0, 4, 15], "texture": "#general"},
+				"up": {"uv": [15, 0, 16, 4], "texture": "#general"}
+			}
+		},
+		{
+			"name": "outter_liquid_barrier_west",
+			"from": [7, 1, 12],
+			"to": [8, 16, 15],
+			"faces": {
+				"west": {"uv": [13, 0, 16, 15], "texture": "#general"},
+				"up": {"uv": [0, 13, 1, 16], "texture": "#general"}
+			}
+		},
+		{
+			"from": [1, 0, 1],
+			"to": [15, 1, 15],
+			"faces": {
+				"down": {"uv": [1, 1, 15, 15], "texture": "#general"}
+			}
+		},
+		{
+			"from": [0, 0, 1],
+			"to": [16, 16, 4],
+			"faces": {
+				"up": {"uv": [0, 1, 16, 4], "texture": "#general"}
+			}
+		},
+		{
+			"name": "inner_liquid_barrier_east",
+			"from": [0, 0, 8],
+			"to": [1, 16, 12],
+			"faces": {
+				"east": {"uv": [12, 0, 16, 15], "texture": "#general"},
+				"up": {"uv": [15, 12, 16, 16], "texture": "#general"}
+			}
+		},
+		{
+			"name": "outter_liquid_barrier_east",
+			"from": [0, 0, 12],
+			"to": [1, 16, 15],
+			"faces": {
+				"east": {"uv": [0, 0, 3, 15], "texture": "#general"},
+				"up": {"uv": [15, 13, 16, 16], "texture": "#general"}
+			}
+		},
+		{
+			"name": "inner_liquid_barrier_west",
+			"from": [15, 1, 8],
+			"to": [16, 16, 12],
+			"faces": {
+				"west": {"uv": [0, 0, 4, 15], "texture": "#general"},
+				"up": {"uv": [15, 0, 16, 4], "texture": "#general"}
+			}
+		},
+		{
+			"name": "outter_liquid_barrier_west",
+			"from": [15, 1, 12],
+			"to": [16, 16, 15],
+			"faces": {
+				"west": {"uv": [13, 0, 16, 15], "texture": "#general"},
+				"up": {"uv": [0, 13, 1, 16], "texture": "#general"}
+			}
+		},
+		{
+			"from": [0, 0, 1],
+			"to": [1, 16, 15],
+			"faces": {
+				"west": {"uv": [1, 0, 15, 16], "texture": "#particle"},
+				"down": {"uv": [0, 1, 1, 15], "texture": "#general"}
+			}
+		},
+		{
+			"from": [15, 0, 1],
+			"to": [16, 16, 15],
+			"faces": {
+				"east": {"uv": [1, 0, 15, 16], "texture": "#particle"},
+				"down": {"uv": [15, 1, 16, 15], "texture": "#general"}
 			}
 		}
 	],

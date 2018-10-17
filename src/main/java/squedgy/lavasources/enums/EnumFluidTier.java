@@ -12,7 +12,7 @@ import squedgy.lavasources.helper.EnumConversions;
 public enum EnumFluidTier {
 	BASIC(4000, 200, 1000/EnumConversions.SECONDS_TO_TICKS.convertToInt(10), 10),
 	INTERMEDIATE(10000, 500, 1000/EnumConversions.SECONDS_TO_TICKS.convertToInt(7), 10),
-	ADVANCED(16000, 900, 1000/EnumConversions.SECONDS_TO_TICKS.convertToInt(4), 10),
+	ADVANCED(19000, 900, 1000/EnumConversions.SECONDS_TO_TICKS.convertToInt(4), 10),
 	MASTER(32000, 1400, 1000/EnumConversions.SECONDS_TO_TICKS.convertToInt(1), 10);
 
 	public final int CAPACITY, MAX_TRANSFER, GENERATED, REQUIRED;

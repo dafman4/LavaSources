@@ -24,6 +24,8 @@ import java.util.List;
 public class EnergyIngredient  {
 
 	public static final IIngredientType<EnergyIngredient> TYPE = new IngredientType();
+	public static final IIngredientHelper<EnergyIngredient> HELPER = new IngredientHelper();
+	public static final IIngredientRenderer<EnergyIngredient> RENDERER = new Renderer();
 
 	public final int max;
 	private int amount;
@@ -35,33 +37,23 @@ public class EnergyIngredient  {
 
 	public EnergyIngredient(EnergyIngredient e){ this(e.max, e.amount); }
 
-	public int getAmount() {
-		return amount;
-	}
+	public int getAmount() { return amount; }
 
-	public void setAmount(int amount) {
-		this.amount = amount;
-	}
+	public void setAmount(int amount) { this.amount = amount; }
 
-	public EnergyIngredient copy(){
-		return new EnergyIngredient(this);
-	}
+	public EnergyIngredient copy(){ return new EnergyIngredient(this); }
 
 	public static class IngredientType implements IIngredientType<EnergyIngredient>{
 
 		@Override
-		public Class<? extends EnergyIngredient> getIngredientClass() {
-			return EnergyIngredient.class;
-		}
+		public Class<? extends EnergyIngredient> getIngredientClass() { return EnergyIngredient.class; }
 
 	}
 
 	public static class IngredientHelper implements IIngredientHelper<EnergyIngredient>{
 
 		@Override
-		public List<EnergyIngredient> expandSubtypes(List<EnergyIngredient> list) {
-			return list;
-		}
+		public List<EnergyIngredient> expandSubtypes(List<EnergyIngredient> list) { return list; }
 
 		@Nullable
 		@Override
@@ -80,34 +72,22 @@ public class EnergyIngredient  {
 		}
 
 		@Override
-		public String getUniqueId(EnergyIngredient energyIngredient) {
-			return "lavasources.energy";
-		}
+		public String getUniqueId(EnergyIngredient energyIngredient) { return "lavasources.energy"; }
 
 		@Override
-		public String getWildcardId(EnergyIngredient energyIngredient) {
-			return null;
-		}
+		public String getWildcardId(EnergyIngredient energyIngredient) { return null; }
 
 		@Override
-		public String getModId(EnergyIngredient energyIngredient) {
-			return LavaSources.MOD_ID;
-		}
+		public String getModId(EnergyIngredient energyIngredient) { return LavaSources.MOD_ID; }
 
 		@Override
-		public Iterable<Color> getColors(EnergyIngredient energyIngredient) {
-			return new ArrayList<>();
-		}
+		public Iterable<Color> getColors(EnergyIngredient energyIngredient) { return new ArrayList<>(); }
 
 		@Override
-		public String getResourceId(EnergyIngredient energyIngredient) {
-			return "energy";
-		}
+		public String getResourceId(EnergyIngredient energyIngredient) { return "energy"; }
 
 		@Override
-		public EnergyIngredient copyIngredient(EnergyIngredient energyIngredient) {
-			return energyIngredient.copy();
-		}
+		public EnergyIngredient copyIngredient(EnergyIngredient energyIngredient) { return energyIngredient.copy(); }
 
 		@Override
 		public String getErrorInfo(@Nullable EnergyIngredient energyIngredient) {
@@ -134,10 +114,10 @@ public class EnergyIngredient  {
 		@Override
 		public void render(Minecraft mc, int i, int i1,  @Nullable EnergyIngredient e) {
 			if(e != null) {
-				GuiLocation g = GuiLocation.energy_fill;
+				GuiLocation g = GuiLocation.GuiLocations.energy_fill;
 				if(g != null) {
 					EnumEnergyTier energy = EnumEnergyTier.values()[this.i / divisor];
-					mc.renderEngine.bindTexture(g.location);
+					mc.renderEngine.bindTexture(g.texture.location);
 					int progress = GuiElement.getProgressOrFillLevel(32, e.amount, energy.CAPACITY);
 					if(progress > 32) progress = 32;
 					int draws = 0;

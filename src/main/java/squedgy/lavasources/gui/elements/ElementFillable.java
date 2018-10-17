@@ -1,17 +1,12 @@
 package squedgy.lavasources.gui.elements;
 
-import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.inventory.IInventory;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fluids.FluidStack;
-import squedgy.lavasources.LavaSources;
+import squedgy.lavasources.gui.ModGui;
 import squedgy.lavasources.helper.GuiLocation;
 
-import javax.swing.*;
-
-import static squedgy.lavasources.gui.elements.ElementFillable.EnumFillableType.*;
-import static squedgy.lavasources.helper.GuiLocation.*;
+import static squedgy.lavasources.helper.GuiLocation.GuiLocations.*;
 
 public class ElementFillable extends GuiElement{
 
@@ -21,7 +16,7 @@ public class ElementFillable extends GuiElement{
 	private GuiLocation fill, border;
 	private EnumFillableType type;
 
-	private ElementFillable(Gui parent, int x, int y, IInventory container, int fieldAmount, int fieldMax, EnumFillableType type, GuiLocation fill, IFluidReturner returner, GuiLocation border){
+	private ElementFillable(ModGui parent, int x, int y, IInventory container, int fieldAmount, int fieldMax, EnumFillableType type, GuiLocation fill, IFluidReturner returner, GuiLocation border){
 		super(parent, x, y, type.WIDTH - 2, type.HEIGHT - 2, container);
 		AMOUNT = fieldAmount;
 		MAX = fieldMax;
@@ -31,27 +26,32 @@ public class ElementFillable extends GuiElement{
 		this.type = type;
 	}
 
-	public ElementFillable(Gui parent,int x, int y, IInventory container, int fieldAmount, int fieldMax, EnumFillableType type, IFluidReturner returner){
+	public ElementFillable(ModGui parent, int x, int y, IInventory container, int fieldAmount, int fieldMax, EnumFillableType type, IFluidReturner returner){
 		this(parent, x, y, container,fieldAmount, fieldMax, type, default_fill, returner, type.LOCATION);
 	}
-	public ElementFillable(Gui parent,int x, int y, IInventory container, int fieldAmount, int fieldMax, EnumFillableType type, IFluidReturner returner, GuiLocation border){
+	public ElementFillable(ModGui parent, int x, int y, IInventory container, int fieldAmount, int fieldMax, EnumFillableType type, IFluidReturner returner, GuiLocation border){
 		this(parent, x, y, container,fieldAmount, fieldMax, type, default_fill, returner, border);
 	}
 
-	public ElementFillable(Gui parent, int x, int y, IInventory container, int fieldAmount, int fieldMax, EnumFillableType type, GuiLocation fill){
+	public ElementFillable(ModGui parent, int x, int y, IInventory container, int fieldAmount, int fieldMax, EnumFillableType type, GuiLocation fill){
 		this(parent, x, y, container, fieldAmount, fieldMax, type, fill, null, type.LOCATION);
 	}
 
-	public ElementFillable(Gui parent, int x, int y, IInventory container, int fieldAmount, int fieldMax, EnumFillableType type){
+	public ElementFillable(ModGui parent, int x, int y, IInventory container, int fieldAmount, int fieldMax, EnumFillableType type){
 		this(parent, x, y, container, fieldAmount, fieldMax, type, default_fill);
 	}
 
 //</editor-fold>
 
+
 	@Override
-	public void drawGuiElement(int horizontalMargin, int verticalMargin) {
-		mc.renderEngine.bindTexture(border.location);
-		drawTexturedModal(horizontalMargin, verticalMargin, 0, 0, border.textureX, border.textureY, border.width, border.height);
+	public void drawGuiElementForeground(int mouseX, int mouseY) {
+	}
+
+	@Override
+	public void drawGuiElementBackground(int mouseX, int mouseY, float partialTicks) {
+		bindTexture(border);
+		drawTexturedModal(0, 0, border.textureX, border.textureY, border.width, border.height);
 		if (container.getField(AMOUNT) > 0){
 			int height= type.getProgressOrHeight(this.height, container.getField(AMOUNT), container.getField(MAX)),
 				width = type.getProgressOrWidth(this.width, container.getField(AMOUNT), container.getField(MAX)),
@@ -63,7 +63,7 @@ public class ElementFillable extends GuiElement{
 				textureHeight = sprite.getIconHeight();
 				textureWidth = sprite.getIconWidth();
 			}else{
-				mc.renderEngine.bindTexture(fill.location);
+				bindTexture(fill);
 				textureHeight = fill.height;
 				textureWidth = fill.width;
 			}
@@ -81,24 +81,30 @@ public class ElementFillable extends GuiElement{
 					else if(heightDrawingNumber == heightDrawings) drawHeight = height - (textureHeight * (heightDrawingNumber));
 
 					heightAddition -= drawHeight;
-					if(sprite != null) drawTexturedModal(horizontalMargin, verticalMargin, widthAddition, heightAddition, sprite, drawWidth, drawHeight);
-					else drawTexturedModal(horizontalMargin, verticalMargin, widthAddition, heightAddition, fill.textureX, fill.textureY, drawWidth, drawHeight);
+					if(sprite != null) drawTexturedModal(widthAddition, heightAddition, sprite, drawWidth, drawHeight);
+					else drawTexturedModal(widthAddition, heightAddition, fill.textureX, fill.textureY, drawWidth, drawHeight);
 				}
 			}
+		}
+
+		if(this.type == EnumFillableType.WIDE_FILL){
+			bindTexture(type.OVERLAY);
+			drawTexturedModal(1 , 1, type.OVERLAY);
 		}
 	}
 
 	public enum EnumFillableType{
-		HORIZONTAL_FILL(GuiLocation.fillable_horizontal),
-		VERTICAL_FILL(GuiLocation.fillable_vertical),
-		WIDE_FILL(GuiLocation.fillable_wide)
+		HORIZONTAL_FILL(fillable_horizontal),
+		VERTICAL_FILL(fillable_vertical),
+		WIDE_FILL(fillable_wide)
 		;
 		public final int WIDTH, HEIGHT;
-		public final GuiLocation LOCATION;
+		public final GuiLocation LOCATION, OVERLAY;
 		EnumFillableType(GuiLocation location){
 			this.LOCATION = location;
 			this.WIDTH = location.width;
 			this.HEIGHT = location.height;
+			OVERLAY = ordinal() == 2 ?  fillable_wide_overlay : null;
 		}
 
 		public int getProgressOrHeight(int height, int amount, int max){

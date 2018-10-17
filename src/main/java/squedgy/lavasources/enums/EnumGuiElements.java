@@ -8,6 +8,7 @@ import squedgy.lavasources.generic.gui.IContainerCreator;
 import squedgy.lavasources.generic.gui.IGuiCreator;
 import squedgy.lavasources.gui.*;
 import squedgy.lavasources.inventory.ContainerCoreModifier;
+import squedgy.lavasources.inventory.ContainerEmpty;
 import squedgy.lavasources.inventory.ContainerLiquefier;
 
 import javax.annotation.Nullable;

@@ -1,6 +1,7 @@
 package squedgy.lavasources;
 
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fluids.FluidRegistry;
 import org.apache.logging.log4j.Logger;
@@ -14,9 +15,7 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import squedgy.lavasources.creativetabs.CreativeTabLavaSources;
 import squedgy.lavasources.events.EventListener;
-import squedgy.lavasources.init.ModBlocks;
 import squedgy.lavasources.init.ModGuis;
-import squedgy.lavasources.tileentity.TileEntityCoreModifier;
 
 
 @Mod(modid=LavaSources.MOD_ID, name=LavaSources.NAME, version=LavaSources.VERSION)
@@ -58,9 +57,16 @@ public class LavaSources{
 	public static String getResourceName(String resourceName){
 		return LavaSources.MOD_ID + ":" + resourceName;
 	}
+
+	public static ResourceLocation getResourceLocation(String resourceName){
+		if(resourceName.indexOf(':') > 0) return new ResourceLocation(resourceName);
+		return new ResourceLocation(MOD_ID, resourceName);
+	}
 	
 	public static void writeMessage( Class clazz, String message){
-		if(logger != null)
+		if(logger != null) {
+			for(String s : message.split("\n"))
 			logger.info("[" + clazz.getSimpleName() + "]: " + message);
+		}
 	}
 }

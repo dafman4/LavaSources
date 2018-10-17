@@ -3,6 +3,7 @@ package squedgy.lavasources.inventory.slots;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
 
 public abstract class ModSlot extends Slot {
 //<editor-fold defaultstate="collapsed" desc=". . . . Fields/Constructors">
@@ -25,4 +26,8 @@ public abstract class ModSlot extends Slot {
         return getClass().getSimpleName();
     }
 
+	@Override
+	public ResourceLocation getBackgroundLocation() {
+		return super.getBackgroundLocation();
+	}
 }

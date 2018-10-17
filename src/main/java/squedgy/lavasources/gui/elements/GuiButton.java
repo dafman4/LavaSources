@@ -3,16 +3,15 @@ package squedgy.lavasources.gui.elements;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.ItemRenderer;
-import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.client.renderer.RenderItem;
+import net.minecraft.util.ResourceLocation;
+import squedgy.lavasources.LavaSources;
+import squedgy.lavasources.generic.gui.IGuiElement;
 import squedgy.lavasources.helper.GuiLocation;
+import squedgy.lavasources.helper.GuiLocation.GuiLocations;
 
-import java.util.List;
+public abstract class GuiButton extends net.minecraft.client.gui.GuiButton implements IGuiElement {
 
-public abstract class GuiButton extends net.minecraft.client.gui.GuiButton {
-
-	private GuiLocation normalImage, hoverImage, disabledImage, borerVertical, borderHorizontal;
+	private GuiLocation normalImage, hoverImage, disabledImage, borderVertical, borderHorizontal;
 
 	public GuiButton(int buttonId, int x, int y, String buttonText, GuiLocation normal, GuiLocation hover, GuiLocation disabled, GuiLocation borderHorizontal, GuiLocation borderVertical){
 		super(buttonId, x, y, normal.width, normal.height, buttonText);
@@ -20,11 +19,12 @@ public abstract class GuiButton extends net.minecraft.client.gui.GuiButton {
 		hoverImage = hover;
 		disabledImage = disabled;
 		this.borderHorizontal = borderHorizontal;
-		this.borerVertical = borderVertical;
+		this.borderVertical = borderVertical;
+		LavaSources.writeMessage(getClass(), "x = " + this.x + "\ny = " + this.y);
 	}
 
 	public GuiButton(int buttonId, int x, int y, String buttonText){
-		this(buttonId, x, y, buttonText, GuiLocation.default_button, GuiLocation.default_button_hover, GuiLocation.default_button_disabled, GuiLocation.book_border_horizontal, GuiLocation.book_border_vertical);
+		this(buttonId, x, y, buttonText, GuiLocations.default_button, GuiLocations.default_button_hover, GuiLocations.default_button_disabled, GuiLocations.book_border_horizontal, GuiLocations.book_border_vertical);
 	}
 
 	protected GuiLocation getDrawLocation(){
@@ -58,30 +58,32 @@ public abstract class GuiButton extends net.minecraft.client.gui.GuiButton {
 	}
 
 	protected void drawButtonBackground(Minecraft mc, int mouseX, int mouseY, float partialTicks){
+		hovered = (mouseX > x && mouseX < x + width && mouseY > y && mouseY < y+height);
 		GuiLocation draw = getDrawLocation();
 		//draw border
-		mc.renderEngine.bindTexture(borerVertical.location);
-		int yDraws = 0;
-		for(; yDraws < height/borerVertical.height; yDraws++){
-			drawTexturedModalRect(x, y + borerVertical.height*yDraws, borerVertical.textureX, borerVertical.textureY, borerVertical.width, borerVertical.height);
-			drawTexturedModalRect(x + width - borerVertical.width, y + borerVertical.height*yDraws, borerVertical.textureX, borerVertical.textureY, borerVertical.width, borerVertical.height);
+		int yDraws = 0, xDraws = 0;
+		if(borderVertical != null) {
+			bindTexture(borderVertical.texture.location, mc);
+			for (; yDraws < height / borderVertical.height; yDraws++) {
+				drawTexturedModalRect(x, y + borderVertical.height * yDraws, borderVertical.textureX, borderVertical.textureY, borderVertical.width, borderVertical.height);
+				drawTexturedModalRect(x + width - borderVertical.width, y + borderVertical.height * yDraws, borderVertical.textureX, borderVertical.textureY, borderVertical.width, borderVertical.height);
+			}
+			int drawHeight = height - borderVertical.height * yDraws;
+			drawTexturedModalRect(x, y + borderVertical.height * yDraws, borderVertical.textureX, borderVertical.textureY, borderVertical.width, drawHeight);
+			drawTexturedModalRect(x + width - borderVertical.width, y + borderVertical.height * yDraws, borderVertical.textureX, borderVertical.textureY, borderVertical.width, drawHeight);
 		}
-		int drawHeight = height - borerVertical.height*yDraws;
-		drawTexturedModalRect(x, y + borerVertical.height*yDraws, borerVertical.textureX, borerVertical.textureY, borerVertical.width, drawHeight);
-		drawTexturedModalRect(x + width - borerVertical.width, y + borerVertical.height*yDraws, borerVertical.textureX, borerVertical.textureY, borerVertical.width, drawHeight);
-
-		mc.renderEngine.bindTexture(borderHorizontal.location);
-		int xDraws = 0;
-		for(; xDraws < height/borderHorizontal.height; xDraws++){
-			drawTexturedModalRect(x + borderHorizontal.width*xDraws, y, borderHorizontal.textureX, borderHorizontal.textureY, borderHorizontal.width, borderHorizontal.height);
-			drawTexturedModalRect(x + borderHorizontal.width*xDraws, y + height - borderHorizontal.height, borderHorizontal.textureX, borderHorizontal.textureY, borderHorizontal.width, borderHorizontal.height);
+		if(borderHorizontal != null) {
+			bindTexture(borderHorizontal.texture.location, mc);
+			for (; xDraws < height / borderHorizontal.height; xDraws++) {
+				drawTexturedModalRect(x + borderHorizontal.width * xDraws, y, borderHorizontal.textureX, borderHorizontal.textureY, borderHorizontal.width, borderHorizontal.height);
+				drawTexturedModalRect(x + borderHorizontal.width * xDraws, y + height - borderHorizontal.height, borderHorizontal.textureX, borderHorizontal.textureY, borderHorizontal.width, borderHorizontal.height);
+			}
+			int drawWidth = width - borderHorizontal.width * xDraws;
+			drawTexturedModalRect(x + borderHorizontal.width * xDraws, y, borderHorizontal.textureX, borderHorizontal.textureY, drawWidth, borderHorizontal.height);
+			drawTexturedModalRect(x + borderHorizontal.width * xDraws, y + height - borderHorizontal.height, borderHorizontal.textureX, borderHorizontal.textureY, drawWidth, borderHorizontal.height);
 		}
-		int drawWidth = width - borderHorizontal.width*xDraws;
-		drawTexturedModalRect(x + borderHorizontal.width*xDraws, y, borderHorizontal.textureX, borderHorizontal.textureY, drawWidth, borderHorizontal.height);
-		drawTexturedModalRect(x + borderHorizontal.width*xDraws, y + height - borderHorizontal.height, borderHorizontal.textureX, borderHorizontal.textureY, drawWidth, borderHorizontal.height);
-
 		//draw background
-		mc.renderEngine.bindTexture(draw.location);
+		bindTexture(draw.texture.location, mc);
 		for(xDraws = 0; xDraws < (width-2)/draw.width; xDraws++){
 			for(yDraws = 0; yDraws < (height-2)/draw.height; yDraws++){
 				drawTexturedModalRect(x + draw.width*xDraws, y + draw.height * draw.height, draw.textureX, draw.textureY, draw.width, draw.height);
@@ -91,6 +93,8 @@ public abstract class GuiButton extends net.minecraft.client.gui.GuiButton {
 		drawTexturedModalRect(x + draw.width*xDraws, y + draw.height * draw.height, draw.textureX, draw.textureY,width - draw.width*xDraws, height - draw.height*yDraws);
 
 	}
+
+	public abstract void displayToolTip(Minecraft mc, int mouseX, int mouseY);
 
 	@Override
 	public final void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks)
@@ -102,6 +106,10 @@ public abstract class GuiButton extends net.minecraft.client.gui.GuiButton {
 			this.mouseDragged(mc, mouseX, mouseY);
 			this.drawButtonString(mc.fontRenderer);
 		}
+	}
+
+	public static void bindTexture(ResourceLocation r, Minecraft mc){
+		mc.renderEngine.bindTexture(r);
 	}
 
 }

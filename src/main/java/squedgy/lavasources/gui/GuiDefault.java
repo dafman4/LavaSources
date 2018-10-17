@@ -2,6 +2,7 @@ package squedgy.lavasources.gui;
 
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.IInventory;
+import squedgy.lavasources.inventory.ContainerEmpty;
 
 public class GuiDefault extends ModGui {
 
@@ -12,6 +13,9 @@ public class GuiDefault extends ModGui {
 
 	@Override
 	protected void drawBackgroundLayer(float partialTicks, int mouseX, int mouseY) { }
+
+	@Override
+	protected void setElements(){ }
 
 //<editor-fold defaultstate="collapsed" desc=". . . . Fields/Constructors">
 

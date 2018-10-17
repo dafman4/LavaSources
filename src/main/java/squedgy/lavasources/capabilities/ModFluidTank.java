@@ -11,6 +11,7 @@ import net.minecraftforge.fluids.capability.IFluidTankProperties;
 import squedgy.lavasources.helper.EnumConversions;
 
 import javax.annotation.Nullable;
+import java.util.Arrays;
 
 public class ModFluidTank implements IFluidHandler, IFluidTank, IFluidTankProperties, INBTSerializable<NBTTagCompound> {
 //<editor-fold defaultstate="collapsed" desc=". . . . Fields/Constructors">
@@ -132,9 +133,14 @@ public class ModFluidTank implements IFluidHandler, IFluidTank, IFluidTankProper
 	public int fill(FluidStack resource, boolean doFill) {
 		int ret = Math.max(resource.amount, 0);
 		if(ret > 0){
-			if(resource.getFluid() != fluid.getFluid() && fluid.amount == 0) if (canUseLiquid(resource)) this.setFluidType(resource);
-			else ret = 0;
-			if(resource.getFluid() == fluid.getFluid()){
+			boolean fluidEqual = resource.isFluidEqual(fluid);
+			if(!fluidEqual )
+				if (canUseFluidRightNow(resource)){
+					this.setFluidType(resource);
+					fluidEqual = true;
+				}
+				else ret = 0;
+			if(fluidEqual){
 				ret = Math.min(ret, Math.min(maxFill, info.getMaxFill()));
 				if(doFill){
 					ret = info.addAmountStored(ret);
@@ -148,14 +154,17 @@ public class ModFluidTank implements IFluidHandler, IFluidTank, IFluidTankProper
     @Nullable
     @Override
     public FluidStack drain(FluidStack resource, boolean doDrain) {
-	    int ret = Math.max(0, resource.amount);
-	    if(maxDrain > 0 && ret > 0){
-	        ret = Math.min(Math.min(maxDrain, info.getMaxDrain()), ret);
-	        if(doDrain){
-	            ret = info.removeAmountStored(ret);
-	            fluid.amount -= ret;
-            }
-        }
+		int ret = 0;
+		if(resource.isFluidEqual(fluid)) {
+			ret = Math.max(ret, resource.amount);
+			if (maxDrain > 0 && ret > 0) {
+				ret = Math.min(Math.min(maxDrain, info.getMaxDrain()), ret);
+				if (doDrain) {
+					ret = info.removeAmountStored(ret);
+					fluid.amount -= ret;
+				}
+			}
+		}
         FluidStack stack = fluid.copy();
 	    stack.amount = ret;
         return stack;
@@ -185,9 +194,10 @@ public class ModFluidTank implements IFluidHandler, IFluidTank, IFluidTankProper
 	public int internalFill(FluidStack resource, boolean doFill){
 		int ret = Math.max(resource.amount, 0);
 		if(ret > 0){
-			if(resource.getFluid() != fluid.getFluid() && fluid.amount == 0) if (canUseLiquid(resource)) this.setFluidType(resource);
-			else ret = 0;
-			if(resource.getFluid() == fluid.getFluid()){
+			if(!fluid.isFluidEqual(resource))
+				if(canUseFluidRightNow(resource)) this.setFluidType(resource);
+				else ret = 0;
+			if(resource.isFluidEqual(fluid)){
 				ret = Math.min(ret, getCapacity() - fluid.amount);
 				if(doFill){
 					ret = info.addAmountStored(ret);
@@ -222,9 +232,13 @@ public class ModFluidTank implements IFluidHandler, IFluidTank, IFluidTankProper
 	}
 //</editor-fold>
 
-	private boolean canUseLiquid(FluidStack liquid){
-		for(FluidStack s : this.acceptedFluids) if(s.isFluidEqual(liquid)) return true;
-		return false;
-	}
+	private boolean canUseLiquid(FluidStack liquid){ return acceptAll || Arrays.stream(acceptedFluids).anyMatch(liquid::isFluidEqual); }
 
+	@Override
+	public String toString() {
+		return "ModFluidTank{" +
+				"fluid=" + fluid +
+				", info=" + info +
+				'}';
+	}
 }

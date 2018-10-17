@@ -85,4 +85,12 @@ public class CapacityAndStorageWrapper implements INBTSerializable<NBTTagCompoun
 		this.amountStored = nbt.getInteger(STORED_TAG);
 		this.capacity = nbt.getInteger(CAPACITY_TAG);
 	}
+
+	@Override
+	public String toString() {
+		return "CapacityAndStorageWrapper{" +
+				"capacity=" + capacity +
+				", amountStored=" + amountStored +
+				'}';
+	}
 }

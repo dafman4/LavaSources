@@ -2,6 +2,7 @@ package squedgy.lavasources.events;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -16,29 +17,36 @@ import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.oredict.OreDictionary;
+import net.minecraftforge.oredict.OreIngredient;
+import net.minecraftforge.registries.IForgeRegistry;
+import net.minecraftforge.registries.IForgeRegistryEntry;
 import net.minecraftforge.registries.RegistryBuilder;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+import squedgy.lavasources.CustomRegistryUtil;
 import squedgy.lavasources.LavaSources;
 import squedgy.lavasources.capabilities.IPlayerResearchCapability;
 import squedgy.lavasources.crafting.recipes.CoreModifierRecipe;
+import squedgy.lavasources.crafting.recipes.LiquefierRecipe;
 import squedgy.lavasources.generic.recipes.ICoreModifierRecipe;
-import squedgy.lavasources.gui.elements.ResearchTab;
+import squedgy.lavasources.generic.recipes.ILiquefierRecipe;
+import squedgy.lavasources.init.ModResearch;
+import squedgy.lavasources.research.ResearchButton;
+import squedgy.lavasources.research.ResearchTab;
 import squedgy.lavasources.helper.GuiLocation;
 import squedgy.lavasources.init.ModCapabilities;
 import squedgy.lavasources.init.ModRegistries;
-import squedgy.lavasources.init.ModResearch;
 import squedgy.lavasources.research.Research;
 import squedgy.lavasources.tileentity.TileEntityCoreModifier;
+import squedgy.lavasources.tileentity.TileEntityLiquefier;
 
 import java.io.BufferedReader;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.*;
 
-import static squedgy.lavasources.init.ModResearch.RegistryHandler.jsonHasAllMembers;
 import static squedgy.lavasources.init.ModResearch.RegistryHandler.GSON;
 
 @SuppressWarnings("ConstantConditions")
@@ -61,18 +69,89 @@ public class EventListener {
 	@SubscribeEvent
 	public void registryRegister(RegistryEvent.NewRegistry event){
 		LavaSources.writeMessage(getClass(), "\n\n\n\tregistering registries.");
-		ModRegistries.RESEARCH_REGISTRY = new RegistryBuilder().setName(new ResourceLocation(LavaSources.MOD_ID, "b_research_registry")).setType(Research.class).disableSaving().create();
-		ModRegistries.GUI_LOCATION_REGISTRY = new RegistryBuilder().setName(new ResourceLocation(LavaSources.MOD_ID, "a_gui_location_registry")).setType(GuiLocation.class).disableSaving().create();
-		ModRegistries.RESEARCH_TAB_REGISTRY = new RegistryBuilder().setName(new ResourceLocation(LavaSources.MOD_ID, "c_research_tab_registry")).setType(ResearchTab.class).disableSaving().create();
-		ModRegistries.CORE_MODIFIER_RECIPE_REGISTRY = new RegistryBuilder().setName(new ResourceLocation(LavaSources.MOD_ID, "core_modifier_recipe_registry")).setType(ICoreModifierRecipe.class).disableSaving().create();
+		ModRegistries.TEXTURE_WRAPPER_REGISTRY = createRegistry(GuiLocation.TextureWrapper.class, "a_texture_wrapper_registry");
+		ModRegistries.RESEARCH_REGISTRY = createRegistry(Research.class,  "c_research_registry");
+		ModRegistries.GUI_LOCATION_REGISTRY = createRegistry( GuiLocation.class, "b_gui_location_registry");
+		ModRegistries.RESEARCH_TAB_REGISTRY = createRegistry(ResearchTab.class, "d_research_tab_registry");
+		ModRegistries.CORE_MODIFIER_RECIPE_REGISTRY = createRegistry(ICoreModifierRecipe.class, "core_modifier_recipe_registry");
+		ModRegistries.LIQUEFIER_RECIPE_REGISTRY = createRegistry(ILiquefierRecipe.class , "liquefier_recipe_registry");
+	}
+
+	private static <T extends IForgeRegistryEntry<T>> IForgeRegistry<T> createRegistry(Class<T> clazz, String name){
+		return new RegistryBuilder().setType(clazz).setName(LavaSources.getResourceLocation(name)).disableSaving().create();
 	}
 
 	public static String getLavasourcesBaseForMod(ModContainer mod){
 		return "assets/" + mod.getModId() + "/lavasources_saves/";
 	}
 
+	public static boolean jsonHasAllMembers(JsonObject json, String... members){
+		return Arrays.stream(members).allMatch(json::has);
+	}
+
+//<editor-fold defaultstate="collapsed" desc=". . . . TextureWrappers">
+	@SideOnly(Side.CLIENT)
+	@SubscribeEvent
+	public void registerTextureWrapper(RegistryEvent.Register<GuiLocation.TextureWrapper> event){
+		LavaSources.writeMessage(GuiLocation.TextureWrapper.class, "\n\n\n\tRegistering TextureWrappers");
+		Loader.instance().getActiveModList().forEach(m -> registerTextureWrappersForMod(m, event));
+	}
+
+	public void registerTextureWrappersForMod(ModContainer mod, RegistryEvent.Register<GuiLocation.TextureWrapper> registry){
+		JsonContext context = new JsonContext(mod.getModId());
+		CraftingHelper.findFiles(mod,
+				getLavasourcesBaseForMod(mod) + "locations.json",
+				root -> root.endsWith("locations.json"),
+				(root, file) ->{
+					Loader.instance().setActiveModContainer(mod);
+
+					String relative = root.relativize(file).toString();
+					if(!"json".equals(FilenameUtils.getExtension(file.toString())) || relative.startsWith("_"))
+						return true;
+					String name = FilenameUtils.removeExtension(relative).replaceAll("\\\\","/");
+					ResourceLocation key = new ResourceLocation(context.getModId(), name);
+
+					BufferedReader reader = null;
+					try{
+						reader = Files.newBufferedReader(file);
+						JsonObject json = JsonUtils.fromJson(GSON, reader, JsonObject.class);
+						if(jsonHasAllMembers(json, "wrappers")){
+							registry.getRegistry().registerAll(getTextureWrappersFromJson(json, context));
+							LavaSources.writeMessage(GuiLocation.TextureWrapper.class, "registered");
+						}
+					}catch(Exception e){
+						LavaSources.writeMessage(GuiLocation.TextureWrapper.class, "Error reading file " + file + "::: error: " + e);
+					}finally {
+						IOUtils.closeQuietly(reader);}
+					return true;
+				},
+				true,
+				true
+				);
+	}
+
+	public GuiLocation.TextureWrapper[] getTextureWrappersFromJson(JsonObject json, JsonContext context){
+		return json.get("wrappers").getAsJsonObject().entrySet().stream().map(e ->{
+			JsonObject obj = e.getValue().getAsJsonObject();
+			obj.add("name", new JsonPrimitive(e.getKey()));
+			return obj;
+		}).map(obj -> {
+			if(jsonHasAllMembers(obj, "image", "width", "height")){
+				String image = JsonUtils.getString(obj, "image");
+				int width = JsonUtils.getInt(obj, "width"),
+						height = JsonUtils.getInt(obj, "height");
+				return new GuiLocation.TextureWrapper(LavaSources.getResourceLocation(image), JsonUtils.getString(obj, "name"), width, height);
+			}else throw new IllegalArgumentException("a TextureWrapper json object for " + context.getModId() + " is missing a required field!");
+		}).toArray(GuiLocation.TextureWrapper[]::new);
+	}
+
+
+
+//</editor-fold>
+
 //<editor-fold defaultstate="collapsed" desc=". . . . GuiLocations">
 
+	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
 	public void registerGuiLocations(RegistryEvent.Register<GuiLocation> event){
 		LavaSources.writeMessage(GuiLocation.class, "\n\n\n\tRegistering GuiLocations");
@@ -83,7 +162,7 @@ public class EventListener {
 		JsonContext context = new JsonContext(mod.getModId());
 		CraftingHelper.findFiles(
 				mod,
-				"assets/" + mod.getModId() + "/lavasources_saves/locations.json",
+				getLavasourcesBaseForMod(mod) + "locations.json",
 				root -> root.endsWith("locations.json"),
 				(root, file) ->{
 					Loader.instance().setActiveModContainer(mod);
@@ -115,10 +194,6 @@ public class EventListener {
 	}
 
 	public List<GuiLocation> getGuiLocationFromJson(JsonObject json, JsonContext context){
-		Map<String, String> keys = null;
-		if(jsonHasAllMembers(json, "keys")){
-			keys = json.get("keys").getAsJsonObject().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, i -> i.getValue().getAsJsonPrimitive().getAsString()));
-		}
 		JsonArray locations = JsonUtils.getJsonArray(json, "locations");
 		List<GuiLocation> ret = new ArrayList<>(locations.size());
 		for(int i = 0; i < locations.size(); i++){
@@ -127,9 +202,11 @@ public class EventListener {
 				String image = JsonUtils.getString(location, "image"), name = JsonUtils.getString(location, "name");
 				int width = JsonUtils.getInt(location, "width"), height = JsonUtils.getInt(location, "height"),
 						textureX = JsonUtils.getInt(location, "textureX"), textureY = JsonUtils.getInt(location, "textureY");
+				GuiLocation.TextureWrapper wrapper = CustomRegistryUtil.getRegistryEntry(GuiLocation.TextureWrapper.class, image.substring(1));
+				if(wrapper == null) throw new IllegalArgumentException("The provided wrapper " + image + " number did not link to an existing wrapper");
 				ret.add(
 						new GuiLocation(
-								new ResourceLocation(image.startsWith("#") ? keys.get(image.substring(1)) : image),
+								wrapper,
 								new ResourceLocation(name.indexOf(':') < 0 ? context.getModId() + ":" + name : name),
 								width,
 								height,
@@ -137,7 +214,7 @@ public class EventListener {
 								textureY
 						)
 				);
-			}else LavaSources.writeMessage(ModResearch.class, "There was an issue turning the following json object into a location: " + location.toString());
+			}else LavaSources.writeMessage(GuiLocation.class, "There was an issue turning the following json object into a location: " + location.toString());
 		}
 		return ret;
 	}
@@ -173,10 +250,10 @@ public class EventListener {
 						JsonObject json = JsonUtils.fromJson(GSON, reader, JsonObject.class);
 						if(jsonHasAllMembers(json, "recipes")){
 							registry.getRegistry().registerAll(getModifierRecipesFromJson(json, context).toArray(new ICoreModifierRecipe[0]));
-							LavaSources.writeMessage(GuiLocation.class, "registered");
+							LavaSources.writeMessage(ICoreModifierRecipe.class, "registered");
 						}
 					}catch(Exception e){
-						LavaSources.writeMessage(GuiLocation.class, "Error reading file " + file + "::: error: " + e);
+						LavaSources.writeMessage(ICoreModifierRecipe.class, "Error reading file " + file + "::: error: " + e);
 					}finally {
 						IOUtils.closeQuietly(reader);}
 					return true;
@@ -200,6 +277,267 @@ public class EventListener {
 			}else throw new IllegalArgumentException("There was an issue with an unregistered fluid: " + fluidName);
 		}
 
+		return ret;
+	}
+
+//</editor-fold>
+	
+//<editor-fold defaultstate="collapsed" desc=". . . . LiquefierRecipes">
+
+	@SubscribeEvent
+	public void registerILiquefierRecipe(RegistryEvent.Register<ILiquefierRecipe> event){
+		LavaSources.writeMessage(ILiquefierRecipe.class, "\n\n\n\tRegistering ILiquefierRecipe");
+		Loader.instance().getActiveModList().forEach(mod -> registerILiquefierRecipeForMod(mod, event));
+		TileEntityLiquefier.updateRecipes();
+	}
+
+	public void registerILiquefierRecipeForMod(ModContainer mod, RegistryEvent.Register<ILiquefierRecipe> event){
+		JsonContext context = new JsonContext(mod.getModId());
+		CraftingHelper.findFiles(
+				mod,
+				getLavasourcesBaseForMod(mod) + "liquefier.json",
+				root -> root.endsWith("liquefier.json"),
+				(root, file) ->{
+					Loader.instance().setActiveModContainer(mod);
+
+					String relative = root.relativize(file).toString();
+					if(!"json".equals(FilenameUtils.getExtension(file.toString())) || relative.startsWith("_"))
+						return true;
+					String name = FilenameUtils.removeExtension(relative).replaceAll("\\\\","/");
+					ResourceLocation key = new ResourceLocation(context.getModId(), name);
+
+					BufferedReader reader = null;
+					try{
+						reader = Files.newBufferedReader(file);
+						JsonObject json = JsonUtils.fromJson(GSON, reader, JsonObject.class);
+						if(jsonHasAllMembers(json, "recipes")){
+							event.getRegistry().registerAll(getLiquefierRecipesFromJson(json, context).toArray(new ILiquefierRecipe[0]));
+							LavaSources.writeMessage(ILiquefierRecipe.class, "registered");
+						}
+					}catch(Exception e){
+						LavaSources.writeMessage(ILiquefierRecipe.class, "Error reading file " + file + "::: error: " + e);
+					}finally {
+						IOUtils.closeQuietly(reader);}
+					return true;
+				},
+				true,
+				true
+		);
+
+	}
+
+	public List<ILiquefierRecipe> getLiquefierRecipesFromJson(JsonObject json, JsonContext context){
+		JsonArray recipes = JsonUtils.getJsonArray(json, "recipes");
+		List<ILiquefierRecipe> ret = new ArrayList<>(recipes.size());
+		for(int i = 0; i < recipes.size(); i++){
+			JsonObject recipe = recipes.get(i).getAsJsonObject();
+			if(jsonHasAllMembers(recipe, "name", "fluid", "ore", "output")){
+			String name = JsonUtils.getString(recipe, "name"),
+					fluid = JsonUtils.getString(recipe, "fluid"),
+					ore = JsonUtils.getString(recipe, "ore");
+			int output = JsonUtils.getInt(recipe, "output");
+			if(OreDictionary.getOres(ore).size() > 0 && FluidRegistry.isFluidRegistered(fluid)){
+				ret.add(new LiquefierRecipe(name, FluidRegistry.getFluidStack(fluid, 0), new OreIngredient(ore), output));
+			}
+			}else LavaSources.writeMessage(ILiquefierRecipe.class, "There was an issue turning the following json object into a location: "
+					+ recipe.toString());
+		}
+		return ret;
+	}
+	
+//</editor-fold>
+
+//<editor-fold defaultstate="collapsed" desc=". . . . Research">
+
+	@SubscribeEvent
+	public void registerResearch(RegistryEvent.Register<Research> event){
+		LavaSources.writeMessage(GuiLocation.class, "\n\n\n\tRegistering Research");
+		Loader.instance().getActiveModList().forEach(mod -> registerResearchForMod(mod, event));
+	}
+
+	public void registerResearchForMod(ModContainer mod, RegistryEvent.Register<Research> event){
+
+		JsonContext context = new JsonContext(mod.getModId());
+		CraftingHelper.findFiles(
+				mod,
+				"assets/" + mod.getModId() + "/lavasources_saves/research.json",
+				root -> root.endsWith("research.json"),
+				(root, file) ->{
+					Loader.instance().setActiveModContainer(mod);
+
+					String relative = root.relativize(file).toString();
+					if(!"json".equals(FilenameUtils.getExtension(file.toString())) || relative.startsWith("_"))
+						return true;
+					String name = FilenameUtils.removeExtension(relative).replaceAll("\\\\","/");
+					ResourceLocation key = new ResourceLocation(context.getModId(), name);
+
+					BufferedReader reader = null;
+					try{
+						reader = Files.newBufferedReader(file);
+						JsonObject json = JsonUtils.fromJson(GSON, reader, JsonObject.class);
+						if(jsonHasAllMembers(json, "page")){
+							event.getRegistry().registerAll(getResearchFromJson(json, context).toArray(new Research[0]));
+							LavaSources.writeMessage(Research.class, "registered");
+						}
+					}catch(Exception e){
+						LavaSources.writeMessage(Research.class, "Error reading file " + file + "::: error: " + e);
+					}finally {IOUtils.closeQuietly(reader);}
+					return true;
+				},
+				true,
+				true
+		);
+
+	}
+
+	public List<Research> getResearchFromJson(JsonObject json , JsonContext context){
+		JsonArray locations = JsonUtils.getJsonArray(json, "research");
+		List<Research> ret = new ArrayList<>(locations.size());
+		for(int i = 0; i < locations.size(); i++){
+			JsonObject location = locations.get(i).getAsJsonObject();
+			if(jsonHasAllMembers(location, "name", "key", "dependencies")){
+				String name = JsonUtils.getString(location, "name"),
+						key = JsonUtils.getString(location, "key");
+				JsonArray dependencies = JsonUtils.getJsonArray(location, "dependencies");
+				String[] depends = new String[dependencies.size()];
+				for(int f = 0; f < dependencies.size(); f++) depends[f] = dependencies.get(f).getAsJsonPrimitive().getAsString();
+				ret.add(
+						new Research(name, key, depends)
+				);
+			}else LavaSources.writeMessage(ModResearch.class, "There was an issue turning the following json object into a location: " + location.toString());
+		}
+		return ret;
+	}
+
+//</editor-fold>
+
+//<editor-fold defaultstate="collapsed" desc=". . . . ResearchTabs">
+
+	//tabs and related items are only necessary for the client side as it formats the guide book
+	@SideOnly(Side.CLIENT)
+	@SubscribeEvent
+	public void registerResearchTabs(RegistryEvent.Register<ResearchTab> event){
+		LavaSources.writeMessage(GuiLocation.class, "\n\n\n\tRegistering ResearchTabs");
+		Loader.instance().getActiveModList().forEach(mod ->registerTabsForMod(mod, event));
+	}
+
+	public void registerTabsForMod(net.minecraftforge.fml.common.ModContainer mod, RegistryEvent.Register<ResearchTab> event){
+		JsonContext context = new JsonContext(mod.getModId());
+		CraftingHelper.findFiles(
+				mod,
+				"assets/" + mod.getModId() + "/lavasources_saves/tabs.json",
+				root -> root.endsWith("tabs.json"),
+				(root, file) ->{
+					Loader.instance().setActiveModContainer(mod);
+
+					String relative = root.relativize(file).toString();
+					if(!"json".equals(FilenameUtils.getExtension(file.toString())) || relative.startsWith("_"))
+						return true;
+					String name = FilenameUtils.removeExtension(relative).replaceAll("\\\\","/");
+					ResourceLocation key = new ResourceLocation(context.getModId(), name);
+
+					BufferedReader reader = null;
+					try{
+						reader = Files.newBufferedReader(file);
+						JsonObject json = JsonUtils.fromJson(GSON, reader, JsonObject.class);
+						if(jsonHasAllMembers(json, "tabs")){
+							event.getRegistry().registerAll(getResearchTabFromJson(json, mod, context).toArray(new ResearchTab[0]));
+							LavaSources.writeMessage(ResearchTab.class, "registered");
+						}
+					}catch(Exception e){
+						LavaSources.writeMessage(ResearchTab.class, "Error reading file " + file + "::: error: " + e);
+					}finally {IOUtils.closeQuietly(reader);}
+					return true;
+				},
+				true,
+				true
+		);
+	}
+
+	public List<ResearchTab> getResearchTabFromJson(JsonObject json, ModContainer mod,  JsonContext context){
+		JsonArray locations = JsonUtils.getJsonArray(json, "tabs");
+		List<ResearchTab> ret = new ArrayList<>(locations.size());
+		for(int i = 0; i < locations.size(); i++){
+			JsonObject location = locations.get(i).getAsJsonObject();
+			if(jsonHasAllMembers(location, "image", "name", "key", "research")){
+				String image = JsonUtils.getString(location, "image"),
+						name = JsonUtils.getString(location, "name"),
+						key = JsonUtils.getString(location, "key");
+				JsonArray dependencies = JsonUtils.getJsonArray(location, "research");
+				ResearchButton[] depends = new ResearchButton[dependencies.size()];
+				for(int f = 0; f < dependencies.size(); f++) depends[f] = getResearchButtonFromJsonObject(dependencies.get(f).getAsJsonObject(), mod, context);
+				ret.add(
+						new ResearchTab(name, key, depends)
+				);
+			}else LavaSources.writeMessage(ModResearch.class, "There was an issue turning the following json object into a location: " + location.toString());
+		}
+		return ret;
+	}
+
+//</editor-fold>
+
+//<editor-fold defaultstate="collapsed" desc=". . . . ResearchButtons">
+
+	public ResearchButton getResearchButtonFromJsonObject(JsonObject json, ModContainer mod, JsonContext context){
+		if(jsonHasAllMembers(json, "researchName", "x", "y", "description", "image", "page")){
+			String name = JsonUtils.getString(json, "researchName"),
+					description = JsonUtils.getString(json ,"description"),
+					image = JsonUtils.getString(json, "image");
+			int x = JsonUtils.getInt(json, "x"), y = JsonUtils.getInt(json, "y");
+			return new ResearchButton(x, y, Research.getResearch(name), description, GuiLocation.getGuiLocation(image), getPagesFromString(mod, JsonUtils.getString(json, "page"), context));
+		}else
+			throw new IllegalArgumentException("The given json object did not have all required members \"researchName, x, y, description, image\": " + json);
+	}
+
+//</editor-fold>
+
+//<editor-fold defaultstate="collapsed" desc=". . . . Pages">
+
+	public List<Map.Entry<String,String>> getPagesFromString(ModContainer mod, String location, JsonContext context){
+		List<Map.Entry<String,String>> partials = new ArrayList<>();
+		if(!location.endsWith(".json")) throw new IllegalArgumentException("The provided page location " + location + " is not a JSON file.");
+		CraftingHelper.findFiles(
+				mod,
+				"assets/" + mod.getModId() + "/lavasources_saves/pages/" + location,
+				root -> root.endsWith(location),
+				(root, file)->{
+					LavaSources.writeMessage(ResearchButton.class, "\n\t\t\troot = " + root + "\n\t\t\tfile = " + file);
+					Loader.instance().setActiveModContainer(mod);
+					String relative = root.relativize(file).toString();
+					String name = FilenameUtils.removeExtension(relative).replaceAll("\\\\","/");
+					ResourceLocation key = new ResourceLocation(context.getModId(), name);
+
+					BufferedReader reader = null;
+					try{
+						reader = Files.newBufferedReader(file);
+						JsonObject json = JsonUtils.fromJson(GSON, reader, JsonObject.class);
+						if(jsonHasAllMembers(json, "page")){
+							partials.addAll(getElementsFromJson(json, context));
+							LavaSources.writeMessage(Research.class, "registered");
+						}
+					}catch(Exception e){
+						LavaSources.writeMessage(Research.class, "Error reading file " + file + "::: error: " + e);
+					}finally {IOUtils.closeQuietly(reader);}
+
+
+					return true;
+				},
+				true,
+				false
+		);
+		return partials;
+	}
+
+	public static List<Map.Entry<String, String>> getElementsFromJson(JsonObject json, JsonContext context){
+		List<Map.Entry<String, String>> ret = new ArrayList<>();
+		int text = 0, image = 0;
+		JsonArray array = JsonUtils.getJsonArray(json, "page");
+		for (int i = 0; i < array.size(); i++) {
+			JsonObject o = array.get(i).getAsJsonObject();
+			new AbstractMap.SimpleImmutableEntry<>("", "");
+			if(o.has("text")) ret.add(new AbstractMap.SimpleImmutableEntry<>("text", JsonUtils.getString(o, "text")));
+			else if(o.has("image")) ret.add(new AbstractMap.SimpleImmutableEntry<>("image", JsonUtils.getString(o, "image")));
+		}
 		return ret;
 	}
 
