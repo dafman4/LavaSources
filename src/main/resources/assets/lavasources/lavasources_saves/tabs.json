@@ -4,22 +4,22 @@
 			"image": "lavasources:default_scrollable_background",
 			"name": "lava_tab.default_tab",
 			"key": "lavasources:default_tab",
-			"height":123,
-			"width":123,
+			"width":200,
+			"height":180,
 			"research": [
 				{
 					"researchName": "test",
 					"description": "This is simply a test research",
-					"x": 4,
-					"y": 4,
+					"x": 0,
+					"y": 0,
 					"image": "lavasources:lava_bucket",
 					"page":"_page_example.json"
 				},
 				{
 					"researchName": "test",
 					"description": "This is simply another test research",
-					"x": 3,
-					"y": 4,
+					"x": 9,
+					"y": 8,
 					"image": "lavasources:lava_bucket",
 					"page":"_page_example.json"
 				}

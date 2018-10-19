@@ -75,10 +75,8 @@ public class ModBlocks {
 		public static void attachToBlocks(AttachCapabilitiesEvent<Block> event){ }
 		
 		@SubscribeEvent
-		public  static void registerBlocks(RegistryEvent.Register<Block> event){
-			LavaSources.writeMessage(ModBlocks.class, "Registering Blocks");
-			for(ModBlock b : BLOCKS){
-				LavaSources.writeMessage(ModBlocks.class, "added " + b.getRegistryName() + " to set");
+		public  static void registerBlocks(RegistryEvent.Register<Block> event){;
+			for(ModBlock b : BLOCKS){;
 				event.getRegistry().register(b);
 				if(b.hasOreDictionaryName()) OreDictionary.registerOre(b.getOreDictionaryName(), b);
 			}
@@ -89,13 +87,11 @@ public class ModBlocks {
 		public static void registerItemBlocks(RegistryEvent.Register<Item> event){
 			
 			final IForgeRegistry<Item> registry = event.getRegistry();
-			
-			LavaSources.writeMessage(ModBlocks.class, "Registering ItemBlocks");
+			;
 			for(ItemBlock b : ITEMS){
 				final Block block = b.getBlock();
 				final ResourceLocation location = Preconditions.checkNotNull(block.getRegistryName(), "Block %s has null registry name", block);
-				registry.register(b.setRegistryName(location));
-				LavaSources.writeMessage(ModBlocks.class, "registered item block " + b.getRegistryName());
+				registry.register(b.setRegistryName(location));;
 				ITEM_BLOCKS.put(block, b);
 				
 			}
@@ -107,8 +103,7 @@ public class ModBlocks {
 			for(ModBlock b : BLOCKS) if(b.hasTileEntity())registerTileEntity(b.getTileEntityClass(), b.getUnlocalizedName().substring("tile.".length()));
 		}
 		
-		private static void registerTileEntity(final Class<? extends TileEntity> clazz, final String name){
-			LavaSources.writeMessage(ModBlocks.class, "Registering TileEntity for " + name);
+		private static void registerTileEntity(final Class<? extends TileEntity> clazz, final String name){;
 			GameRegistry.registerTileEntity(clazz, LavaSources.MOD_ID + ":" + name);
 		}
 		

@@ -45,7 +45,7 @@ public class RecipeFactory<T extends IRecipe> implements IRecipeFactory {
 			recipe.setRegistryName(RecipeHelper.getNameForRecipe(recipe.getRecipeOutput()));
 			return factory.getRecipe(context, json, required);
 		}else
-			throw new IllegalArgumentException("The recipe provided didn't have one or more of the following members \"pattern, key, result\"\n\t\t\t");
+			throw new IllegalArgumentException("The recipe provided didn't have one or more of the following members \"pattern, key, result\"\n");
 	}
 
 	@FunctionalInterface

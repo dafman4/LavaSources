@@ -1,6 +1,7 @@
 package squedgy.lavasources.research;
 
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.Gui;
 import net.minecraft.client.resources.I18n;
 import net.minecraftforge.fml.client.config.GuiUtils;
 import squedgy.lavasources.LavaSources;
@@ -20,7 +21,7 @@ public class ResearchButton extends ElementButton {
 	public static final int X_TILE_DIFFERENCE = (GuiGuideBook.TILE_SIZE - link_image_border.width)/2, Y_TILE_DIFFERENCE = (GuiGuideBook.TILE_SIZE - link_image_border.height)/2;
 	private Research research;
 	private List<String> description;
-	private final int saveX, saveY, drawDiffX, drawDiffY;
+	private final int saveX, saveY, drawDiffX, drawDiffY, locDiffX, locDiffY;
 	private final List<BookDisplayPartial> pagesRepresenting = new ArrayList<>();
 	private List<Map.Entry<String,String>> tempElements;
 	private int page = 0;
@@ -28,13 +29,15 @@ public class ResearchButton extends ElementButton {
 
 
 	public ResearchButton(ModGui drawer, int x, int y, Research research, String description, GuiLocation drawImage, List<Map.Entry<String,String>> entries){
-		super(drawer, x*GuiGuideBook.TILE_SIZE+((GuiGuideBook.TILE_SIZE-link_image_border.width)/2), y*(GuiGuideBook.TILE_SIZE)+((GuiGuideBook.TILE_SIZE-link_image_border.height)/2),description, drawImage, drawImage, drawImage, link_image_border, link_image_border);
+		super(drawer, x*GuiGuideBook.TILE_SIZE+((GuiGuideBook.TILE_SIZE-link_image_border.width)/2), y*(GuiGuideBook.TILE_SIZE)+((GuiGuideBook.TILE_SIZE-link_image_border.height)/2),description, drawImage, drawImage, drawImage, link_image_border);
 		int textWidth = width*12;
 		this.research = research;
 		saveX = x;
 		saveY = y;
 		drawDiffX = (link_image_border.width - drawImage.width);
 		drawDiffY = (link_image_border.height - drawImage.height);
+		locDiffX = drawDiffX/2;
+		locDiffY = drawDiffY/2;
 		tempElements = entries;
 	}
 
@@ -42,7 +45,7 @@ public class ResearchButton extends ElementButton {
 	public void displayToolTip(int mouseX, int mouseY) {
 		if(description == null)
 			description = mc.fontRenderer.listFormattedStringToWidth(buttonText, width * 10);
-		GuiUtils.drawHoveringText((description), mouseX - drawer.getGuiLeft(), mouseY - drawer.getGuiTop(), mc.currentScreen.width, mc.currentScreen.height, width*12, mc.fontRenderer);
+		GuiUtils.drawHoveringText((description), mouseX -getGuiLeft(), mouseY - getGuiTop(), mc.currentScreen.width, mc.currentScreen.height, width*12, mc.fontRenderer);
 	}
 
 	@Override
@@ -51,6 +54,9 @@ public class ResearchButton extends ElementButton {
 		if(hovered){
 			activeSecondary = true;
 			pagesRepresenting.forEach(ElementSubDisplay::init);
+		} else if(activeSecondary){
+			if(shouldNextPage(mouseX, mouseY)) nextPage();
+			if(shouldPreviousPage(mouseX, mouseY)) previousPage();
 		}
 	}
 
@@ -93,46 +99,104 @@ public class ResearchButton extends ElementButton {
 	}
 
 	@Override
-	public void drawGuiElementForeground(int mouseX, int mouseY) {
-		if(hovered) displayToolTip(mouseX, mouseY);
-	}
+	public void drawGuiElementForeground(int mouseX, int mouseY) { if(hovered) displayToolTip(mouseX, mouseY); }
 
 
 	@Override
 	public void drawGuiElementBackground(int mouseX, int mouseY, float partialTicks) {
-		LavaSources.writeMessage(getClass(), "x: " + locationX + ", y: " + locationY);
 		//update location in-case of scroll
-		locationX = saveX * GuiGuideBook.TILE_SIZE - GuiGuideBook.drawX + X_TILE_DIFFERENCE + GuiGuideBook.BACKGROUND_X;
-		locationY = saveY * GuiGuideBook.TILE_SIZE - GuiGuideBook.drawY + Y_TILE_DIFFERENCE + GuiGuideBook.BACKGROUND_Y;
+		locationX = saveX * GuiGuideBook.TILE_SIZE - GuiGuideBook.drawX + X_TILE_DIFFERENCE;
+		locationY = saveY * GuiGuideBook.TILE_SIZE - GuiGuideBook.drawY + Y_TILE_DIFFERENCE;
 		checkHovered(mouseX, mouseY);
-		if(locationX + width > 0 && locationX < GuiGuideBook.DISPLAY_WIDTH && locationY + height > 0 && locationY < GuiGuideBook.DISPLAY_HEIGHT) {
-			mc.renderEngine.bindTexture(link_image_border.texture.location);
-			int textX, textY, drawWidth, drawHeight;
-			if (locationX >= 0) {
-				drawWidth = Math.min(link_image_border.width, GuiGuideBook.DISPLAY_WIDTH - locationX);
-				textX = link_image_border.textureX;
-			} else {
-				drawWidth = locationX + link_image_border.width;
-				textX = link_image_border.textureX + link_image_border.width - drawWidth;
+		if(locationX > -border.width && locationX < GuiGuideBook.DISPLAY_WIDTH && locationY > -border.height && locationY < GuiGuideBook.DISPLAY_HEIGHT) {
+			mc.renderEngine.bindTexture(border.texture.location);
+			int textX, textY, drawWidth, drawHeight, drawX ,drawY;
+			if(locationX <= 0){
+				drawX = 0;
+				drawWidth = Math.min(border.width, border.width + locationX);
+				textX = border.textureX + border.width - drawWidth;
+			}else{
+				drawX = locationX;
+				drawWidth = Math.min(border.width, GuiGuideBook.DISPLAY_WIDTH - locationX);
+				textX = border.textureX;
 			}
-			if (locationY >= 0) {
-				drawHeight = Math.min(link_image_border.height, GuiGuideBook.DISPLAY_HEIGHT - locationY);
-				textY = link_image_border.textureY;
-			} else {
-				drawHeight = locationY + link_image_border.height;
-				textY = link_image_border.textureY + link_image_border.height - drawHeight;
+			if(locationY <= 0){
+				drawY = 0;
+				drawHeight= Math.min(border.height, border.height + locationY);
+				textY = border.textureY + border.height - drawHeight;
+			}else{
+				drawY = locationY;
+				drawHeight= Math.min(border.height, GuiGuideBook.DISPLAY_HEIGHT - locationY);
+				textY = border.textureY;
 			}
-			bindTexture(link_image_border);
-			drawTexturedModal(link_image_border.textureX - textX, link_image_border.textureY - textY, textX, textY, drawWidth, drawHeight);
-			if (drawHeight > drawDiffY && drawWidth > drawDiffX) {
-				if (locationX >= 0) textX = normalImage.textureX;
-				else textX = normalImage.textureX + normalImage.width - drawWidth + drawDiffX;
-				if (locationY >= 0) textY = normalImage.textureY;
-				else textY = normalImage.textureY + normalImage.height - drawHeight + drawDiffY;
+			bindTexture(border);
+			drawRectUsingTessellator(
+				drawX + getGuiLeft(),
+				drawY + getGuiTop(),
+				drawWidth,
+				drawHeight,
+				((float)textX)/border.texture.width,
+				((float)textX + drawWidth)/border.texture.width,
+				((float)textY)/border.texture.height,
+				((float)textY + drawHeight)/border.texture.height
+			);
+			if (drawHeight > locDiffX && drawWidth > locDiffY) {
+				if(locationX + drawWidth >= GuiGuideBook.DISPLAY_WIDTH){
+					drawWidth -= locDiffX;
+					drawX += locDiffX;
+				}else if (locationX > -locDiffX) {
+					drawWidth -= drawDiffY;
+					drawX += locDiffX;
+				}else{
+					drawWidth -= locDiffX;
+				}
+				if(locationY + drawHeight >= GuiGuideBook.DISPLAY_HEIGHT){
+					drawHeight -= locDiffY;
+					drawY += locDiffY;
+				}else if(locationY > -locDiffY){
+					drawHeight -= drawDiffX;
+					drawY += locDiffY;
+				}else{
+					drawHeight -= locDiffY;
+				}
+				textX = drawX <= 0 ? normalImage.textureX + normalImage.width - drawWidth : normalImage.textureX;
+				textY = drawY <= 0 ? normalImage.textureY + normalImage.height- drawHeight: normalImage.textureY;
 				bindTexture(normalImage);
-				drawTexturedModal(normalImage.textureX - textX + 1, normalImage.textureY - textY + 1, textX, textY, drawWidth - drawDiffX, drawHeight - drawDiffY);
+				drawRectUsingTessellator(
+					drawX + getGuiLeft(),
+					drawY+ getGuiTop(),
+					drawWidth,
+					drawHeight,
+					((float)textX)/normalImage.texture.width,
+					((float)textX + drawWidth)/normalImage.texture.width,
+					((float)textY)/normalImage.texture.height,
+					((float)textY + drawHeight)/normalImage.texture.height
+
+				);
 			}
 		}
+	}
+
+	@Override
+	public boolean drawsOnPhase(ModGui.EnumDrawPhase phase) {
+		if((phase == ModGui.EnumDrawPhase.SECONDARY_GUI_BACKGROUND || phase == ModGui.EnumDrawPhase.SECONDARY_GUI_FOREGROUND) && activeSecondary) return true;
+		return super.drawsOnPhase(phase);
+	}
+
+	@Override
+	public ElementSubDisplay getSecondGui(){ return getPage(); }
+
+	@Override
+	public void init() {
+		if(this.pagesRepresenting.size() == 0 && tempElements !=null && tempElements.size()  != 0){
+			setPartials();
+		}
+	}
+
+	@Override
+	public boolean close() {
+		this.activeSecondary = !getPage().close();
+		return activeSecondary;
 	}
 
 	public void setPartials(){
@@ -166,38 +230,24 @@ public class ResearchButton extends ElementButton {
 		tempElements = null;
 	}
 
-	public BookDisplayPartial newPartial(){ return new BookDisplayPartial(drawer); }
+	public BookDisplayPartial newPartial(){ return new BookDisplayPartial(getDrawer()); }
 
 	public ElementTextDisplay newTextDisplay(BookDisplayPartial addTo, List<String> strings){
 		FontRenderer r = mc.fontRenderer;
-		return new ElementTextDisplay(drawer, BookDisplayPartial.E_W_PADDING, BookDisplayPartial.N_S_PADDING + addTo.getDrawHeight() + BookDisplayPartial.ELEMENT_PADDING * addTo.getElementsSize(), BookDisplayPartial.getTotalDrawWidth() - BookDisplayPartial.E_W_PADDING*2, strings.size() * r.FONT_HEIGHT, null, strings);
+		return new ElementTextDisplay(getDrawer(), BookDisplayPartial.E_W_PADDING, BookDisplayPartial.N_S_PADDING + addTo.getDrawHeight() + BookDisplayPartial.ELEMENT_PADDING * addTo.getElementsSize(), BookDisplayPartial.getTotalDrawWidth() - BookDisplayPartial.E_W_PADDING*2, strings.size() * r.FONT_HEIGHT, null, strings);
 	}
 
 	public ElementImage newImage(BookDisplayPartial addTo, GuiLocation image){
-		return new ElementImage      (drawer, BookDisplayPartial.E_W_PADDING + ((BookDisplayPartial.getTotalDrawWidth() - (BookDisplayPartial.E_W_PADDING*2) - image.width))/2, BookDisplayPartial.N_S_PADDING + addTo.getDrawHeight() + BookDisplayPartial.ELEMENT_PADDING * addTo.getElementsSize(), image);
+		return new ElementImage      (getDrawer(), BookDisplayPartial.E_W_PADDING + ((BookDisplayPartial.getTotalDrawWidth() - (BookDisplayPartial.E_W_PADDING*2) - image.width))/2, BookDisplayPartial.N_S_PADDING + addTo.getDrawHeight() + BookDisplayPartial.ELEMENT_PADDING * addTo.getElementsSize(), image);
 	}
 
 	@Override
-	public boolean drawsOnPhase(ModGui.EnumDrawPhase phase) {
-		if(phase == ModGui.EnumDrawPhase.SECONDARY_GUI_BACKGROUND && activeSecondary) return true;
-		return super.drawsOnPhase(phase);
+	public int getGuiLeft() {
+		return super.getGuiLeft() + GuiGuideBook.BACKGROUND_X;
 	}
 
 	@Override
-	public ElementSubDisplay getSecondGui(){
-		return getPage();
-	}
-
-	@Override
-	public void init() {
-		if(this.pagesRepresenting.size() == 0 && tempElements !=null && tempElements.size()  != 0){
-			setPartials();
-		}
-	}
-
-	@Override
-	public boolean close() {
-		this.activeSecondary = !getPage().close();
-		return activeSecondary;
+	public int getGuiTop() {
+		return super.getGuiTop() + GuiGuideBook.BACKGROUND_Y;
 	}
 }

@@ -25,18 +25,11 @@ public class ElementPageButton extends ElementButton {
 	}
 
 	public ElementPageButton(ModGui drawer, int x, int y, String buttonText, EnumPageButtonType type){
-		super(drawer, x, y, buttonText, type.GENERAL, type.HOVER, type.DISABLED, null, null);
-		LavaSources.writeMessage(getClass(), "visible = " + visible + ", enabled = " + enabled);
+		super(drawer, x, y, buttonText, type.GENERAL, type.HOVER, type.DISABLED);
 	}
 
 	@Override
 	public void displayToolTip(int mouseX, int mouseY) {}
-
-	@Override
-	public void drawGuiElementBackground(int mouseX, int mouseY, float partialTicks) {
-		super.drawGuiElementBackground(mouseX, mouseY, partialTicks);
-		LavaSources.writeMessage(getClass(), "drawing at: " + locationX + ", "+ locationY);
-	}
 
 	@Override
 	public String toString() {
@@ -46,5 +39,10 @@ public class ElementPageButton extends ElementButton {
 				", height=" + height +
 				", width=" + width +
 				'}';
+	}
+
+	@Override
+	public boolean drawsOnPhase(ModGui.EnumDrawPhase phase) {
+		return phase == ModGui.EnumDrawPhase.BUTTONS;
 	}
 }

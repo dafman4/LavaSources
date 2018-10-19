@@ -16,8 +16,8 @@ public class BookDisplayPartial extends ElementSubDisplay{
 	public static final GuiLocation background = GuiLocation.GuiLocations.book_partial;
 	public static final int N_S_PADDING = 5, E_W_PADDING = 5, ELEMENT_PADDING = 3, GUI_TOP = ((GuiGuideBook.DISPLAY_HEIGHT + GuiGuideBook.BACKGROUND_Y*2)-(background.height))/2, GUI_LEFT = ((GuiGuideBook.DISPLAY_WIDTH + GuiGuideBook.BACKGROUND_X * 2) - background.width)/2;
 	public static final ElementPageButton
-			NEXT_PAGE = new ElementPageButton(null, GUI_LEFT, background.height + GUI_TOP, "", ElementPageButton.EnumPageButtonType.NEXT_PAGE),
-			PREVIOUS_PAGE = new ElementPageButton(null, GUI_LEFT + background.width - ElementPageButton.EnumPageButtonType.PREVIOUS_PAGE.GENERAL.width,background.height + GUI_TOP, "", ElementPageButton.EnumPageButtonType.PREVIOUS_PAGE);
+			NEXT_PAGE = new ElementPageButton(null, GUI_LEFT + background.width - ElementPageButton.EnumPageButtonType.PREVIOUS_PAGE.GENERAL.width, background.height + GUI_TOP, "", ElementPageButton.EnumPageButtonType.NEXT_PAGE),
+			PREVIOUS_PAGE = new ElementPageButton(null, GUI_LEFT,background.height + GUI_TOP, "", ElementPageButton.EnumPageButtonType.PREVIOUS_PAGE);
 	private List<GuiElement> components = new ArrayList<>();
 
 	public BookDisplayPartial(ModGui parent, GuiElement... components){
@@ -38,6 +38,7 @@ public class BookDisplayPartial extends ElementSubDisplay{
 	public static int getTotalDrawWidth(){ return background.width; }
 	public int getDrawHeight(){ return components.stream().mapToInt(i -> i.height + ELEMENT_PADDING).sum(); }
 	public int getElementsSize() { return components.size(); }
+
 	@Override
 	public boolean addElement(GuiElement element){
 		if(getDrawHeight() + element.height > getTotalDrawHeight())
@@ -51,8 +52,6 @@ public class BookDisplayPartial extends ElementSubDisplay{
 
 	public boolean shouldPreviousPage(int mouseX, int mouseY){ return PREVIOUS_PAGE.isMouseOver(); }
 
-	public List<ElementButton> getButtons(){ return Arrays.asList( NEXT_PAGE, PREVIOUS_PAGE); }
-
 	@Override
 	protected void setElements() {
 		for(GuiElement e: components) super.addElement(e);
@@ -60,19 +59,12 @@ public class BookDisplayPartial extends ElementSubDisplay{
 		super.addElement(PREVIOUS_PAGE);
 	}
 
-
 	@Override
 	public void drawGuiElementBackground(int mouseX, int mouseY, float partialTicks) {
-		drawer.drawDefaultBackground();
+		getDrawer().drawDefaultBackground();
 		bindTexture(background.texture.location);
 		drawTexturedModal(0,0, background);
-		ELEMENTS.stream().filter(e -> e.drawsOnPhase(ModGui.EnumDrawPhase.BACKGROUND)).forEach(e -> e.drawGuiElementBackground(mouseX, mouseY, partialTicks));
-		ELEMENTS.stream().filter(e -> e.drawsOnPhase(ModGui.EnumDrawPhase.BUTTONS)).forEach(e -> e.drawGuiElementBackground(mouseX, mouseY, partialTicks));
-	}
-
-	@Override
-	public void drawGuiElementForeground(int mouseX, int mouseY) {
-		ELEMENTS.stream().filter(e -> e.drawsOnPhase(ModGui.EnumDrawPhase.FOREGROUND)).forEach(e -> e.drawGuiElementForeground(mouseX, mouseY));
+		super.drawGuiElementBackground(mouseX, mouseY, partialTicks);
 	}
 
 }

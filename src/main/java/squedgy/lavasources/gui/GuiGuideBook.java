@@ -1,9 +1,7 @@
 package squedgy.lavasources.gui;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.IInventory;
-import squedgy.lavasources.LavaSources;
 import squedgy.lavasources.gui.elements.ElementButton;
 import squedgy.lavasources.gui.elements.GuiElement;
 import squedgy.lavasources.inventory.ContainerEmpty;
@@ -12,23 +10,20 @@ import squedgy.lavasources.helper.GuiLocation;
 import squedgy.lavasources.init.ModResearch;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class GuiGuideBook extends ModGui {
 //<editor-fold defaultstate="collapsed" desc=". . . . Fields/Constructors">
 	public static final int DISPLAY_WIDTH = 180, DISPLAY_HEIGHT = 160, TILE_SIZE = 20, BACKGROUND_X = 8, BACKGROUND_Y = 8;
-	private int fullWidth, fullHeight, currentMouseX, currentMouseY;
+	private int fullWidth, fullHeight, currentMouseX, currentMouseY, maxDrawX, maxDrawY;
 	public static int drawX = 0, drawY = 0;
 	private ResearchTab tabOpen;
-	private final List<ElementButton> bookButtons = new ArrayList<>();
 
 	public GuiGuideBook(InventoryPlayer player, IInventory inventory, ResearchTab tabOpen){
 		super(new ContainerEmpty(), GuiLocation.GuiLocations.book_base);
-		this.tabOpen = tabOpen;
+		setTab(tabOpen);
 	}
 
-	public GuiGuideBook(InventoryPlayer player, IInventory inventory) { this(player, inventory, ModResearch.DEFAULT_TAB); }
+	public GuiGuideBook(InventoryPlayer player, IInventory inventory) { this(player,  inventory, ModResearch.DEFAULT_TAB); }
 
 //</editor-fold>
 
@@ -37,8 +32,7 @@ public class GuiGuideBook extends ModGui {
 	@Override
 	protected void setElements() {
 		for(GuiElement e : tabOpen.getRelatedResearch()){
-			e.setDrawer(this);
-			LavaSources.writeMessage(getClass(), "adding " + e + " the the ELEMENTS");
+			e.setDrawer(this);;
 			addElement(e);
 		}
 	}
@@ -96,13 +90,21 @@ public class GuiGuideBook extends ModGui {
 	@Override
 	protected void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) {
 		if(clickedMouseButton == 0){
-			addToDrawXAndY(currentMouseX - (mouseX - guiLeft - BACKGROUND_X), currentMouseY - (mouseY - guiTop - BACKGROUND_Y));
+			addToDrawXAndY(currentMouseX - mouseX, currentMouseY - mouseY);
+			currentMouseX = mouseX;
+			currentMouseY = mouseY;
 		}
 	}
 
 	protected void setTab(ResearchTab tabOpen){
 		if(tabOpen != null){
 			this.tabOpen = tabOpen;
+			this.fullHeight = Math.max(tabOpen.getHeight(), DISPLAY_HEIGHT);
+			this.fullWidth = Math.max(tabOpen.getWidth(), DISPLAY_WIDTH);
+			drawX = 0;//reset the draw area as well
+			drawY = 0;
+			maxDrawX = fullWidth - DISPLAY_WIDTH;
+			maxDrawY = fullHeight - DISPLAY_HEIGHT;
 			setElements();
 		}
 	}
@@ -118,18 +120,12 @@ public class GuiGuideBook extends ModGui {
 	}
 
 	private void addToDrawXAndY(int addX, int addY){
-		if(fullWidth > DISPLAY_WIDTH){
-			int add = drawX + DISPLAY_WIDTH + addX;
-			if(add > fullWidth) addX = drawX + DISPLAY_WIDTH + addX - fullWidth;
-			else if (drawX + addX < 0) addX = -drawX;
-			drawX += addX;
-		}
-		if(fullHeight > DISPLAY_HEIGHT){
-			if(drawY + DISPLAY_HEIGHT + addY > fullHeight) addY = drawY + DISPLAY_HEIGHT + addY - fullHeight;
-			else if(drawY + addY < 0) addY = -drawY;
-			drawY += addY;
-		}
-
+		drawX += addX;
+		drawY += addY;
+		if(drawX < 0) drawX = 0;
+		else if(drawX > maxDrawX) drawX = maxDrawX;
+		if(drawY < 0) drawY = 0;
+		else if(drawY > maxDrawY) drawY = maxDrawY;
 	}
 
 	//</editor-fold>

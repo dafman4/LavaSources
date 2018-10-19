@@ -369,8 +369,7 @@ public class TileEntityCoreModifier extends ModLockableTileEntity implements IUp
 	public static void initRecipes(IForgeRegistry<ICoreModifierRecipe> registry){
 		RECIPES = new ArrayList(registry.getValuesCollection());
 		POSSIBLE_FLUIDS.clear();
-		POSSIBLE_FLUIDS.addAll(RECIPES.stream().map(ICoreModifierRecipe::getRequiredFluid).distinct().collect(Collectors.toList()));
-		LavaSources.writeMessage(TileEntityCoreModifier.class, "RECIPES = " + RECIPES);
+		POSSIBLE_FLUIDS.addAll(RECIPES.stream().map(ICoreModifierRecipe::getRequiredFluid).distinct().collect(Collectors.toList()));;
 	}
 
 	public enum SlotEnum{ INPUT_SLOT, OUTPUT_SLOT }

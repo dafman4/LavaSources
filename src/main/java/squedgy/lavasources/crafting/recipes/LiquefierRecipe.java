@@ -26,8 +26,7 @@ public class LiquefierRecipe extends Impl<ILiquefierRecipe> implements ILiquefie
 		setRegistryName(name);
 		if(fluidCreated==null) fluidCreated = FluidRegistry.getFluidStack(FluidRegistry.LAVA.getName(), 0);
 		this.fluidCreated = fluidCreated;
-		this.input = (input != null) ? input.getMatchingStacks() : null;
-		LavaSources.writeMessage(getClass(), "input = " + input);
+		this.input = (input != null) ? input.getMatchingStacks() : null;;
 		this.output = output;
 
 	}

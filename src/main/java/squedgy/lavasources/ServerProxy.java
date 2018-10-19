@@ -11,8 +11,7 @@ public class ServerProxy extends CommonProxy{
 	
 	
 	@Override
-	public void preInit() throws Exception{
-		LavaSources.writeMessage(ServerProxy.class, "server preInit");
+	public void preInit() throws Exception{;
 		super.preInit();
 	}
 	

@@ -21,6 +21,7 @@ import java.util.Map;
 public class GuiLocation extends IForgeRegistryEntry.Impl<GuiLocation> {
 	public final TextureWrapper texture;
 	public final int height, width, textureX, textureY;
+	public final float maxU, minU, maxV, minV;
 
 	@Override
 	public String toString() {
@@ -37,8 +38,11 @@ public class GuiLocation extends IForgeRegistryEntry.Impl<GuiLocation> {
 		this.texture = image;
 		this.textureX = textureX;
 		this.textureY = textureY;
-		setRegistryName(registry);
-		LavaSources.writeMessage(getClass(), "instantiated GuiLocation" + toString());
+		this.minU = ((float)textureX / texture.width);
+		this.maxU = ((float)textureX + width)/ texture.width;
+		this.minV = ((float)textureY / texture.height);
+		this.maxV = ((float)textureY + height) / texture.height;
+		setRegistryName(registry);;
 	}
 
 	public static ResourceLocation getResourceLocation(String path){return getRegistryLocation("textures/gui/" + path);}

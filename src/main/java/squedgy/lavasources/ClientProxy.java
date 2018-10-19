@@ -13,8 +13,7 @@ public class ClientProxy extends CommonProxy{
 	
 	
 	@Override
-	public void preInit() throws Exception{
-		LavaSources.writeMessage(ClientProxy.class, "Client preInit");
+	public void preInit() throws Exception{;
 		super.preInit();
 		
 	}

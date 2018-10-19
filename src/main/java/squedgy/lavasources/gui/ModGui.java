@@ -78,12 +78,11 @@ public abstract class ModGui extends GuiContainer {
 
 	@Override
 	protected final void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
-		LavaSources.writeMessage(getClass(), "elements: " + ELEMENTS);
 		mc.renderEngine.bindTexture(BACKGROUND.texture.location);
 		drawTexturedModalRect(guiLeft, guiTop, BACKGROUND.textureX, BACKGROUND.textureY, BACKGROUND.width, BACKGROUND.height);
 		drawBackgroundLayer(partialTicks, mouseX, mouseY);
 		ELEMENTS.stream().filter(e -> e.drawsOnPhase(EnumDrawPhase.BACKGROUND)).forEach(e -> e.drawGuiElementBackground(mouseX, mouseY, partialTicks));
-		ELEMENTS.stream().filter(e -> e.drawsOnPhase(EnumDrawPhase.BUTTONS)).forEach(e -> e.drawSecondGuiBackground(mouseX, mouseY, partialTicks));
+		ELEMENTS.stream().filter(e -> e.drawsOnPhase(EnumDrawPhase.BUTTONS)).forEach(e -> e.drawGuiElementBackground(mouseX, mouseY, partialTicks));
 		if(ELEMENTS.stream().anyMatch(e -> e.drawsOnPhase(EnumDrawPhase.SECONDARY_GUI_BACKGROUND)))
 			ELEMENTS.stream().filter(e -> e.drawsOnPhase(EnumDrawPhase.SECONDARY_GUI_BACKGROUND)).forEach(e -> e.drawSecondGuiBackground(mouseX, mouseY, partialTicks));
 	}

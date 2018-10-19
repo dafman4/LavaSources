@@ -104,10 +104,8 @@ public class TileEntityLiquefier extends ModLockableTileEntity implements IUpgra
 				recipe = recipes.stream().filter(r -> r.hasInput(input)).findFirst().orElse(BLANK_RECIPE);
 			}
 			if(recipe != BLANK_RECIPE && this.energy.getEnergyStored() >= energyPerTick && (fluids.getCapacity() - fluids.getFluidAmount()) >= recipe.getOutput(input).amount){
-				FluidStack output = recipe.getOutput(input);
-				LavaSources.writeMessage(getClass(), "output = [" + output.getFluid().getName() + ", " + output.amount + "]");
-				int energyExtract = energy.internalExtract(energyPerTick, true), fluidExtract = fluids.internalFill(output, false);
-				LavaSources.writeMessage(getClass(), "energyExtract = " + energyExtract + " , " + energyPerTick + ", fluidExtract = " + fluidExtract);
+				FluidStack output = recipe.getOutput(input);;
+				int energyExtract = energy.internalExtract(energyPerTick, true), fluidExtract = fluids.internalFill(output, false);;
 				if(energyExtract == energyPerTick && fluidExtract == output.amount){
 					energy.internalExtract(energyPerTick, false);
 					fluids.internalFill(output, true);

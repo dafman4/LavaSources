@@ -11,15 +11,14 @@ public class ElementTextDisplay extends GuiElement {
 	private final List<String> lines;
 
 	public ElementTextDisplay(ModGui drawer, int locationX, int locationY, int width, int height, IInventory container, List<String> lines) {
-		super(drawer, locationX, locationY, width, height, container);
-		LavaSources.writeMessage(getClass(), "locationX = " + this.locationX + ", locationY = " + this.locationY);
+		super(drawer, locationX, locationY, width, height, container);;
 		this.lines = lines;
 	}
 
 	@Override
 	public void drawGuiElementForeground(int mouseX, int mouseY) {
 		for (int i = 0; i < lines.size(); i++) {
-			drawString(0 , drawer.mc.fontRenderer.FONT_HEIGHT * i, lines.get(i));
+			drawString(0 , mc.fontRenderer.FONT_HEIGHT * i, lines.get(i));
 		}
 	}
 
@@ -35,5 +34,10 @@ public class ElementTextDisplay extends GuiElement {
 				", locationX=" + locationX +
 				", locationY=" + locationY +
 				'}';
+	}
+
+	@Override
+	public boolean drawsOnPhase(ModGui.EnumDrawPhase phase) {
+		return phase == ModGui.EnumDrawPhase.FOREGROUND;
 	}
 }

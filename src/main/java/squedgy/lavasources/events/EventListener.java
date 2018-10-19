@@ -63,12 +63,12 @@ public class EventListener {
 			else message.append("no research topics");
 		}else message.append("no research capabilities.");
 
-		LavaSources.writeMessage(getClass(), "\n\n\nplayer" + player.getName() + " logged in with " + message + "\n\n\n");
+		LavaSources.writeMessage(getClass(), "\nplayer" + player.getName() + " logged in with " + message + "\n");
 	}
 
 	@SubscribeEvent
 	public void registryRegister(RegistryEvent.NewRegistry event){
-		LavaSources.writeMessage(getClass(), "\n\n\n\tregistering registries.");
+		LavaSources.writeMessage(getClass(), "\nregistering registries.");
 		ModRegistries.TEXTURE_WRAPPER_REGISTRY = createRegistry(GuiLocation.TextureWrapper.class, "a_texture_wrapper_registry");
 		ModRegistries.RESEARCH_REGISTRY = createRegistry(Research.class,  "c_research_registry");
 		ModRegistries.GUI_LOCATION_REGISTRY = createRegistry( GuiLocation.class, "b_gui_location_registry");
@@ -93,7 +93,7 @@ public class EventListener {
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
 	public void registerTextureWrapper(RegistryEvent.Register<GuiLocation.TextureWrapper> event){
-		LavaSources.writeMessage(GuiLocation.TextureWrapper.class, "\n\n\n\tRegistering TextureWrappers");
+		LavaSources.writeMessage(GuiLocation.TextureWrapper.class, "\nRegistering TextureWrappers");
 		Loader.instance().getActiveModList().forEach(m -> registerTextureWrappersForMod(m, event));
 	}
 
@@ -154,7 +154,7 @@ public class EventListener {
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
 	public void registerGuiLocations(RegistryEvent.Register<GuiLocation> event){
-		LavaSources.writeMessage(GuiLocation.class, "\n\n\n\tRegistering GuiLocations");
+		LavaSources.writeMessage(GuiLocation.class, "\nRegistering GuiLocations");
 		Loader.instance().getActiveModList().forEach(mod -> registerGuiLocationsForMod(mod, event));
 	}
 
@@ -225,7 +225,7 @@ public class EventListener {
 
 	@SubscribeEvent
 	public void registerCoreModifierRecipes(RegistryEvent.Register<ICoreModifierRecipe> registry){
-		LavaSources.writeMessage(ICoreModifierRecipe.class, "\n\n\n\tRegistering ICoreModifierRecipes");
+		LavaSources.writeMessage(ICoreModifierRecipe.class, "\nRegistering ICoreModifierRecipes");
 		Loader.instance().getActiveModList().forEach(mod -> registerCoreModifierLocationsForMod(mod, registry));
 		TileEntityCoreModifier.initRecipes(GameRegistry.findRegistry(ICoreModifierRecipe.class));
 	}
@@ -286,7 +286,7 @@ public class EventListener {
 
 	@SubscribeEvent
 	public void registerILiquefierRecipe(RegistryEvent.Register<ILiquefierRecipe> event){
-		LavaSources.writeMessage(ILiquefierRecipe.class, "\n\n\n\tRegistering ILiquefierRecipe");
+		LavaSources.writeMessage(ILiquefierRecipe.class, "\nRegistering ILiquefierRecipe");
 		Loader.instance().getActiveModList().forEach(mod -> registerILiquefierRecipeForMod(mod, event));
 		TileEntityLiquefier.updateRecipes();
 	}
@@ -351,7 +351,7 @@ public class EventListener {
 
 	@SubscribeEvent
 	public void registerResearch(RegistryEvent.Register<Research> event){
-		LavaSources.writeMessage(GuiLocation.class, "\n\n\n\tRegistering Research");
+		LavaSources.writeMessage(GuiLocation.class, "\nRegistering Research");
 		Loader.instance().getActiveModList().forEach(mod -> registerResearchForMod(mod, event));
 	}
 
@@ -417,7 +417,7 @@ public class EventListener {
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
 	public void registerResearchTabs(RegistryEvent.Register<ResearchTab> event){
-		LavaSources.writeMessage(GuiLocation.class, "\n\n\n\tRegistering ResearchTabs");
+		LavaSources.writeMessage(GuiLocation.class, "\nRegistering ResearchTabs");
 		Loader.instance().getActiveModList().forEach(mod ->registerTabsForMod(mod, event));
 	}
 
@@ -459,15 +459,17 @@ public class EventListener {
 		List<ResearchTab> ret = new ArrayList<>(locations.size());
 		for(int i = 0; i < locations.size(); i++){
 			JsonObject location = locations.get(i).getAsJsonObject();
-			if(jsonHasAllMembers(location, "image", "name", "key", "research")){
+			if(jsonHasAllMembers(location, "image", "name", "key", "research", "height", "width")){
 				String image = JsonUtils.getString(location, "image"),
 						name = JsonUtils.getString(location, "name"),
 						key = JsonUtils.getString(location, "key");
+				int height = JsonUtils.getInt(location, "height"),
+						width = JsonUtils.getInt(location, "width");
 				JsonArray dependencies = JsonUtils.getJsonArray(location, "research");
 				ResearchButton[] depends = new ResearchButton[dependencies.size()];
 				for(int f = 0; f < dependencies.size(); f++) depends[f] = getResearchButtonFromJsonObject(dependencies.get(f).getAsJsonObject(), mod, context);
 				ret.add(
-						new ResearchTab(name, key, depends)
+						new ResearchTab(name, width, height, key, depends)
 				);
 			}else LavaSources.writeMessage(ModResearch.class, "There was an issue turning the following json object into a location: " + location.toString());
 		}
@@ -501,7 +503,7 @@ public class EventListener {
 				"assets/" + mod.getModId() + "/lavasources_saves/pages/" + location,
 				root -> root.endsWith(location),
 				(root, file)->{
-					LavaSources.writeMessage(ResearchButton.class, "\n\t\t\troot = " + root + "\n\t\t\tfile = " + file);
+					LavaSources.writeMessage(ResearchButton.class, "\nroot = " + root + "\nfile = " + file);
 					Loader.instance().setActiveModContainer(mod);
 					String relative = root.relativize(file).toString();
 					String name = FilenameUtils.removeExtension(relative).replaceAll("\\\\","/");

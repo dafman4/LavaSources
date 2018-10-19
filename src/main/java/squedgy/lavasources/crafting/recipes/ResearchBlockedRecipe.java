@@ -51,7 +51,7 @@ public class ResearchBlockedRecipe<T extends IRecipe> extends IForgeRegistryEntr
 				EntityPlayer p = CraftingUtils.getPlayerIfPossible(inventoryCrafting);
 				flag = isPlayerCraftable(p);
 			} catch (Exception e) {
-				LavaSources.writeMessage(getClass(), "there was an issue finding the player crafting!\n\t\tthis might not be LavaSources fault!\n\t\terror: " + e.getLocalizedMessage());
+				LavaSources.writeMessage(getClass(), "there was an issue finding the player crafting!\nthis might not be LavaSources fault!\nerror: " + e.getLocalizedMessage());
 				flag = false;
 			}
 		}

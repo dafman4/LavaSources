@@ -9,8 +9,7 @@ public class ElementImage extends GuiElement{
 	private final GuiLocation image;
 
 	public ElementImage(ModGui drawer, int locationX, int locationY, GuiLocation image) {
-		super(drawer, locationX, locationY, image.width, image.height, null);
-		LavaSources.writeMessage(getClass(), "locationX = " + this.locationX + ", locationY = " + this.locationY);
+		super(drawer, locationX, locationY, image.width, image.height, null);;
 		this.image = image;
 	}
 
@@ -27,5 +26,10 @@ public class ElementImage extends GuiElement{
 				", locationX=" + locationX +
 				", locationY=" + locationY +
 				'}';
+	}
+
+	@Override
+	public boolean drawsOnPhase(ModGui.EnumDrawPhase phase) {
+		return phase == ModGui.EnumDrawPhase.BACKGROUND;
 	}
 }

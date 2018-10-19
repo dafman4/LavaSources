@@ -54,8 +54,7 @@ public class Plugin implements IModPlugin {
 		registry.handleRecipes(ILiquefierRecipe.class, new LiquefierWrapper.Factory(), LavaSourcesJeiConstants.LIQUEFIER_CATEGORY);
 
 		registry.addRecipes(ModRegistries.CORE_MODIFIER_RECIPE_REGISTRY.getValuesCollection(), LavaSourcesJeiConstants.CORE_MODIFIER_CATEGORY);
-		registry.addRecipes(ModRegistries.LIQUEFIER_RECIPE_REGISTRY.getValuesCollection(), LavaSourcesJeiConstants.LIQUEFIER_CATEGORY);
-		LavaSources.writeMessage(getClass(), "liquefier recipes = " + ModRegistries.LIQUEFIER_RECIPE_REGISTRY.getValuesCollection());
+		registry.addRecipes(ModRegistries.LIQUEFIER_RECIPE_REGISTRY.getValuesCollection(), LavaSourcesJeiConstants.LIQUEFIER_CATEGORY);;
 		registry.addRecipeCatalyst(ModBlocks.ITEM_BLOCKS.get(ModBlocks.BLOCKS.get(ModBlocks.CORE_MODIFIER)).getDefaultInstance(), LavaSourcesJeiConstants.CORE_MODIFIER_CATEGORY);
 		registry.addRecipeCatalyst(ModBlocks.ITEM_BLOCKS.get(ModBlocks.BLOCKS.get(ModBlocks.LIQUEFIER)).getDefaultInstance(), LavaSourcesJeiConstants.LIQUEFIER_CATEGORY);
 	}

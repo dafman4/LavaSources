@@ -17,6 +17,8 @@ import squedgy.lavasources.creativetabs.CreativeTabLavaSources;
 import squedgy.lavasources.events.EventListener;
 import squedgy.lavasources.init.ModGuis;
 
+import java.util.Arrays;
+
 
 @Mod(modid=LavaSources.MOD_ID, name=LavaSources.NAME, version=LavaSources.VERSION)
 public class LavaSources{
@@ -37,26 +39,24 @@ public class LavaSources{
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event) throws Exception{
 		logger = event.getModLog();
-		writeMessage(LavaSources.class, "\n\n\n\nStarting pre-initialization for " + NAME + " v." + VERSION);
+		writeMessage(LavaSources.class, "\nStarting pre-initialization for " + NAME + " v." + VERSION);
  		proxy.preInit();
 	}
 	
 	@EventHandler
 	public void init(FMLInitializationEvent event){
-		writeMessage(LavaSources.class, "\n\n\n\nStarting initialization for " + NAME + " v." + VERSION);
+		writeMessage(LavaSources.class, "\nStarting initialization for " + NAME + " v." + VERSION);
 		NetworkRegistry.INSTANCE.registerGuiHandler(INSTANCE, new ModGuis());
 		proxy.init();
 	}
 	
 	@EventHandler
 	public void postInit(FMLPostInitializationEvent event){
-		writeMessage(LavaSources.class,"\n\n\n\nPost init for " + NAME + " v." +VERSION);
+		writeMessage(LavaSources.class,"\nPost init for " + NAME + " v." +VERSION);
 		proxy.postInit();
 	}
 	
-	public static String getResourceName(String resourceName){
-		return LavaSources.MOD_ID + ":" + resourceName;
-	}
+	public static String getResourceName(String resourceName){ return LavaSources.MOD_ID + ":" + resourceName; }
 
 	public static ResourceLocation getResourceLocation(String resourceName){
 		if(resourceName.indexOf(':') > 0) return new ResourceLocation(resourceName);
@@ -65,8 +65,11 @@ public class LavaSources{
 	
 	public static void writeMessage( Class clazz, String message){
 		if(logger != null) {
-			for(String s : message.split("\n"))
-			logger.info("[" + clazz.getSimpleName() + "]: " + message);
+//			logger.info("message: " + message);
+//			logger.info("message-split: " + Arrays.asList(message.split("((\\r)?\\n)|\\r")));
+			for(String s : message.split("((\\r)?\\n)|\\r")){//split new lines
+				if(!s.isEmpty()) logger.info("[" + clazz.getSimpleName() + "]: " + s);
+			}
 		}
 	}
 }

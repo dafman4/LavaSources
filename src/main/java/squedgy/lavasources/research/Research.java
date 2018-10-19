@@ -24,8 +24,7 @@ public class Research extends IForgeRegistryEntry.Impl<Research>{
 		if(key.indexOf(':') < 0)setRegistryName(LavaSources.MOD_ID, key);
 		else setRegistryName(key);
 		research_names = dependencies;
-		this.displayName = name;
-		LavaSources.writeMessage(getClass(), "Instantiated research: " + toString());
+		this.displayName = name;;
 	}
 
 //</editor-fold>

@@ -86,10 +86,8 @@ public class BlockLavaSource extends ModPersistentBlock{
 		if(playerIn.hasCapability(ModCapabilities.PLAYER_RESEARCH_CAPABILITY, null)){
 			IPlayerResearchCapability cap = playerIn.getCapability(ModCapabilities.PLAYER_RESEARCH_CAPABILITY, null);
 			if(!cap.hasResearch(ModResearch.TEST)){
-				cap.addResearch(ModResearch.TEST);
-				LavaSources.writeMessage(getClass(), "added " + ModResearch.TEST);
-			}else{
-				LavaSources.writeMessage(getClass(), "player already has " + ModResearch.TEST);
+				cap.addResearch(ModResearch.TEST);;
+			}else{;
 			}
 		}
 		return ret;

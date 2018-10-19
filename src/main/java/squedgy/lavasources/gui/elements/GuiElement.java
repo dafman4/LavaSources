@@ -1,11 +1,10 @@
 package squedgy.lavasources.gui.elements;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
@@ -16,6 +15,7 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.client.event.GuiContainerEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fluids.FluidStack;
+import org.lwjgl.opengl.GL11;
 import squedgy.lavasources.gui.ModGui;
 import squedgy.lavasources.helper.GuiLocation;
 
@@ -23,7 +23,7 @@ public abstract class GuiElement{
 	protected static Minecraft mc = Minecraft.getMinecraft();
 	protected int locationX, locationY, height, width;
 	protected IInventory container;
-	protected ModGui drawer;
+	private ModGui drawer;
 
 	public GuiElement(ModGui drawer, int locationX, int locationY, int width, int height, IInventory container){
 		this.locationX = locationX;
@@ -86,6 +86,33 @@ public abstract class GuiElement{
 
 	protected final void bindTexture(GuiLocation texture){ bindTexture(texture.texture.location); }
 	protected final void bindTexture(ResourceLocation texture){ mc.renderEngine.bindTexture(texture); }
+	protected final void drawRectUsingTessellator(GuiLocation image){
+		drawRectUsingTessellator(0, 0, image);
+	}
+
+	protected final void drawRectUsingTessellator(int xAddition, int yAddition, GuiLocation image){
+		drawRectUsingTessellator(
+			locationX + xAddition + getGuiLeft() ,
+			locationY + yAddition + getGuiTop(),
+			image.width,
+			image.height,
+			image.minU,
+			image.maxU,
+			image.minV,
+			image.maxV
+		);
+	}
+
+	protected final void drawRectUsingTessellator(int locationX, int locationY, int width, int height, float minU, float maxU, float minV, float maxV){
+		Tessellator t = Tessellator.getInstance();
+		BufferBuilder b = t.getBuffer();
+		b.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+		b.pos(locationX , locationY + height, 0).tex(minU, maxV).endVertex();
+		b.pos(locationX + width, locationY + height, 0).tex(maxU, maxV).endVertex();
+		b.pos(locationX + width, locationY , 0).tex(maxU, minV).endVertex();
+		b.pos(locationX, locationY, 0).tex(minU, minV).endVertex();
+		t.draw();
+	}
 
 
 	public final ModGui getDrawer(){ return drawer; }
@@ -102,9 +129,27 @@ public abstract class GuiElement{
 		return phase == ModGui.EnumDrawPhase.BACKGROUND || phase == ModGui.EnumDrawPhase.FOREGROUND;
 	}
 
-	public final void drawSecondGuiBackground(int mouseX, int mouseY, float partialTicks) { }
-	public final void drawSecondGuiForeground(int mouseX, int mouseY) { }
+	public final void drawSecondGuiBackground(int mouseX, int mouseY, float partialTicks) {
+		ElementSubDisplay display = getSecondGui();
+		if(display != null) {
+			if (display.drawsOnPhase(ModGui.EnumDrawPhase.BACKGROUND) || display.drawsOnPhase(ModGui.EnumDrawPhase.BUTTONS)) display.drawGuiElementBackground(mouseX, mouseY, partialTicks);
+			if (display.drawsOnPhase(ModGui.EnumDrawPhase.SECONDARY_GUI_BACKGROUND)) display.drawSecondGuiBackground(mouseX, mouseY, partialTicks);
+		}
+	}
+	public final void drawSecondGuiForeground(int mouseX, int mouseY) {
+		ElementSubDisplay display = getSecondGui();
+		if(display != null) {
+			if (display.drawsOnPhase(ModGui.EnumDrawPhase.SECONDARY_GUI_BACKGROUND)) {
+				if (display.drawsOnPhase(ModGui.EnumDrawPhase.SECONDARY_GUI_FOREGROUND)) display.drawSecondGuiForeground(mouseX, mouseY);
+			} else if (display.drawsOnPhase(ModGui.EnumDrawPhase.FOREGROUND)) display.drawGuiElementForeground(mouseX, mouseY);
+		}
+
+	}
 	public ElementSubDisplay getSecondGui(){ return null;}
+
+	protected void drawCenteredString(String buttonText, int posX, int posY, int color){
+		drawer.drawCenteredString(drawer.mc.fontRenderer, buttonText, posX, posY, color);
+	}
 
 	public void init(){}
 	public boolean close(){ return true;}
