@@ -2,7 +2,6 @@ package squedgy.lavasources.jei.coremodifier;
 
 import mezz.jei.api.ingredients.IIngredients;
 import mezz.jei.api.ingredients.VanillaTypes;
-import mezz.jei.api.recipe.BlankRecipeWrapper;
 import mezz.jei.api.recipe.IRecipeWrapper;
 import mezz.jei.api.recipe.IRecipeWrapperFactory;
 import squedgy.lavasources.enums.EnumEnergyTier;
@@ -12,7 +11,7 @@ import squedgy.lavasources.jei.ingredients.EnergyIngredient;
 
 import java.util.Arrays;
 
-public class CoreModifierWrapper extends BlankRecipeWrapper {
+public class CoreModifierWrapper implements IRecipeWrapper {
 	private ICoreModifierRecipe recipe;
 
 	private CoreModifierWrapper(ICoreModifierRecipe recipe){ this.recipe = recipe; }

@@ -9,7 +9,7 @@ public class ElementImage extends GuiElement{
 	private final GuiLocation image;
 
 	public ElementImage(ModGui drawer, int locationX, int locationY, GuiLocation image) {
-		super(drawer, locationX, locationY,image.width, image.height, null);
+		super(drawer, locationX, locationY, image.width, image.height, null);
 		LavaSources.writeMessage(getClass(), "locationX = " + this.locationX + ", locationY = " + this.locationY);
 		this.image = image;
 	}
@@ -20,4 +20,12 @@ public class ElementImage extends GuiElement{
 		drawTexturedModal(0 ,0, image);
 	}
 
+	@Override
+	public String toString() {
+		return "ElementImage{" +
+				"image=" + image +
+				", locationX=" + locationX +
+				", locationY=" + locationY +
+				'}';
+	}
 }

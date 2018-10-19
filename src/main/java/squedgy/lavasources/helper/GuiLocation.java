@@ -75,6 +75,8 @@ public class GuiLocation extends IForgeRegistryEntry.Impl<GuiLocation> {
 		public static final GuiLocation book_partial = null;
 		public static final GuiLocation next_page = null;
 		public static final GuiLocation previous_page = null;
+		public static final GuiLocation next_page_hover = null;
+		public static final GuiLocation previous_page_hover = null;
 	}
 
 	public static GuiLocation getGuiLocation(String name){ return CustomRegistryUtil.getRegistryEntry(GuiLocation.class, name); }

@@ -1,77 +1,95 @@
 package squedgy.lavasources.gui;
 
+import com.google.common.collect.Sets;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiLabel;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.OpenGlHelper;
+import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
-import squedgy.lavasources.generic.gui.IGuiElement;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraftforge.client.event.GuiContainerEvent;
+import net.minecraftforge.common.MinecraftForge;
+import squedgy.lavasources.LavaSources;
 import squedgy.lavasources.gui.elements.ElementSlot;
+import squedgy.lavasources.gui.elements.GuiElement;
 import squedgy.lavasources.helper.GuiLocation;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import static squedgy.lavasources.helper.GuiLocation.GuiLocations.default_gui;
 
 public abstract class ModGui extends GuiContainer {
-
-	private final List<IGuiElement> ELEMENTS = new ArrayList<>();
+	protected final List<GuiElement> ELEMENTS = new ArrayList<>();
 	protected final GuiLocation BACKGROUND;
+	private float lastPartial;
 
 	public ModGui(Container inventorySlotsIn) { this(inventorySlotsIn, default_gui);}
 
 	public ModGui(Container inventorySlotsIn, GuiLocation backgroundGui){
 		super(inventorySlotsIn);
-		if(inventorySlotsIn != null){
-			for(Slot s : inventorySlotsIn.inventorySlots) addElement(new ElementSlot(this, s, null));
-		}
+		for(Slot s : inventorySlotsIn.inventorySlots) addElement(new ElementSlot(this, s, null));
 		this.BACKGROUND = backgroundGui;
 		this.xSize = BACKGROUND.width;
 		this.ySize = BACKGROUND.height;
 	}
 
+	@Override
+	public void initGui() {
+		super.initGui();
+		ELEMENTS.clear();
+		setElements();
+		ELEMENTS.forEach(GuiElement::init);
+	}
+
+	@Override
+	public void onGuiClosed() {
+		super.onGuiClosed();
+		ELEMENTS.forEach(GuiElement::close);
+	}
+
 	public final FontRenderer getFontRenderer(){ return fontRenderer; }
 
-	protected void addElement(IGuiElement toAdd){ ELEMENTS.add(toAdd);}
-	protected void removeElement(IGuiElement toRemove){ ELEMENTS.remove(toRemove); }
-	protected void clearElements(){}
+	public boolean addElement(GuiElement toAdd){ return ELEMENTS.add(toAdd);}
+	public void removeElement(GuiElement toRemove){ ELEMENTS.remove(toRemove); }
+	protected void clearElements(){ ELEMENTS.clear(); }
 	public void clearButtons(){ buttonList.clear(); }
-	public void addButton(GuiButton b, String ignored) { buttonList.add(b); }
-
 	protected abstract void setElements();
 
 	@Override
 	protected final void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
-		drawForegroundLayer(mouseX, mouseY);
-		ELEMENTS.forEach(e -> e.drawGuiElementForeground(mouseX, mouseY));
+		if(ELEMENTS.stream().anyMatch(e -> e.drawsOnPhase(EnumDrawPhase.SECONDARY_GUI_BACKGROUND)))
+			ELEMENTS.stream().filter(e -> e.drawsOnPhase(EnumDrawPhase.SECONDARY_GUI_FOREGROUND)).forEach(e -> e.drawSecondGuiForeground(mouseX, mouseY));
+		else{
+			drawForegroundLayer(mouseX, mouseY);
+			ELEMENTS.stream().filter(e -> e.drawsOnPhase(EnumDrawPhase.FOREGROUND)).forEach(e -> e.drawGuiElementForeground(mouseX, mouseY));
+		}
 	}
-	protected abstract void drawForegroundLayer(int mouseX, int mouseY);
 
 	@Override
 	protected final void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
-		this.drawDefaultBackground();
-		GlStateManager.color(1.0f, 1.0f, 1.0f,1.0f);
+		LavaSources.writeMessage(getClass(), "elements: " + ELEMENTS);
 		mc.renderEngine.bindTexture(BACKGROUND.texture.location);
-		drawTexturedModalRect(getHorizontalMargin(), getVerticalMargin(), 0, 0, BACKGROUND.width, BACKGROUND.height);
+		drawTexturedModalRect(guiLeft, guiTop, BACKGROUND.textureX, BACKGROUND.textureY, BACKGROUND.width, BACKGROUND.height);
 		drawBackgroundLayer(partialTicks, mouseX, mouseY);
-		GlStateManager.color(1.0f, 1.0f, 1.0f,1.0f);
-		ELEMENTS.forEach((element) -> element.drawGuiElementBackground(mouseX, mouseY, partialTicks));
-
+		ELEMENTS.stream().filter(e -> e.drawsOnPhase(EnumDrawPhase.BACKGROUND)).forEach(e -> e.drawGuiElementBackground(mouseX, mouseY, partialTicks));
+		ELEMENTS.stream().filter(e -> e.drawsOnPhase(EnumDrawPhase.BUTTONS)).forEach(e -> e.drawSecondGuiBackground(mouseX, mouseY, partialTicks));
+		if(ELEMENTS.stream().anyMatch(e -> e.drawsOnPhase(EnumDrawPhase.SECONDARY_GUI_BACKGROUND)))
+			ELEMENTS.stream().filter(e -> e.drawsOnPhase(EnumDrawPhase.SECONDARY_GUI_BACKGROUND)).forEach(e -> e.drawSecondGuiBackground(mouseX, mouseY, partialTicks));
 	}
 
-	/**
-	 * Extends background layer in case a gui has extra bits that aren't part of an element
-	 * @param partialTicks
-	 * @param mouseX
-	 * @param mouseY
-	 */
+	protected abstract void drawForegroundLayer(int mouseX, int mouseY);
 	protected abstract void drawBackgroundLayer(float partialTicks, int mouseX, int mouseY);
-
-	public final int getHorizontalMargin() { return (width - xSize) / 2; }
-	public final int getVerticalMargin() { return (height - ySize) / 2; }
 
 	@Override
 	public void setWorldAndResolution(Minecraft mc, int width, int height) {
@@ -79,5 +97,20 @@ public abstract class ModGui extends GuiContainer {
 		ELEMENTS.clear();
 		if(inventorySlots != null) inventorySlots.inventorySlots.forEach(e -> addElement(new ElementSlot(this, e, null)));
 		setElements();
+		ELEMENTS.forEach(e -> e.setDrawer(this));
 	}
+
+	public void drawTexturedModal(int xAddition, int yAddition, GuiLocation image){
+		drawTexturedModalRect(
+				guiLeft + xAddition,
+				guiTop + yAddition,
+				image.textureX,
+				image.textureY,
+				image.width,
+				image.height
+		);
+	}
+
+	public enum EnumDrawPhase{ BACKGROUND, BUTTONS, FOREGROUND, SECONDARY_GUI_BACKGROUND, SECONDARY_GUI_FOREGROUND}
+
 }

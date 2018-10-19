@@ -128,8 +128,8 @@
 			"textureX": 0,
 			"textureY": 0,
 			"name": "lavasources:book_base",
-			"width": 200,
-			"height": 180
+			"width": 197,
+			"height": 177
 		},
 		{
 			"image": "#scrollable",
@@ -176,6 +176,22 @@
 			"textureX":33,
 			"textureY":0,
 			"name":"previous_page",
+			"width":15,
+			"height":8
+		},
+		{
+			"image":"#elements",
+			"textureX":64,
+			"textureY":0,
+			"name":"next_page_hover",
+			"width":15,
+			"height":8
+		},
+		{
+			"image":"#elements",
+			"textureX":56,
+			"textureY":0,
+			"name":"previous_page_hover",
 			"width":15,
 			"height":8
 		}

@@ -13,7 +13,6 @@ public class ResearchTab  extends IForgeRegistryEntry.Impl<ResearchTab>{
 
 //<editor-fold defaultstate="collapsed" desc=". . . . Fields/Constructors">
 
-	private static final List<ResearchTab> TABS = new ArrayList();
 	private boolean buttonsUpdated = false;
 	private String TAB_NAME;
 	private List<ResearchButton> RELATED_RESEARCH = new ArrayList();
@@ -32,15 +31,6 @@ public class ResearchTab  extends IForgeRegistryEntry.Impl<ResearchTab>{
 //</editor-fold>
 
 //<editor-fold defaultstate="collapsed" desc=". . . . Getters/Setters">
-
-	public static List<ResearchTab> getAllTabs(){ return TABS; }
-
-	public static void addNewTab(ResearchTab tab){
-		if(TABS.indexOf(tab) < 0){
-			TABS.add(tab);
-			ResearchTab.addNewTab(tab);
-		}
-	}
 
 	public List<ResearchButton> getRelatedResearch(){ return new ArrayList(RELATED_RESEARCH); }
 

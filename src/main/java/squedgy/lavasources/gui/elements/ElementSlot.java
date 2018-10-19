@@ -1,7 +1,10 @@
 package squedgy.lavasources.gui.elements;
 
+import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.text.TextFormatting;
 import squedgy.lavasources.gui.ModGui;
 import squedgy.lavasources.helper.GuiLocation;
 

@@ -3,10 +3,9 @@ package squedgy.lavasources.gui;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.IInventory;
-import org.lwjgl.input.Keyboard;
 import squedgy.lavasources.LavaSources;
-import squedgy.lavasources.gui.elements.BookDisplayFull;
-import squedgy.lavasources.gui.elements.GuiButton;
+import squedgy.lavasources.gui.elements.ElementButton;
+import squedgy.lavasources.gui.elements.GuiElement;
 import squedgy.lavasources.inventory.ContainerEmpty;
 import squedgy.lavasources.research.ResearchTab;
 import squedgy.lavasources.helper.GuiLocation;
@@ -18,13 +17,15 @@ import java.util.List;
 
 public class GuiGuideBook extends ModGui {
 //<editor-fold defaultstate="collapsed" desc=". . . . Fields/Constructors">
-	private static BookDisplayFull display;
-	private final List<GuiButton> bookButtons = new ArrayList<>();
+	public static final int DISPLAY_WIDTH = 180, DISPLAY_HEIGHT = 160, TILE_SIZE = 20, BACKGROUND_X = 8, BACKGROUND_Y = 8;
+	private int fullWidth, fullHeight, currentMouseX, currentMouseY;
+	public static int drawX = 0, drawY = 0;
+	private ResearchTab tabOpen;
+	private final List<ElementButton> bookButtons = new ArrayList<>();
 
 	public GuiGuideBook(InventoryPlayer player, IInventory inventory, ResearchTab tabOpen){
 		super(new ContainerEmpty(), GuiLocation.GuiLocations.book_base);
-		if(display == null) display = new BookDisplayFull(this, null, tabOpen);
-		else  display.setTab(tabOpen);
+		this.tabOpen = tabOpen;
 	}
 
 	public GuiGuideBook(InventoryPlayer player, IInventory inventory) { this(player, inventory, ModResearch.DEFAULT_TAB); }
@@ -33,43 +34,54 @@ public class GuiGuideBook extends ModGui {
 
 //<editor-fold defaultstate="collapsed" desc=". . . . Mod Gui">
 
-
-	@Override
-	public void initGui() {
-		super.initGui();
-		LavaSources.writeMessage(getClass(),
-		"\nhorizontalMargin = " + getHorizontalMargin() +
-				"\nverticalMargin = " + getVerticalMargin() +
-				"\nheight = " + height +
-				"\nwidth = " + width +
-				"\nxSize = " + xSize +
-				"\nySize = " + ySize
-		);
-		display.init();
-	}
-	@Override
-	public void onGuiClosed() {
-		super.onGuiClosed();
-		display.close();
-	}
-
 	@Override
 	protected void setElements() {
-		display.setDrawer(this);
-		addElement(display);
+		for(GuiElement e : tabOpen.getRelatedResearch()){
+			e.setDrawer(this);
+			LavaSources.writeMessage(getClass(), "adding " + e + " the the ELEMENTS");
+			addElement(e);
+		}
 	}
 
 	@Override
 	protected void drawForegroundLayer(int mouseX, int mouseY) { }
 
 	@Override
-	protected void drawBackgroundLayer(float partialTicks, int mouseX, int mouseY) { }
+	protected void drawBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
+		GuiLocation background = tabOpen.getTabBackground();
+		mc.renderEngine.bindTexture(background.texture.location);
+		int xDrawAmount = (xSize - BACKGROUND_X*2)/background.width, yDrawAmount = (ySize - BACKGROUND_Y*2)/background.height;
+		int xDraws, yDraws;
+		for(xDraws = 0 ; xDraws <= xDrawAmount; xDraws++){
+			int drawWidth = Math.min(background.width, (xSize - BACKGROUND_X*2) - background.width * xDraws),
+				drawHeight = Math.min(background.width, ySize - BACKGROUND_Y*2);//yDraws will be zero once the loop starts, and I want to set it for afterwards
+			for(yDraws = 0 ; yDraws < yDrawAmount; yDraws++){
+				drawTexturedModalRect(
+						background.width * xDraws + BACKGROUND_X + guiLeft,
+						background.height * yDraws + BACKGROUND_Y + guiTop,
+						background.textureX,
+						background.textureY,
+						drawWidth,
+						drawHeight
+				);
+				//this is so that we can keep using it for the final draw
+				drawHeight = Math.min(background.height, (ySize - BACKGROUND_Y*2) - background.height * (yDraws+1));
+			}
+			drawTexturedModalRect(
+					background.width * xDraws + BACKGROUND_X + guiLeft,
+					background.height* yDraws + BACKGROUND_Y + guiTop,
+					background.textureX,
+					background.textureY,
+					drawWidth,
+					drawHeight);
+		}
+	}
 
 	@Override
 	protected void keyTyped(char typedChar, int keyCode) throws IOException {
-		if(keyCode == Keyboard.KEY_E){
-			if(display.getDisplayedButton() != null) display.setDisplayedButton(null);
-			else mc.player.closeScreen();
+		//if they pressed their inventory key AND a sub gui is open close the sub gui or it's sub gui etc.
+		if(mc.gameSettings.keyBindInventory.isActiveAndMatches(keyCode) && (ELEMENTS.stream().anyMatch(e -> e.drawsOnPhase(EnumDrawPhase.SECONDARY_GUI_BACKGROUND)))){
+			ELEMENTS.stream().filter(e -> e.drawsOnPhase(EnumDrawPhase.SECONDARY_GUI_BACKGROUND)).forEach(GuiElement::close);
 		}else {
 			super.keyTyped(typedChar, keyCode);
 		}
@@ -77,16 +89,49 @@ public class GuiGuideBook extends ModGui {
 
 	@Override
 	protected void mouseReleased(int mouseX, int mouseY, int state) {
+		if(state == 0) ELEMENTS.stream().filter(e -> e instanceof ElementButton).map(e -> (ElementButton) e).forEach(e -> e.mouseReleased(mouseX, mouseY));
 		super.mouseReleased(mouseX, mouseY, state);
-		if(state == 0 ) display.mouseReleased(mouseX, mouseY);
 	}
 
 	@Override
-	public void setWorldAndResolution(Minecraft mc, int width, int height) {
-		super.setWorldAndResolution(mc, width, height);
-		display.setDrawer(this);
-		display.updateButtons();
+	protected void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) {
+		if(clickedMouseButton == 0){
+			addToDrawXAndY(currentMouseX - (mouseX - guiLeft - BACKGROUND_X), currentMouseY - (mouseY - guiTop - BACKGROUND_Y));
+		}
 	}
-//</editor-fold>
+
+	protected void setTab(ResearchTab tabOpen){
+		if(tabOpen != null){
+			this.tabOpen = tabOpen;
+			setElements();
+		}
+	}
+
+	@Override
+	protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
+		//not convinced I need this for this specific instance
+//		super.mouseClicked(mouseX, mouseY, mouseButton);
+		if(mouseButton == 0){
+			currentMouseX = mouseX;
+			currentMouseY = mouseY;
+		}
+	}
+
+	private void addToDrawXAndY(int addX, int addY){
+		if(fullWidth > DISPLAY_WIDTH){
+			int add = drawX + DISPLAY_WIDTH + addX;
+			if(add > fullWidth) addX = drawX + DISPLAY_WIDTH + addX - fullWidth;
+			else if (drawX + addX < 0) addX = -drawX;
+			drawX += addX;
+		}
+		if(fullHeight > DISPLAY_HEIGHT){
+			if(drawY + DISPLAY_HEIGHT + addY > fullHeight) addY = drawY + DISPLAY_HEIGHT + addY - fullHeight;
+			else if(drawY + addY < 0) addY = -drawY;
+			drawY += addY;
+		}
+
+	}
+
+	//</editor-fold>
 
 }

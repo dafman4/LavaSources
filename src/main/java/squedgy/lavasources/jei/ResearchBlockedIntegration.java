@@ -15,7 +15,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class ResearchBlockedIntegration<T extends ResearchBlockedRecipe> extends BlankRecipeWrapper{
+public class ResearchBlockedIntegration<T extends ResearchBlockedRecipe> implements  IRecipeWrapper{
 
 
 	protected T recipe;

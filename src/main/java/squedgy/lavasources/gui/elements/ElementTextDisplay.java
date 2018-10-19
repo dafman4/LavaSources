@@ -27,4 +27,13 @@ public class ElementTextDisplay extends GuiElement {
 	public void drawGuiElementBackground(int mouseX, int mouseY, float partialTicks) { }
 
 	public List<String> getLines(){ return lines;}
+
+	@Override
+	public String toString() {
+		return "ElementTextDisplay{" +
+				"lines=" + lines +
+				", locationX=" + locationX +
+				", locationY=" + locationY +
+				'}';
+	}
 }

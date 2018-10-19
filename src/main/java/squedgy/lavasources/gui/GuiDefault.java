@@ -17,13 +17,4 @@ public class GuiDefault extends ModGui {
 	@Override
 	protected void setElements(){ }
 
-//<editor-fold defaultstate="collapsed" desc=". . . . Fields/Constructors">
-
-
-//</editor-fold>
-
-//<editor-fold defaultstate="collapsed" desc=". . . . Getters/Setters">
-
-
-//</editor-fold>
 }

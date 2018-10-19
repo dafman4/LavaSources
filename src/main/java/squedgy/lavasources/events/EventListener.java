@@ -484,7 +484,7 @@ public class EventListener {
 					description = JsonUtils.getString(json ,"description"),
 					image = JsonUtils.getString(json, "image");
 			int x = JsonUtils.getInt(json, "x"), y = JsonUtils.getInt(json, "y");
-			return new ResearchButton(x, y, Research.getResearch(name), description, GuiLocation.getGuiLocation(image), getPagesFromString(mod, JsonUtils.getString(json, "page"), context));
+			return new ResearchButton(null, x, y, Research.getResearch(name), description, GuiLocation.getGuiLocation(image), getPagesFromString(mod, JsonUtils.getString(json, "page"), context));
 		}else
 			throw new IllegalArgumentException("The given json object did not have all required members \"researchName, x, y, description, image\": " + json);
 	}
