@@ -24,6 +24,10 @@ public interface IPlayerResearchCapability extends INBTSerializable<NBTTagCompou
 
 	public abstract boolean hasResearch(Research r);
 
+	public abstract boolean hasAllResearch(List<Research> r);
+
+	public abstract void clearResearch();
+
 	public static class Storage implements Capability.IStorage<IPlayerResearchCapability>{
 
 		@Nullable

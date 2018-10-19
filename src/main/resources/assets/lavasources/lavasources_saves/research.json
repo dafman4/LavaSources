@@ -1,9 +1,17 @@
 {
-  "research": [
-    {
-      "name": "test",
-      "key": "lavasources:test",
-      "dependencies": []
-    }
+	"research": [
+		{
+			"name": "test",
+			"key": "lavasources:test",
+			"dependencies": []
+		},
+		{
+			"name":"extra_test",
+			"key": "extra_test",
+			"dependencies":[
+				"test"
+			],
+			"ignored":"test should work. As it's from this mod the resource location becomes lavasources:test"
+		}
   ]
 }

@@ -56,7 +56,7 @@ public abstract class ElementButton extends GuiElement{
 
 	public abstract void displayToolTip(int mouseX, int mouseY);
 
-	public void checkHovered(int mouseX, int mouseY){
+	public final void checkHovered(int mouseX, int mouseY){
 		mouseX -= (getGuiLeft());
 		mouseY -= (getGuiTop());
 		hovered = (mouseX > locationX && mouseX < locationX + normalImage.width && mouseY > locationY && mouseY < locationY + normalImage.height);
@@ -70,6 +70,7 @@ public abstract class ElementButton extends GuiElement{
 
 	@Override
 	public boolean drawsOnPhase(ModGui.EnumDrawPhase phase) {
-		return visible && (ModGui.EnumDrawPhase.BUTTONS == phase || ModGui.EnumDrawPhase.FOREGROUND == phase);
+
+		return (ModGui.EnumDrawPhase.BUTTONS == phase || ModGui.EnumDrawPhase.FOREGROUND == phase);
 	}
 }

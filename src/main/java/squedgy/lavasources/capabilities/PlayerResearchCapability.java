@@ -28,6 +28,16 @@ public class PlayerResearchCapability implements IPlayerResearchCapability {
 	public boolean hasResearch(Research r) { return RESEARCH.indexOf(r) >= 0; }
 
 	@Override
+	public boolean hasAllResearch(List<Research> r) {
+		return RESEARCH.containsAll(r);
+	}
+
+	@Override
+	public void clearResearch(){
+		RESEARCH.clear();
+	}
+
+	@Override
 	public NBTTagCompound serializeNBT() {
 		NBTTagCompound tag = new NBTTagCompound();
 		for(Research r : RESEARCH)if(r != null) tag.setString(r.getName(),"");

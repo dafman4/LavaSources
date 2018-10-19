@@ -24,7 +24,7 @@ public class Research extends IForgeRegistryEntry.Impl<Research>{
 		if(key.indexOf(':') < 0)setRegistryName(LavaSources.MOD_ID, key);
 		else setRegistryName(key);
 		research_names = dependencies;
-		this.displayName = name;;
+		this.displayName = name;
 	}
 
 //</editor-fold>
@@ -34,7 +34,7 @@ public class Research extends IForgeRegistryEntry.Impl<Research>{
 	public List<Research> getDependencies(){ return new ArrayList(DEPENDENCIES); }
 	public String getName(){ return displayName; }
 	public ITextComponent getDisplayName(){ return displayName.startsWith("lava_research.") ?  new TextComponentTranslation(displayName) : new TextComponentString(displayName); }
-	public void init(){ for(String s : research_names) DEPENDENCIES.add(GameRegistry.findRegistry(Research.class).getValue(new ResourceLocation(s))); }
+	public void init(){ for(String s : research_names) DEPENDENCIES.add(getResearch(s)); }
 
 //</editor-fold>
 

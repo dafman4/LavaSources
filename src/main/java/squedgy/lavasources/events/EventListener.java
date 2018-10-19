@@ -33,6 +33,8 @@ import squedgy.lavasources.crafting.recipes.CoreModifierRecipe;
 import squedgy.lavasources.crafting.recipes.LiquefierRecipe;
 import squedgy.lavasources.generic.recipes.ICoreModifierRecipe;
 import squedgy.lavasources.generic.recipes.ILiquefierRecipe;
+import squedgy.lavasources.gui.elements.BookDisplayPartial;
+import squedgy.lavasources.helper.StringUtils;
 import squedgy.lavasources.init.ModResearch;
 import squedgy.lavasources.research.ResearchButton;
 import squedgy.lavasources.research.ResearchTab;
@@ -54,24 +56,26 @@ public class EventListener {
 
 	@SubscribeEvent
 	public void onLogIn(PlayerEvent.PlayerLoggedInEvent event){
-		StringBuilder message = new StringBuilder();
+		StringBuilder message = new StringBuilder("player ");
 		EntityPlayer player = event.player;
+		message.append(player.getName());
+		message.append(" logged in with ");
 		if(player.hasCapability(ModCapabilities.PLAYER_RESEARCH_CAPABILITY, null)){
 			IPlayerResearchCapability cap = player.getCapability(ModCapabilities.PLAYER_RESEARCH_CAPABILITY, null);
 			List<Research> research = cap.getResearch();
-			if(research.size() > 0) for(Research r : research) if(r != null) message.append(r.getName()).append(", ");
-			else message.append("no research topics");
+			if(research.size() > 0) for(Research r : research){
+				if(r != null)message.append(r.getName()).append(", ");
+			} else message.append("no research topics");
 		}else message.append("no research capabilities.");
 
-		LavaSources.writeMessage(getClass(), "\nplayer" + player.getName() + " logged in with " + message + "\n");
+		LavaSources.writeMessage(getClass(), message.toString());
 	}
 
 	@SubscribeEvent
 	public void registryRegister(RegistryEvent.NewRegistry event){
-		LavaSources.writeMessage(getClass(), "\nregistering registries.");
 		ModRegistries.TEXTURE_WRAPPER_REGISTRY = createRegistry(GuiLocation.TextureWrapper.class, "a_texture_wrapper_registry");
-		ModRegistries.RESEARCH_REGISTRY = createRegistry(Research.class,  "c_research_registry");
 		ModRegistries.GUI_LOCATION_REGISTRY = createRegistry( GuiLocation.class, "b_gui_location_registry");
+		ModRegistries.RESEARCH_REGISTRY = createRegistry(Research.class,  "c_research_registry");
 		ModRegistries.RESEARCH_TAB_REGISTRY = createRegistry(ResearchTab.class, "d_research_tab_registry");
 		ModRegistries.CORE_MODIFIER_RECIPE_REGISTRY = createRegistry(ICoreModifierRecipe.class, "core_modifier_recipe_registry");
 		ModRegistries.LIQUEFIER_RECIPE_REGISTRY = createRegistry(ILiquefierRecipe.class , "liquefier_recipe_registry");
@@ -351,8 +355,12 @@ public class EventListener {
 
 	@SubscribeEvent
 	public void registerResearch(RegistryEvent.Register<Research> event){
-		LavaSources.writeMessage(GuiLocation.class, "\nRegistering Research");
-		Loader.instance().getActiveModList().forEach(mod -> registerResearchForMod(mod, event));
+		LavaSources.writeMessage(Research.class, "\nRegistering Research");
+		try {
+			Loader.instance().getActiveModList().forEach(mod -> registerResearchForMod(mod, event));
+		}catch(Exception e){
+			LavaSources.writeMessage(getClass(),e.getMessage());
+		}
 	}
 
 	public void registerResearchForMod(ModContainer mod, RegistryEvent.Register<Research> event){
@@ -360,22 +368,19 @@ public class EventListener {
 		JsonContext context = new JsonContext(mod.getModId());
 		CraftingHelper.findFiles(
 				mod,
-				"assets/" + mod.getModId() + "/lavasources_saves/research.json",
+				getLavasourcesBaseForMod(mod) + "research.json",
 				root -> root.endsWith("research.json"),
 				(root, file) ->{
 					Loader.instance().setActiveModContainer(mod);
 
-					String relative = root.relativize(file).toString();
-					if(!"json".equals(FilenameUtils.getExtension(file.toString())) || relative.startsWith("_"))
-						return true;
-					String name = FilenameUtils.removeExtension(relative).replaceAll("\\\\","/");
+					String name = FilenameUtils.removeExtension(root.relativize(file).toString()).replaceAll("\\\\","/");
 					ResourceLocation key = new ResourceLocation(context.getModId(), name);
 
 					BufferedReader reader = null;
 					try{
 						reader = Files.newBufferedReader(file);
 						JsonObject json = JsonUtils.fromJson(GSON, reader, JsonObject.class);
-						if(jsonHasAllMembers(json, "page")){
+						if(jsonHasAllMembers(json, "research")){
 							event.getRegistry().registerAll(getResearchFromJson(json, context).toArray(new Research[0]));
 							LavaSources.writeMessage(Research.class, "registered");
 						}
@@ -431,8 +436,6 @@ public class EventListener {
 					Loader.instance().setActiveModContainer(mod);
 
 					String relative = root.relativize(file).toString();
-					if(!"json".equals(FilenameUtils.getExtension(file.toString())) || relative.startsWith("_"))
-						return true;
 					String name = FilenameUtils.removeExtension(relative).replaceAll("\\\\","/");
 					ResourceLocation key = new ResourceLocation(context.getModId(), name);
 
@@ -484,9 +487,12 @@ public class EventListener {
 		if(jsonHasAllMembers(json, "researchName", "x", "y", "description", "image", "page")){
 			String name = JsonUtils.getString(json, "researchName"),
 					description = JsonUtils.getString(json ,"description"),
-					image = JsonUtils.getString(json, "image");
+					image = JsonUtils.getString(json, "image"), disabled = null;
 			int x = JsonUtils.getInt(json, "x"), y = JsonUtils.getInt(json, "y");
-			return new ResearchButton(null, x, y, Research.getResearch(name), description, GuiLocation.getGuiLocation(image), getPagesFromString(mod, JsonUtils.getString(json, "page"), context));
+			if(json.has("disabled")){
+				disabled = JsonUtils.getString(json, "disabled");
+			}
+			return new ResearchButton(null, x, y, Research.getResearch(name), description, GuiLocation.getGuiLocation(StringUtils.getResourceLocation(mod, image)), GuiLocation.getGuiLocation(StringUtils.getResourceLocation(mod, disabled == null ? image : disabled)), getPagesFromString(mod, JsonUtils.getString(json, "page"), context));
 		}else
 			throw new IllegalArgumentException("The given json object did not have all required members \"researchName, x, y, description, image\": " + json);
 	}
@@ -503,7 +509,6 @@ public class EventListener {
 				"assets/" + mod.getModId() + "/lavasources_saves/pages/" + location,
 				root -> root.endsWith(location),
 				(root, file)->{
-					LavaSources.writeMessage(ResearchButton.class, "\nroot = " + root + "\nfile = " + file);
 					Loader.instance().setActiveModContainer(mod);
 					String relative = root.relativize(file).toString();
 					String name = FilenameUtils.removeExtension(relative).replaceAll("\\\\","/");
@@ -515,10 +520,10 @@ public class EventListener {
 						JsonObject json = JsonUtils.fromJson(GSON, reader, JsonObject.class);
 						if(jsonHasAllMembers(json, "page")){
 							partials.addAll(getElementsFromJson(json, context));
-							LavaSources.writeMessage(Research.class, "registered");
+							LavaSources.writeMessage(BookDisplayPartial.class, "registered");
 						}
 					}catch(Exception e){
-						LavaSources.writeMessage(Research.class, "Error reading file " + file + "::: error: " + e);
+						LavaSources.writeMessage(BookDisplayPartial.class, "Error reading file " + file + "::: error: " + e);
 					}finally {IOUtils.closeQuietly(reader);}
 
 

@@ -5,7 +5,7 @@
 			"name": "lava_tab.default_tab",
 			"key": "lavasources:default_tab",
 			"width":200,
-			"height":180,
+			"height":200,
 			"research": [
 				{
 					"researchName": "test",
@@ -16,10 +16,10 @@
 					"page":"_page_example.json"
 				},
 				{
-					"researchName": "test",
+					"researchName": "extra_test",
 					"description": "This is simply another test research",
-					"x": 9,
-					"y": 8,
+					"x": 1,
+					"y": 0,
 					"image": "lavasources:lava_bucket",
 					"page":"_page_example.json"
 				}

@@ -1,7 +1,6 @@
 package squedgy.lavasources.research;
 
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.Gui;
 import net.minecraft.client.resources.I18n;
 import net.minecraftforge.fml.client.config.GuiUtils;
 import squedgy.lavasources.LavaSources;
@@ -9,6 +8,7 @@ import squedgy.lavasources.gui.GuiGuideBook;
 import squedgy.lavasources.gui.ModGui;
 import squedgy.lavasources.gui.elements.*;
 import squedgy.lavasources.helper.GuiLocation;
+import squedgy.lavasources.init.ModCapabilities;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,9 +27,8 @@ public class ResearchButton extends ElementButton {
 	private int page = 0;
 	private boolean activeSecondary = false;
 
-
-	public ResearchButton(ModGui drawer, int x, int y, Research research, String description, GuiLocation drawImage, List<Map.Entry<String,String>> entries){
-		super(drawer, x*GuiGuideBook.TILE_SIZE+((GuiGuideBook.TILE_SIZE-link_image_border.width)/2), y*(GuiGuideBook.TILE_SIZE)+((GuiGuideBook.TILE_SIZE-link_image_border.height)/2),description, drawImage, drawImage, drawImage, link_image_border);
+	public ResearchButton(ModGui drawer, int x, int y, Research research, String description, GuiLocation drawImage, GuiLocation disabledImage, List<Map.Entry<String,String>> entries){
+		super(drawer, x*GuiGuideBook.TILE_SIZE+((GuiGuideBook.TILE_SIZE-link_image_border.width)/2), y*(GuiGuideBook.TILE_SIZE)+((GuiGuideBook.TILE_SIZE-link_image_border.height)/2), description, drawImage, drawImage, disabledImage, link_image_border);
 		int textWidth = width*12;
 		this.research = research;
 		saveX = x;
@@ -41,22 +40,28 @@ public class ResearchButton extends ElementButton {
 		tempElements = entries;
 	}
 
+	public ResearchButton(ModGui drawer, int x, int y, Research research, String description, GuiLocation drawImage, List<Map.Entry<String,String>> entries){
+		this(drawer, x, y, research, description, drawImage, drawImage, entries);
+	}
+
 	@Override
 	public void displayToolTip(int mouseX, int mouseY) {
 		if(description == null)
 			description = mc.fontRenderer.listFormattedStringToWidth(buttonText, width * 10);
-		GuiUtils.drawHoveringText((description), mouseX -getGuiLeft(), mouseY - getGuiTop(), mc.currentScreen.width, mc.currentScreen.height, width*12, mc.fontRenderer);
+		if(enabled) GuiUtils.drawHoveringText((description), mouseX -getGuiLeft(), mouseY - getGuiTop(), mc.currentScreen.width, mc.currentScreen.height, width*12, mc.fontRenderer);
 	}
 
 	@Override
 	public void mouseReleased(int mouseX, int mouseY) {
 		checkHovered(mouseX, mouseY);
-		if(hovered){
-			activeSecondary = true;
-			pagesRepresenting.forEach(ElementSubDisplay::init);
-		} else if(activeSecondary){
-			if(shouldNextPage(mouseX, mouseY)) nextPage();
-			if(shouldPreviousPage(mouseX, mouseY)) previousPage();
+		if(visible && enabled) {
+			if (hovered) {
+				activeSecondary = true;
+				pagesRepresenting.forEach(ElementSubDisplay::init);
+			} else if (activeSecondary) {
+				if (shouldNextPage(mouseX, mouseY)) nextPage();
+				if (shouldPreviousPage(mouseX, mouseY)) previousPage();
+			}
 		}
 	}
 
@@ -99,7 +104,7 @@ public class ResearchButton extends ElementButton {
 	}
 
 	@Override
-	public void drawGuiElementForeground(int mouseX, int mouseY) { if(hovered) displayToolTip(mouseX, mouseY); }
+	public void drawGuiElementForeground(int mouseX, int mouseY) { if(visible && hovered && enabled) displayToolTip(mouseX, mouseY); }
 
 
 	@Override
@@ -107,8 +112,14 @@ public class ResearchButton extends ElementButton {
 		//update location in-case of scroll
 		locationX = saveX * GuiGuideBook.TILE_SIZE - GuiGuideBook.drawX + X_TILE_DIFFERENCE;
 		locationY = saveY * GuiGuideBook.TILE_SIZE - GuiGuideBook.drawY + Y_TILE_DIFFERENCE;
+		if(research != null) {
+			visible = mc.player.hasCapability(ModCapabilities.PLAYER_RESEARCH_CAPABILITY, null) &&
+					mc.player.getCapability(ModCapabilities.PLAYER_RESEARCH_CAPABILITY, null).hasAllResearch(research.getDependencies());
+			if(visible) enabled = mc.player.getCapability(ModCapabilities.PLAYER_RESEARCH_CAPABILITY, null).hasResearch(research);
+		}
 		checkHovered(mouseX, mouseY);
-		if(locationX > -border.width && locationX < GuiGuideBook.DISPLAY_WIDTH && locationY > -border.height && locationY < GuiGuideBook.DISPLAY_HEIGHT) {
+		LavaSources.writeMessage(getClass(), "visible = " + visible + "\nresearch = " + research);
+		if(visible && locationX > -border.width && locationX < GuiGuideBook.DISPLAY_WIDTH && locationY > -border.height && locationY < GuiGuideBook.DISPLAY_HEIGHT) {
 			mc.renderEngine.bindTexture(border.texture.location);
 			int textX, textY, drawWidth, drawHeight, drawX ,drawY;
 			if(locationX <= 0){
@@ -141,6 +152,7 @@ public class ResearchButton extends ElementButton {
 				((float)textY + drawHeight)/border.texture.height
 			);
 			if (drawHeight > locDiffX && drawWidth > locDiffY) {
+				GuiLocation normalImage = getDrawLocation();
 				if(locationX + drawWidth >= GuiGuideBook.DISPLAY_WIDTH){
 					drawWidth -= locDiffX;
 					drawX += locDiffX;
@@ -173,6 +185,9 @@ public class ResearchButton extends ElementButton {
 					((float)textY + drawHeight)/normalImage.texture.height
 
 				);
+				if(!enabled){
+					drawGradientRect(drawX + getGuiLeft(), drawY + getGuiTop(), drawX + getGuiLeft() + drawWidth, drawY + getGuiTop() + drawHeight, 0x440f0f0f, 0x440f0f0f);
+				}
 			}
 		}
 	}

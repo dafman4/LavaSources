@@ -1,30 +1,15 @@
 package squedgy.lavasources.gui;
 
-import com.google.common.collect.Sets;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiLabel;
 import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraftforge.client.event.GuiContainerEvent;
-import net.minecraftforge.common.MinecraftForge;
-import squedgy.lavasources.LavaSources;
 import squedgy.lavasources.gui.elements.ElementSlot;
 import squedgy.lavasources.gui.elements.GuiElement;
 import squedgy.lavasources.helper.GuiLocation;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import static squedgy.lavasources.helper.GuiLocation.GuiLocations.default_gui;
