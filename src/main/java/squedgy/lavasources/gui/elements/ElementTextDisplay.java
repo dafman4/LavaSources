@@ -9,16 +9,22 @@ import java.util.List;
 public class ElementTextDisplay extends GuiElement {
 
 	private final List<String> lines;
+	private final boolean textShadow;
 
 	public ElementTextDisplay(ModGui drawer, int locationX, int locationY, int width, int height, IInventory container, List<String> lines) {
-		super(drawer, locationX, locationY, width, height, container);;
+		this(drawer, locationX, locationY, width, height, container, lines, false);
+	}
+
+	public ElementTextDisplay(ModGui drawer, int locationX, int locationY, int width, int height, IInventory container, List<String> lines, boolean shadow){
+		super(drawer, locationX, locationY, width, height, container);
 		this.lines = lines;
+		textShadow = shadow;
 	}
 
 	@Override
 	public void drawGuiElementForeground(int mouseX, int mouseY) {
 		for (int i = 0; i < lines.size(); i++) {
-			drawString(0 , mc.fontRenderer.FONT_HEIGHT * i, lines.get(i));
+			drawString( lines.get(i),0 , mc.fontRenderer.FONT_HEIGHT * i, textShadow);
 		}
 	}
 

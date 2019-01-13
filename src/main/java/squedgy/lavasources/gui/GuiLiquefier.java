@@ -1,6 +1,5 @@
 package squedgy.lavasources.gui;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraftforge.fluids.FluidRegistry;
@@ -46,7 +45,7 @@ public class GuiLiquefier extends ModGui {
 		addElement(new ElementFillable(this, 107, 5, INVENTORY, FLUIDS_AMOUNT.ordinal(), FLUID_CAPACITY.ordinal(), WIDE_FILL, () -> FluidRegistry.getFluidStack(ModFluids.LIQUID_REDSTONE.getName(), 0), fillable_wide));
 		String s = INVENTORY.getDisplayName().getUnformattedText();
 		int sWidth = fontRenderer.getStringWidth(s);
-		addElement(new ElementTextDisplay(this, xSize/4-sWidth/2, 6,sWidth, fontRenderer.FONT_HEIGHT, null, Arrays.asList(s)));
+		addElement(new ElementTextDisplay(this, 16, 6,sWidth, fontRenderer.FONT_HEIGHT, null, Arrays.asList(s)));
 		addElement(new ElementTextDisplay(this, 8, 40, fontRenderer.getStringWidth(PLAYER_INVENTORY.getDisplayName().getUnformattedComponentText()), fontRenderer.FONT_HEIGHT, null, Arrays.asList(PLAYER_INVENTORY.getDisplayName().getUnformattedComponentText()) ));
 
 	}

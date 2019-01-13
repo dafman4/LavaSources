@@ -27,6 +27,7 @@ import squedgy.lavasources.generic.recipes.ICoreModifierRecipe;
 import squedgy.lavasources.generic.tileentities.IPersistentInventory;
 import squedgy.lavasources.generic.tileentities.IUpgradeable;
 import squedgy.lavasources.helper.EnumConversions;
+import squedgy.lavasources.helper.StringUtils;
 import squedgy.lavasources.init.ModFluids;
 import squedgy.lavasources.init.ModItems;
 import squedgy.lavasources.inventory.ContainerCoreModifier;
@@ -327,7 +328,7 @@ public class TileEntityCoreModifier extends ModLockableTileEntity implements IUp
 		if(compound.hasKey(FLUIDS_TAG))fluids.deserializeNBT(compound.getCompoundTag(FLUIDS_TAG));
 		if(compound.hasKey(TICKS_TAG)) ticksFilling = compound.getInteger(TICKS_TAG);
 		if(compound.hasKey(MAKING_TAG)){
-			ResourceLocation location = new ResourceLocation(compound.getString(MAKING_TAG));
+			ResourceLocation location = StringUtils.getResourceLocation(LavaSources.MOD_ID, compound.getString(MAKING_TAG));
 			setMaking(RECIPES.stream().filter(r -> r.getRegistryName().equals(location)).findFirst().orElse(BLANK_RECIPE));
 		}
 		else

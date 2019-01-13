@@ -29,7 +29,6 @@ public class TileEntityLavaSource extends ModTileEntity implements ITickable, IU
 	private ModFluidTank fluids;
 	private EnumUpgradeTier tier;
 	private int requiredPower;
-	//stores 10,000 energy can transfer 2000/tick
 	private ModEnergyStorage energy;
 	private boolean destroyedByCreative;
 	
@@ -47,7 +46,7 @@ public class TileEntityLavaSource extends ModTileEntity implements ITickable, IU
 	}
 //</editor-fold>
 	
-//<editor-fold defaultstate="collapsed" desc=". . . . ITickable/Helpers">
+//<editor-fold defaultstate="collapsed" desc=". . . . ITickable">
 	
 	@Override
 	public void update() {
@@ -80,7 +79,6 @@ public class TileEntityLavaSource extends ModTileEntity implements ITickable, IU
 				if(fluids.getFluidAmount() == 0) break;
 			}
 		}
-		
 	}
 
 //</editor-fold>
@@ -178,16 +176,12 @@ public class TileEntityLavaSource extends ModTileEntity implements ITickable, IU
 //<editor-fold defaultstate="collapsed" desc=". . . . IUpgradeable Overrides">
 	
 	@Override
-	public EnumUpgradeTier getCurrentTier(){
-		return this.tier;
-	}
+	public EnumUpgradeTier getCurrentTier(){ return this.tier; }
 
 	@Override
 	public void setTier(EnumUpgradeTier tier){this.tier = tier;}
 
-	public void updateTierRelatedComponents(){
-		this.updateTierRelatedComponents(energy.getEnergyStored(), fluids.getFluidAmount());
-	}
+	public void updateTierRelatedComponents(){ this.updateTierRelatedComponents(energy.getEnergyStored(), fluids.getFluidAmount()); }
 
 	private void updateTierRelatedComponents(int energyHeld, int liquidHeld){
 		this.setLavaGenerated(tier.getFluidTier().GENERATED);

@@ -15,6 +15,7 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import squedgy.lavasources.creativetabs.CreativeTabLavaSources;
 import squedgy.lavasources.events.EventListener;
+import squedgy.lavasources.helper.StringUtils;
 import squedgy.lavasources.init.ModGuis;
 
 import java.util.Arrays;
@@ -56,12 +57,9 @@ public class LavaSources{
 		proxy.postInit();
 	}
 	
-	public static String getResourceName(String resourceName){ return LavaSources.MOD_ID + ":" + resourceName; }
+	public static String getResourceName(String resourceName){ return getResourceLocation(resourceName).toString(); }
 
-	public static ResourceLocation getResourceLocation(String resourceName){
-		if(resourceName.indexOf(':') > 0) return new ResourceLocation(resourceName);
-		return new ResourceLocation(MOD_ID, resourceName);
-	}
+	public static ResourceLocation getResourceLocation(String resourceName){ return StringUtils.getResourceLocation(MOD_ID, resourceName); }
 	
 	public static void writeMessage( Class clazz, String message){
 		if(logger != null) {

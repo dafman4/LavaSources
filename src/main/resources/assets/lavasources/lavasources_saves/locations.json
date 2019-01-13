@@ -128,8 +128,8 @@
 			"textureX": 0,
 			"textureY": 0,
 			"name": "lavasources:book_base",
-			"width": 197,
-			"height": 177
+			"width": 227,
+			"height": 202
 		},
 		{
 			"image": "#scrollable",
@@ -149,7 +149,7 @@
 		},
 		{
 			"image":"#page_images",
-			"textureX":100,
+			"textureX":166,
 			"textureY":0,
 			"name":"page_test_image",
 			"width":90,
@@ -160,7 +160,7 @@
 			"textureX":0,
 			"textureY":0,
 			"name":"book_partial",
-			"width":100,
+			"width":119,
 			"height":160
 		},
 		{

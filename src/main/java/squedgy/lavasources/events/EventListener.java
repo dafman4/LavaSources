@@ -113,7 +113,7 @@ public class EventListener {
 					if(!"json".equals(FilenameUtils.getExtension(file.toString())) || relative.startsWith("_"))
 						return true;
 					String name = FilenameUtils.removeExtension(relative).replaceAll("\\\\","/");
-					ResourceLocation key = new ResourceLocation(context.getModId(), name);
+					ResourceLocation key = StringUtils.getResourceLocation(context.getModId(), name);
 
 					BufferedReader reader = null;
 					try{
@@ -175,7 +175,7 @@ public class EventListener {
 					if(!"json".equals(FilenameUtils.getExtension(file.toString())) || relative.startsWith("_"))
 						return true;
 					String name = FilenameUtils.removeExtension(relative).replaceAll("\\\\","/");
-					ResourceLocation key = new ResourceLocation(context.getModId(), name);
+					ResourceLocation key = StringUtils.getResourceLocation(context.getModId(), name);
 
 					BufferedReader reader = null;
 					try{
@@ -211,7 +211,7 @@ public class EventListener {
 				ret.add(
 						new GuiLocation(
 								wrapper,
-								new ResourceLocation(name.indexOf(':') < 0 ? context.getModId() + ":" + name : name),
+								StringUtils.getResourceLocation(context, name),
 								width,
 								height,
 								textureX,
@@ -246,7 +246,7 @@ public class EventListener {
 					if(!"json".equals(FilenameUtils.getExtension(file.toString())) || relative.startsWith("_"))
 						return true;
 					String name = FilenameUtils.removeExtension(relative).replaceAll("\\\\","/");
-					ResourceLocation key = new ResourceLocation(context.getModId(), name);
+					ResourceLocation key = StringUtils.getResourceLocation(context.getModId(), name);
 
 					BufferedReader reader = null;
 					try{
@@ -273,11 +273,11 @@ public class EventListener {
 		for(int i = 0; i < a.size(); i++){
 			JsonObject recipe = a.get(i).getAsJsonObject();
 			String fluidName = JsonUtils.getString(recipe, "fluid");
-			ItemStack output = GameRegistry.findRegistry(Item.class).getValue(new ResourceLocation(JsonUtils.getString(recipe, "output"))).getDefaultInstance();
+			ItemStack output = GameRegistry.findRegistry(Item.class).getValue(StringUtils.getResourceLocation(context, JsonUtils.getString(recipe, "output"))).getDefaultInstance();
 			int requiredEnergy = JsonUtils.getInt(recipe, "energy", 0), fluidAmount = JsonUtils.getInt(recipe, "fluidAmount", 0);
 			String name = JsonUtils.getString(recipe, "name");
 			if(FluidRegistry.isFluidRegistered(fluidName)){
-				ret.add(new CoreModifierRecipe(new ResourceLocation(name.indexOf(':') < 0 ? LavaSources.MOD_ID + ":" + name : name), output, FluidRegistry.getFluidStack(fluidName, fluidAmount), requiredEnergy));
+				ret.add(new CoreModifierRecipe(StringUtils.getResourceLocation(context, name), output, FluidRegistry.getFluidStack(fluidName, fluidAmount), requiredEnergy));
 			}else throw new IllegalArgumentException("There was an issue with an unregistered fluid: " + fluidName);
 		}
 
@@ -308,7 +308,7 @@ public class EventListener {
 					if(!"json".equals(FilenameUtils.getExtension(file.toString())) || relative.startsWith("_"))
 						return true;
 					String name = FilenameUtils.removeExtension(relative).replaceAll("\\\\","/");
-					ResourceLocation key = new ResourceLocation(context.getModId(), name);
+					ResourceLocation key = StringUtils.getResourceLocation(context.getModId(), name);
 
 					BufferedReader reader = null;
 					try{
@@ -374,7 +374,7 @@ public class EventListener {
 					Loader.instance().setActiveModContainer(mod);
 
 					String name = FilenameUtils.removeExtension(root.relativize(file).toString()).replaceAll("\\\\","/");
-					ResourceLocation key = new ResourceLocation(context.getModId(), name);
+					ResourceLocation key = StringUtils.getResourceLocation(context.getModId(), name);
 
 					BufferedReader reader = null;
 					try{
@@ -407,7 +407,7 @@ public class EventListener {
 				String[] depends = new String[dependencies.size()];
 				for(int f = 0; f < dependencies.size(); f++) depends[f] = dependencies.get(f).getAsJsonPrimitive().getAsString();
 				ret.add(
-						new Research(name, key, depends)
+						new Research(name, StringUtils.getResourceLocation(context,key), depends)
 				);
 			}else LavaSources.writeMessage(ModResearch.class, "There was an issue turning the following json object into a location: " + location.toString());
 		}
@@ -437,7 +437,7 @@ public class EventListener {
 
 					String relative = root.relativize(file).toString();
 					String name = FilenameUtils.removeExtension(relative).replaceAll("\\\\","/");
-					ResourceLocation key = new ResourceLocation(context.getModId(), name);
+					ResourceLocation key = StringUtils.getResourceLocation(context.getModId(), name);
 
 					BufferedReader reader = null;
 					try{
@@ -472,7 +472,7 @@ public class EventListener {
 				ResearchButton[] depends = new ResearchButton[dependencies.size()];
 				for(int f = 0; f < dependencies.size(); f++) depends[f] = getResearchButtonFromJsonObject(dependencies.get(f).getAsJsonObject(), mod, context);
 				ret.add(
-						new ResearchTab(name, width, height, key, depends)
+						new ResearchTab(name, width, height, StringUtils.getResourceLocation(context,key), depends)
 				);
 			}else LavaSources.writeMessage(ModResearch.class, "There was an issue turning the following json object into a location: " + location.toString());
 		}
@@ -512,7 +512,7 @@ public class EventListener {
 					Loader.instance().setActiveModContainer(mod);
 					String relative = root.relativize(file).toString();
 					String name = FilenameUtils.removeExtension(relative).replaceAll("\\\\","/");
-					ResourceLocation key = new ResourceLocation(context.getModId(), name);
+					ResourceLocation key = StringUtils.getResourceLocation(context.getModId(), name);
 
 					BufferedReader reader = null;
 					try{

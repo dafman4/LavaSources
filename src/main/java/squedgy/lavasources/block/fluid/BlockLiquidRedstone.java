@@ -12,7 +12,7 @@ public class BlockLiquidRedstone extends BlockFluidClassic {
         super(ModFluids.LIQUID_REDSTONE, Material.WATER);
         this.setCreativeTab(LavaSources.CREATIVE_TAB);
         this.setUnlocalizedName("liquid_redstone");
-        this.setRegistryName(LavaSources.MOD_ID, "lava_sources");
+        this.setRegistryName(LavaSources.MOD_ID, "liquid_redstone");
         ModFluids.LIQUID_REDSTONE.setBlock(this);
     }
 

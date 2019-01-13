@@ -10,7 +10,6 @@ import net.minecraftforge.common.crafting.JsonContext;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import squedgy.lavasources.helper.RecipeHelper;
 import squedgy.lavasources.research.Research;
-import squedgy.lavasources.research.ResearchUtil;
 
 import java.util.ArrayList;
 
@@ -25,7 +24,7 @@ public class RecipeFactory<T extends IRecipe> implements IRecipeFactory {
 	public static class ResearchReturn implements Returnable<Research> {
 		@Override
 		public Research getItem(int i, JsonArray arr) {
-			if(isPrimitive(arr.get(i))) return ResearchUtil.getResearch(arr.get(i).getAsJsonPrimitive().getAsString());
+			if(isPrimitive(arr.get(i))) return Research.getResearch(arr.get(i).getAsJsonPrimitive().getAsString());
 			return null;
 		}
 

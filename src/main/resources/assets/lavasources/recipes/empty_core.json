@@ -1,5 +1,5 @@
 {
-	"type":"forge:ore_shaped",
+	"type":"lavasources:research_recipe_shaped",
 	"pattern":[
 		"#X#",
 		"X X",
@@ -16,6 +16,9 @@
 	},
 	"result":{
 		"item":"lavasources:empty_core"
-	}
+	},
+	"required":[
+		"test"
+	]
 }
 

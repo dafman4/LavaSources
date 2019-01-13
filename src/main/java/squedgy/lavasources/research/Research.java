@@ -20,9 +20,8 @@ public class Research extends IForgeRegistryEntry.Impl<Research>{
 	private final List<Research> DEPENDENCIES = new ArrayList<>();
 	private final String[] research_names;
 
-	public Research(String name, String key, String... dependencies){
-		if(key.indexOf(':') < 0)setRegistryName(LavaSources.MOD_ID, key);
-		else setRegistryName(key);
+	public Research(String name, ResourceLocation key, String... dependencies){
+		setRegistryName(key);
 		research_names = dependencies;
 		this.displayName = name;
 	}

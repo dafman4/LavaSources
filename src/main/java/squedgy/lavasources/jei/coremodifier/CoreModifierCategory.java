@@ -13,7 +13,7 @@ import squedgy.lavasources.jei.ModCategory;
 import squedgy.lavasources.jei.ingredients.EnergyIngredient;
 import squedgy.lavasources.jei.ingredients.CoreModifierFluidRenderer;
 
-import static squedgy.lavasources.api.jei.LavaSourcesJeiConstants.CORE_MODIFIER_CATEGORY;
+import static squedgy.lavasources.api.constants.LavaSourcesConstants.Jei.CORE_MODIFIER_CATEGORY;
 
 public class CoreModifierCategory extends ModCategory<CoreModifierWrapper> {
 

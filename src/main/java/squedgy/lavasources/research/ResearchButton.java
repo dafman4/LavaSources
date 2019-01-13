@@ -48,7 +48,8 @@ public class ResearchButton extends ElementButton {
 	public void displayToolTip(int mouseX, int mouseY) {
 		if(description == null)
 			description = mc.fontRenderer.listFormattedStringToWidth(buttonText, width * 10);
-		if(enabled) GuiUtils.drawHoveringText((description), mouseX -getGuiLeft(), mouseY - getGuiTop(), mc.currentScreen.width, mc.currentScreen.height, width*12, mc.fontRenderer);
+		LavaSources.writeMessage(getClass(), "mouseX: " + mouseX + ", guiLeft: " + getGuiLeft() + "\nmouseY: " + mouseY + ", guiTop: " + getGuiTop());
+		if(enabled) GuiUtils.drawHoveringText((description), mouseX - getGuiLeft() + 10, mouseY - mc.fontRenderer.FONT_HEIGHT/2, mc.currentScreen.width, mc.currentScreen.height, width*12, mc.fontRenderer);
 	}
 
 	@Override
@@ -118,7 +119,6 @@ public class ResearchButton extends ElementButton {
 			if(visible) enabled = mc.player.getCapability(ModCapabilities.PLAYER_RESEARCH_CAPABILITY, null).hasResearch(research);
 		}
 		checkHovered(mouseX, mouseY);
-		LavaSources.writeMessage(getClass(), "visible = " + visible + "\nresearch = " + research);
 		if(visible && locationX > -border.width && locationX < GuiGuideBook.DISPLAY_WIDTH && locationY > -border.height && locationY < GuiGuideBook.DISPLAY_HEIGHT) {
 			mc.renderEngine.bindTexture(border.texture.location);
 			int textX, textY, drawWidth, drawHeight, drawX ,drawY;
@@ -262,7 +262,5 @@ public class ResearchButton extends ElementButton {
 	}
 
 	@Override
-	public int getGuiTop() {
-		return super.getGuiTop() + GuiGuideBook.BACKGROUND_Y;
-	}
+	public int getGuiTop() { return super.getGuiTop() + GuiGuideBook.BACKGROUND_Y; }
 }

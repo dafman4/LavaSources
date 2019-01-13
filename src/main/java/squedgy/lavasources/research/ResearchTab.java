@@ -19,16 +19,15 @@ public class ResearchTab  extends IForgeRegistryEntry.Impl<ResearchTab>{
 	private GuiLocation tabBackground;
 	private final int height, width;
 
-	public ResearchTab(String tabName, int width, int height,  String resourceLocation, GuiLocation background, ResearchButton... buttons){
+	public ResearchTab(String tabName, int width, int height,  ResourceLocation resourceLocation, GuiLocation background, ResearchButton... buttons){
 		TAB_NAME = tabName;
 		tabBackground = background;
 		RELATED_RESEARCH.addAll(Arrays.asList(buttons));
-		if(resourceLocation.indexOf(':') < 0) setRegistryName(LavaSources.MOD_ID, resourceLocation);
-		else setRegistryName(resourceLocation);
+		setRegistryName(resourceLocation);
 		this.height = height;
 		this.width = width;
 	}
-	public  ResearchTab(String tabName,int width, int height, String resourceLocation, ResearchButton... buttons){ this(tabName, width, height, resourceLocation, GuiLocation.getGuiLocation("default_scrollable_background"), buttons); }
+	public  ResearchTab(String tabName,int width, int height, ResourceLocation resourceLocation, ResearchButton... buttons){ this(tabName, width, height, resourceLocation, GuiLocation.getGuiLocation("default_scrollable_background"), buttons); }
 
 //</editor-fold>
 

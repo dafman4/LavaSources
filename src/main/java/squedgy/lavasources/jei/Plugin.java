@@ -7,9 +7,7 @@ import mezz.jei.api.JEIPlugin;
 import mezz.jei.api.ingredients.IModIngredientRegistration;
 import mezz.jei.api.recipe.IRecipeCategoryRegistration;
 import mezz.jei.api.recipe.VanillaRecipeCategoryUid;
-import squedgy.lavasources.LavaSources;
-import squedgy.lavasources.api.jei.LavaSourcesJeiConstants;
-import squedgy.lavasources.block.ModBlock;
+import squedgy.lavasources.api.constants.LavaSourcesConstants;
 import squedgy.lavasources.crafting.recipes.ResearchBlockedRecipe;
 import squedgy.lavasources.crafting.recipes.ResearchBlockedShapedRecipe;
 import squedgy.lavasources.enums.EnumEnergyTier;
@@ -50,13 +48,13 @@ public class Plugin implements IModPlugin {
 
 		registry.handleRecipes(ResearchBlockedShapedRecipe.class, new HandlerAndFactory<>(ResearchBlockedShapedRecipe.class, ResearchBlockedShapedRecipeWrapper::new), VanillaRecipeCategoryUid.CRAFTING);
 		registry.handleRecipes(ResearchBlockedRecipe.class, new HandlerAndFactory<>(ResearchBlockedRecipe.class, ResearchBlockedRecipeWrapper::new), VanillaRecipeCategoryUid.CRAFTING);
-		registry.handleRecipes(ICoreModifierRecipe.class, new CoreModifierFactory(), LavaSourcesJeiConstants.CORE_MODIFIER_CATEGORY);
-		registry.handleRecipes(ILiquefierRecipe.class, new LiquefierWrapper.Factory(), LavaSourcesJeiConstants.LIQUEFIER_CATEGORY);
+		registry.handleRecipes(ICoreModifierRecipe.class, new CoreModifierFactory(), LavaSourcesConstants.Jei.CORE_MODIFIER_CATEGORY);
+		registry.handleRecipes(ILiquefierRecipe.class, new LiquefierWrapper.Factory(), LavaSourcesConstants.Jei.LIQUEFIER_CATEGORY);
 
-		registry.addRecipes(ModRegistries.CORE_MODIFIER_RECIPE_REGISTRY.getValuesCollection(), LavaSourcesJeiConstants.CORE_MODIFIER_CATEGORY);
-		registry.addRecipes(ModRegistries.LIQUEFIER_RECIPE_REGISTRY.getValuesCollection(), LavaSourcesJeiConstants.LIQUEFIER_CATEGORY);;
-		registry.addRecipeCatalyst(ModBlocks.ITEM_BLOCKS.get(ModBlocks.BLOCKS.get(ModBlocks.CORE_MODIFIER)).getDefaultInstance(), LavaSourcesJeiConstants.CORE_MODIFIER_CATEGORY);
-		registry.addRecipeCatalyst(ModBlocks.ITEM_BLOCKS.get(ModBlocks.BLOCKS.get(ModBlocks.LIQUEFIER)).getDefaultInstance(), LavaSourcesJeiConstants.LIQUEFIER_CATEGORY);
+		registry.addRecipes(ModRegistries.CORE_MODIFIER_RECIPE_REGISTRY.getValuesCollection(), LavaSourcesConstants.Jei.CORE_MODIFIER_CATEGORY);
+		registry.addRecipes(ModRegistries.LIQUEFIER_RECIPE_REGISTRY.getValuesCollection(), LavaSourcesConstants.Jei.LIQUEFIER_CATEGORY);;
+		registry.addRecipeCatalyst(ModBlocks.ITEM_BLOCKS.get(ModBlocks.BLOCKS.get(ModBlocks.CORE_MODIFIER)).getDefaultInstance(), LavaSourcesConstants.Jei.CORE_MODIFIER_CATEGORY);
+		registry.addRecipeCatalyst(ModBlocks.ITEM_BLOCKS.get(ModBlocks.BLOCKS.get(ModBlocks.LIQUEFIER)).getDefaultInstance(), LavaSourcesConstants.Jei.LIQUEFIER_CATEGORY);
 	}
 
 }

@@ -46,7 +46,7 @@ public class GuiLocation extends IForgeRegistryEntry.Impl<GuiLocation> {
 	}
 
 	public static ResourceLocation getResourceLocation(String path){return getRegistryLocation("textures/gui/" + path);}
-	public static ResourceLocation getRegistryLocation(String name){ return new ResourceLocation(LavaSources.MOD_ID, name); }
+	public static ResourceLocation getRegistryLocation(String name){ return StringUtils.getResourceLocation(LavaSources.MOD_ID, name); }
 
 	@ObjectHolder(LavaSources.MOD_ID)
 	public static class TextureWrappers{
@@ -91,7 +91,7 @@ public class GuiLocation extends IForgeRegistryEntry.Impl<GuiLocation> {
 		public final int height, width;
 
 		public TextureWrapper(ResourceLocation location, String registry, int width, int height){
-			this(location, new ResourceLocation(registry.indexOf(':') > 0 ? registry : LavaSources.MOD_ID + ":" + registry), width, height);
+			this(location, StringUtils.getResourceLocation(LavaSources.MOD_ID, registry), width, height);
 		}
 
 		public TextureWrapper(ResourceLocation location, ResourceLocation registry, int width, int height){

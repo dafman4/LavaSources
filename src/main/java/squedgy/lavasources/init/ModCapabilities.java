@@ -23,7 +23,7 @@ public class ModCapabilities {
 
 		@SubscribeEvent
 		public static void registerCapabilities(AttachCapabilitiesEvent<Entity> event){
-			if(event.getObject() instanceof EntityPlayer) event.addCapability(new ResourceLocation(LavaSources.MOD_ID, "playerResearch"), new PlayerResearchCapability.Provider());
+			if(event.getObject() instanceof EntityPlayer) event.addCapability(new ResourceLocation(LavaSources.MOD_ID, "player_research"), new PlayerResearchCapability.Provider());
 		}
 
 		public static void loadCapabilities(){

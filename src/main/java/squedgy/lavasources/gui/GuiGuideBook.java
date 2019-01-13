@@ -13,7 +13,7 @@ import java.io.IOException;
 
 public class GuiGuideBook extends ModGui {
 //<editor-fold defaultstate="collapsed" desc=". . . . Fields/Constructors">
-	public static final int DISPLAY_WIDTH = 180, DISPLAY_HEIGHT = 160, TILE_SIZE = 20, BACKGROUND_X = 8, BACKGROUND_Y = 8;
+	public static final int DISPLAY_WIDTH = 210, DISPLAY_HEIGHT = 160, TILE_SIZE = 20, BACKGROUND_X = 8, BACKGROUND_Y = 8;
 	private int fullWidth, fullHeight, currentMouseX, currentMouseY, maxDrawX, maxDrawY;
 	public static int drawX = 0, drawY = 0;
 	private ResearchTab tabOpen;
@@ -44,11 +44,11 @@ public class GuiGuideBook extends ModGui {
 	protected void drawBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
 		GuiLocation background = tabOpen.getTabBackground();
 		mc.renderEngine.bindTexture(background.texture.location);
-		int xDrawAmount = (xSize - BACKGROUND_X*2)/background.width, yDrawAmount = (ySize - BACKGROUND_Y*2)/background.height;
+		int xDrawAmount = (DISPLAY_WIDTH)/background.width, yDrawAmount = (DISPLAY_HEIGHT)/background.height;
 		int xDraws, yDraws;
 		for(xDraws = 0 ; xDraws <= xDrawAmount; xDraws++){
-			int drawWidth = Math.min(background.width, (xSize - BACKGROUND_X*2) - background.width * xDraws),
-				drawHeight = Math.min(background.width, ySize - BACKGROUND_Y*2);//yDraws will be zero once the loop starts, and I want to set it for afterwards
+			int drawWidth = Math.min(background.width, (DISPLAY_WIDTH) - background.width * xDraws),
+				drawHeight = Math.min(background.width, DISPLAY_HEIGHT);//yDraws will be zero once the loop starts, and I want to set it for afterwards
 			for(yDraws = 0 ; yDraws < yDrawAmount; yDraws++){
 				drawTexturedModalRect(
 						background.width * xDraws + BACKGROUND_X + guiLeft,
@@ -59,7 +59,7 @@ public class GuiGuideBook extends ModGui {
 						drawHeight
 				);
 				//this is so that we can keep using it for the final draw
-				drawHeight = Math.min(background.height, (ySize - BACKGROUND_Y*2) - background.height * (yDraws+1));
+				drawHeight = Math.min(background.height, (DISPLAY_HEIGHT) - background.height * (yDraws+1));
 			}
 			drawTexturedModalRect(
 					background.width * xDraws + BACKGROUND_X + guiLeft,
@@ -126,6 +126,16 @@ public class GuiGuideBook extends ModGui {
 		else if(drawX > maxDrawX) drawX = maxDrawX;
 		if(drawY < 0) drawY = 0;
 		else if(drawY > maxDrawY) drawY = maxDrawY;
+	}
+
+	@Override
+	public int getXSize() {
+		return DISPLAY_WIDTH + BACKGROUND_X * 2;
+	}
+
+	@Override
+	public int getYSize() {
+		return DISPLAY_HEIGHT + BACKGROUND_Y * 2;
 	}
 
 	//</editor-fold>

@@ -4,15 +4,12 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 import squedgy.lavasources.init.ModCapabilities;
 import squedgy.lavasources.research.Research;
-import squedgy.lavasources.research.ResearchUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 public class PlayerResearchCapability implements IPlayerResearchCapability {
@@ -47,7 +44,7 @@ public class PlayerResearchCapability implements IPlayerResearchCapability {
 	@Override
 	public void deserializeNBT(NBTTagCompound nbt) {
 		RESEARCH.clear();
-		for(String s : nbt.getKeySet()) RESEARCH.add(ResearchUtil.getResearch(s));
+		for(String s : nbt.getKeySet()) RESEARCH.add(Research.getResearch(s));
 	}
 
 	public static class Provider implements ICapabilitySerializable<NBTTagCompound>{

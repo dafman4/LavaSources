@@ -1,5 +1,5 @@
 {
-	"type":"forge:ore_shaped",
+	"type":"lavasources:research_recipe_shaped",
 	"pattern":[
 		"#X#",
 		"XDX",
@@ -20,5 +20,8 @@
 	},
 	"result":{
 		"item":"lavasources:energy_generator"
-	}
+	},
+	"required":[
+		"test"
+	]
 }

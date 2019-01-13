@@ -10,6 +10,7 @@ import net.minecraftforge.oredict.OreIngredient;
 import squedgy.lavasources.LavaSources;
 import squedgy.lavasources.generic.recipes.ILiquefierRecipe;
 import net.minecraftforge.registries.IForgeRegistryEntry.Impl;
+import squedgy.lavasources.helper.StringUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -32,7 +33,7 @@ public class LiquefierRecipe extends Impl<ILiquefierRecipe> implements ILiquefie
 	}
 
 	public LiquefierRecipe(String name, FluidStack fluidCreated, OreIngredient input, int output){
-		this(new ResourceLocation(name.indexOf(':') > 0 ? name : LavaSources.MOD_ID + ":" + name), fluidCreated, input, output);
+		this(StringUtils.getResourceLocation(LavaSources.MOD_ID, name), fluidCreated, input, output);
 	}
 
 

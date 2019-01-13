@@ -16,6 +16,7 @@ import net.minecraftforge.client.event.GuiContainerEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fluids.FluidStack;
 import org.lwjgl.opengl.GL11;
+import squedgy.lavasources.api.constants.LavaSourcesConstants;
 import squedgy.lavasources.gui.ModGui;
 import squedgy.lavasources.helper.GuiLocation;
 
@@ -53,14 +54,6 @@ public abstract class GuiElement{
 		);
 	}
 
-	protected final void drawString(int xAddition, int yAddition, String toDraw){
-		drawString(xAddition, yAddition, toDraw, 0x404040);
-	}
-
-	protected final void drawString(int xAddition, int yAddition, String toDraw, int color){
-		drawer.getFontRenderer().drawString(toDraw, locationX + xAddition, locationY + yAddition, color);
-	}
-
 	protected final void drawTexturedModal(int xAddition, int yAddition, GuiLocation toDraw){
 		drawTexturedModal(xAddition, yAddition, toDraw.textureX, toDraw.textureY, toDraw.width, toDraw.height);
 	}
@@ -77,11 +70,15 @@ public abstract class GuiElement{
 	}
 
 	protected final void drawString(String toDraw, int xAddition, int yAddition){
-		drawString(toDraw, xAddition, yAddition, 0xff040404);
+		drawString(toDraw, xAddition, yAddition, LavaSourcesConstants.Gui.DEFAULT_TEXT_COLOR, false);
 	}
 
-	protected final void drawString(String toDraw, int xAddition, int yAddition, int color){
-		drawer.drawString(mc.fontRenderer, toDraw, locationX + xAddition, locationY + yAddition, color);
+	protected final void drawString(String toDraw, int xAddition, int yAddition, int color, boolean shadow){
+		mc.fontRenderer.drawString(toDraw, locationX + xAddition, locationY + yAddition, color, shadow);
+	}
+
+	protected final void drawString(String toDraw, int xAddition, int yAddition, boolean shadow){
+		drawString(toDraw, xAddition, yAddition, LavaSourcesConstants.Gui.DEFAULT_TEXT_COLOR, shadow);
 	}
 
 	protected final void bindTexture(GuiLocation texture){ bindTexture(texture.texture.location); }

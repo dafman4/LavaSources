@@ -9,10 +9,9 @@ import net.minecraft.util.text.TextComponentTranslation;
 import squedgy.lavasources.LavaSources;
 import squedgy.lavasources.init.ModBlocks;
 import squedgy.lavasources.jei.ModCategory;
-import squedgy.lavasources.jei.ingredients.CoreModifierFluidRenderer;
 import squedgy.lavasources.jei.ingredients.LiquefierFluidRenderer;
 
-import static squedgy.lavasources.api.jei.LavaSourcesJeiConstants.LIQUEFIER_CATEGORY;
+import static squedgy.lavasources.api.constants.LavaSourcesConstants.Jei.LIQUEFIER_CATEGORY;
 
 public class LiquefierCategory extends ModCategory<LiquefierWrapper> {
 
